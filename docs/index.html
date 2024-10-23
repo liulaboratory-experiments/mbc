@@ -105,8 +105,9 @@
     data: { trial_id: 'practice_feedback'}
   };
 
-    var mentalItems = ['feel happy', 'detect sounds']
+    var cognitiveItems = ['feel happy', 'detect sounds']
     var physicalItems = ['sit down', 'take a walk']
+    var physiologicalItems = ['feeling sick', 'feeling tired']
 
     //create all possible pairs
     var pairs = [];
@@ -168,6 +169,7 @@
 
   var mentalItems_2 = ['getting hungry', 'reason about things']
   var physicalItems_2 = ['dancing', 'kick one`s feet']
+  var physiologicalItems_2 = ['feeling x', 'feeling y']
     //reate all possible pairs
     var pairs_2 = [];
     for (var i = 0; i < mentalItems_2.length; i++) {
@@ -287,7 +289,7 @@
     // on_finish: function() { jsPsych.setProgressBar(1.0); }
 };
 
-    jsPsych.run([practice, consent, instructions, practice, practice_feedback, trials, attention_check, trials_2, feedback_demographics]);
+    jsPsych.run([consent, instructions, practice, practice_feedback, trials, attention_check, trials_2, feedback_demographics]);
 
   </script>
 </html>
