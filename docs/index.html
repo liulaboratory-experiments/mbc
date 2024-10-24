@@ -68,30 +68,28 @@
 
     var instructions = {
       type: jsPsychInstructions,
-      pages: ['<p>Welcome to the experiment.' +
-        '<br>In this experiment you will see pairs of events.' +
-        '<br>Each event describes something a person might experience, ' +
-        'like feeling love or hearing a sound.' +
-        '<br>Your task is to decide if experiencing one event could cause the other to happen.' +
-        '<br>We’ll start with a quick practice round. Click “Next” when you’re ready.</p>'
+      pages: ['<br>In this game, you will see two things that might ' +
+        'happen to a person. <br> For example, someone might feel happy or hear a noise.' +
+        '<br>Your job is to tell us if one thing could make the other thing happen.' +
+        '<br>We will do a quick practice round first. When you’re ready, click "Next"'
       ],
       show_clickable_nav: true
     };
 
     ///var slider_labels = ['Definitely not', 'Unlikely', 'Possibly', 'Likely', 'Definitely yes']
     var slider_labels = ['Definitely not', 'Very slightly', 'Slightly', 'Somewhat', 'Quite a bit', 'Very much', 'Definitely yes']
+    var width = 1000
 
     var practice = {
     type: jsPsychHtmlSliderResponse,
         stimulus: `<div style="margin-bottom: 50px; text-align: center;">
-                  <p>To what extent do you agree with the statement below? </div>
                     <p style="font-size: 32px">Can&nbsp;&nbsp;<strong>feeling safe</strong>&nbsp;&nbsp;&nbsp;
-                    <span style="font-size: 32px;">cause someone to start&nbsp;&nbsp;&nbsp;</span>
-                    <strong>feeling nauseated?</strong></p>`,
+                    <span style="font-size: 32px;">cause someone to &nbsp;&nbsp;&nbsp;</span>
+                    <strong>feel nauseated?</strong></p>`,
         labels: slider_labels,
         slider_width: 1000,
         require_movement: true,
-        prompt: '<p>Note: We’re not asking if event X <em>always</em> causes event Y. We just want to know if you think <em>it is possible</em> for event X to cause event Y.</p>',
+        prompt: '<p>Note: We’re not asking if one thing always makes the other happen. We just want to know if you think one thing <em> can</em> make the other happen </p>',
         data: {
           trial_id: 'practice_round'
         }
@@ -99,15 +97,15 @@
 
     var practice_feedback = {
     type: jsPsychInstructions,
-    pages: ['<p>Great! You are ready to start the experiment. Click next to begin.</p>'],
+    pages: ['<p>Great! You are ready to start the game. Click next to begin.</p>'],
     show_clickable_nav: true,
     data: { trial_id: 'practice_feedback'}
   };
 
-// Function to create pairs and conditions remains the same
-var cognitive = ['remembering something', 'hearing something', 'thinking about something', 'choosing what to do', 'seeing something'];
-var physical = ['reaching for something', 'sitting down', 'taking a walk', 'kicking something', 'jumping up and down'];
-var physiological = ['feeling hungry', 'feeling tired', 'feeling sick', 'feeling pain', 'feeling scared'];
+
+var cognitive = ['remember something', 'hear something', 'think about something', 'choose what to do', 'see something'];
+var physical = ['reach for something', 'sit down', 'take a walk', 'kick something', 'jump up and down'];
+var physiological = ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared'];
 
 // Combine all categories into one object
 var categories = {
@@ -116,7 +114,28 @@ var categories = {
   physiological: physiological
 };
 
-// Function to create pairs remains unchanged
+// Function to add "ing" correctly to the first item dynamically
+function addIng(item) {
+  if (item.startsWith("feel")) {
+    return item.replace("feel", "feeling");
+  } else if (item === "hear something") {
+    return "hearing something";
+  } else if (item === "sit down") {
+    return "sitting down";
+  } else if (item === "reach for something") {
+    return "reaching for something";
+  } else if (item === "jump up and down") {
+    return "jumping up and down";
+  } else if (item === "take a walk") {
+    return "taking a walk";
+  } else if (item.startsWith("choose")) {
+    return item.replace("choose", "choosing");
+  } else {
+    return item.replace(/(\w+)(\s.*)/, "$1ing$2");
+  }
+}
+
+// Function to create pairs
 function createPairs(categories) {
   var pairs = [];
   var categoryKeys = Object.keys(categories);
@@ -196,8 +215,8 @@ var participantPairs = assignToCondition(conditions);
 var attentionCheck1 = {
   type: jsPsychHtmlSliderResponse,
   stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move the slider all the way to the&nbsp;&nbsp;<strong>left</strong></p>`,
-  labels: ['Not at all', 'Very slightly', 'Slightly', 'Somewhat', 'Quite a bit', 'Very much', 'Definitely'],
-  slider_width: 1000,
+  labels: slider_labels,
+  slider_width: width,
   require_movement: true,
   data: { trial_id: 'attention_check_1' },
   on_finish: function(data) {
@@ -209,7 +228,7 @@ var attentionCheck2 = {
   type: jsPsychHtmlSliderResponse,
   stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider to&nbsp;&nbsp;<strong>Quite a bit</strong></p>`,
   labels: slider_labels,
-  slider_width: 1000,
+  slider_width: width,
   require_movement: true,
   data: { trial_id: 'attention_check_2' },
   on_finish: function(data) {
@@ -221,11 +240,11 @@ var attentionCheck3 = {
   type: jsPsychHtmlSliderResponse,
   stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider all the way to the&nbsp;&nbsp;<strong>right</strong></p>`,
   labels: slider_labels,
-  slider_width: 1000,
+  slider_width: width,
   require_movement: true,
   data: { trial_id: 'attention_check_3' },
   on_finish: function(data) {
-    data.correct = data.response === 1; // Check if the response was all the way to the right
+    data.correct = data.response === 6; // Check if the response was all the way to the right
   }
 };
 
@@ -239,11 +258,12 @@ function insertAttentionChecks(trials) {
 
 // Create trials for the participant's condition
 var trials = participantPairs.map(function(pair, index) {
+  var itemAWithIng = addIng(pair.itemA); // Append "ing" to the first item
   return {
     type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 32px;">Can&nbsp;&nbsp;<strong>${pair.itemA}</strong>&nbsp;&nbsp;cause someone to start&nbsp;&nbsp;<strong>${pair.itemB}</strong>?</p>`,
+    stimulus: `<p style="font-size: 32px;">Does <strong>${itemAWithIng}</strong> cause someone to <strong>${pair.itemB}</strong>?</p>`,
     labels: slider_labels,
-    slider_width: 1000,
+    slider_width: width,
     require_movement: true,
     data: {
       trial_id: 'causal_trial_' + (index + 1),
@@ -257,6 +277,7 @@ var trials = participantPairs.map(function(pair, index) {
 
 // Insert the attention checks
 trials = insertAttentionChecks(trials);
+
 
     feedback_demographics = {
     type: jsPsychSurveyHtmlForm,
