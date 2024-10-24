@@ -6,26 +6,77 @@
     <script src="jspsych/dist/plugin-html-button-response.js"></script>
     <script src="jspsych/dist/plugin-html-slider-response.js"></script>
     <script src="jspsych/dist/plugin-survey-html-form.js"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
     <link rel="stylesheet" href="jspsych/dist/jspsych.css">
     <style>
       img {
         width: 300px;
       }
+
+      #quitButton {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      padding: 10px;
+      background-color: white;
+      color: black;
+      border: 2px solid black;
+      cursor: pointer;
+      font-size: 16px;
+    }
     </style>
   </head>
   <body></body>
+
+  <button id="quitButton">Quit</button>
+
   <script>
 
-    var jsPsych = initJsPsych({
+    // Add an event listener to the Quit button to trigger abortExperiment
+document.getElementById('quitButton').addEventListener('click', function() {
+  jsPsych.abortExperiment('The participant chose to quit the experiment.');
+});
+
+
+var jsPsych = initJsPsych({ //NB: always init jspsych before doing anything or expt will inexplicably crash!
       default_iti: 250, 
       on_finish: function() {
-        jsPsych.data.displayData();
+        window.location = "https://connect.cloudresearch.com/participant/project/987AE15E5A/complete" //redirect to mturk
       },
       show_progress_bar: true
     });
+  
 
-    var duration = '5 minutes';
-    var amount = '$1.25';
+    console.log(jsPsych.version);
+
+    //-------------------------------------------------------------------------------------------------------------------------------------
+  //experiment variables
+  const mturk_pilot_mode = true
+  const data_collection = true
+
+    // capture info from mturk/connect, except in test mode
+  if(mturk_pilot_mode) { 
+    var study_id = 'pilot';
+    var session_id = 'pilot';
+     participant_id = 'pilot_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
+  } else {
+    participant_id = jsPsych.data.getURLVariable('participantId'); 
+    var assignment_id = jsPsych.data.getURLVariable('assignmentId');
+    var project_id = jsPsych.data.getURLVariable('projectId');
+  }
+
+jsPsych.data.addProperties({
+    mturk_participant_id: participant_id,
+    mturk_assignment_id: assignment_id,
+    mturk_project_id: project_id
+  })
+
+  const filename = `${participant_id}.csv`; //this needs to be assigned after running the ifelse statement
+    //-------------------------------------------------------------------------------------------------------------------------------------
+  
+    
+    var duration = '8 minutes';
+    var amount = '$2';
     var consent = {
     type: jsPsychHtmlButtonResponse,
     stimulus: '<p><b>Consent Form</b></p> <div style="text-align:left;' +
@@ -62,9 +113,14 @@
         'any questions or issues completing the survey, please email Shari ' +
         'Liu at sliu199@jhu.edu. </p> </div>' +
         '<p> Do you consent to participate? </p>',
-    choices: ['Yes'],
-    data: {trial_id: 'consent'}
-    };
+    choices: ['Yes', 'No'],
+    data: {trial_id: 'consent'},
+    on_finish: function(data) {
+    if (data.response === 1) {  // If 'No' is chosen 
+    jsPsych.abortExperiment('You did not consent to participate. The study will now end. Thank you for your time.');  
+    }
+  }
+};
 
     var instructions = {
       type: jsPsychInstructions,
@@ -76,15 +132,14 @@
       show_clickable_nav: true
     };
 
-    ///var slider_labels = ['Definitely not', 'Unlikely', 'Possibly', 'Likely', 'Definitely yes']
-    var slider_labels = ['Definitely not', 'Very slightly', 'Slightly', 'Somewhat', 'Quite a bit', 'Very much', 'Definitely yes']
+    var slider_labels = ['Strongly disagree', 'Disagree', 'Neither agree nor disagree', 'Agree', 'Strongly agree']
     var width = 1000
 
     var practice = {
     type: jsPsychHtmlSliderResponse,
         stimulus: `<div style="margin-bottom: 50px; text-align: center;">
                     <p style="font-size: 32px">Can&nbsp;&nbsp;<strong>feeling safe</strong>&nbsp;&nbsp;
-                    <span style="font-size: 32px;">cause someone to&nbsp;&nbsp;</span>
+                    <span style="font-size: 32px;">make someone&nbsp;&nbsp;</span>
                     <strong>feel nauseated?</strong></p>`,
         labels: slider_labels,
         slider_width: 1000,
@@ -226,13 +281,13 @@ var attentionCheck1 = {
 
 var attentionCheck2 = {
   type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider to&nbsp;&nbsp;<strong>Quite a bit</strong></p>`,
+  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider to&nbsp;&nbsp;<strong>'Agree'</strong></p>`,
   labels: slider_labels,
   slider_width: width,
   require_movement: true,
   data: { trial_id: 'attention_check_2' },
   on_finish: function(data) {
-    data.correct = data.response === 4; // Check if "Quite a bit" was selected
+    data.correct = data.response === 4; // Check if "Agree" was selected
   }
 };
 
@@ -261,7 +316,7 @@ var trials = participantPairs.map(function(pair, index) {
   var itemAWithIng = addIng(pair.itemA); // Append "ing" to the first item
   return {
     type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 32px;">Can <strong>${itemAWithIng}</strong> cause someone to <strong>${pair.itemB}</strong>?</p>`,
+    stimulus: `<p style="font-size: 32px;">Can <strong>${itemAWithIng}</strong> make someone <strong>${pair.itemB}</strong>?</p>`,
     labels: slider_labels,
     slider_width: width,
     require_movement: true,
@@ -279,11 +334,28 @@ var trials = participantPairs.map(function(pair, index) {
 trials = insertAttentionChecks(trials);
 
 
-    feedback_demographics = {
+var debriefing = {
+  type: jsPsychInstructions,
+  pages: [
+    '<p style="font-size: 24px;"><strong>Debriefing</strong></p>' +
+    '<p>Thank you so much for helping us with this study!</p>' +
+    '<p>In this game, we asked you questions about different things ' +
+    'people might do or feel.' +
+    '<br> We wanted to know what you think happens ' +
+    'when people do things, like kicking a ball or feeling hungry. ' +
+    '<br>Does doing one thing sometimes cause another thing to happen? ' +
+    '<br>This helps us understand how people think about the world of minds and bodies.</p>' +
+    '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
+  ],
+  show_clickable_nav: true,
+  button_label_next: 'Next'
+};
+
+
+  var feedback_demographics = {
     type: jsPsychSurveyHtmlForm,
     html: '<div style="max-width:700px; text-align:center;"> <p>' +
-        'Thank you for your participation. <br>We just have a few questions about yourself and your experience' +
-        '<br>What factors influenced how you decided to respond? Do you' +
+        'What factors influenced how you decided to respond? Do you' +
         ' have any questions or comments regarding the experiment?' +
         '</p> <textarea name="feedback" cols="40" rows="6"' +
         ' "autofocus"></textarea> <p> Please provide the following' +
@@ -360,7 +432,22 @@ trials = insertAttentionChecks(trials);
     // on_finish: function() { jsPsych.setProgressBar(1.0); }
 };
 
-    jsPsych.run([consent, instructions, practice, practice_feedback, trials, feedback_demographics]);
+const save_data = {
+                type: jsPsychPipe,
+                action: "save",
+                experiment_id: "SO63gxlALpE9",
+                filename: filename,
+                data_string: ()=>jsPsych.data.get().csv()
+              };
+
+
+var timeline = [consent, instructions, practice, practice_feedback, trials, debriefing, feedback_demographics];
+
+if (data_collection) {
+  timeline.push(save_data); 
+}
+
+jsPsych.run(timeline);
 
   </script>
 </html>
