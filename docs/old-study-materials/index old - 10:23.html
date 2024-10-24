@@ -69,29 +69,30 @@
     var instructions = {
       type: jsPsychInstructions,
       pages: ['<p>Welcome to the experiment.' +
-        '<br>In this experiment you will see pairs of events.' +
-        '<br>Each event describes something a person might experience, ' +
-        'like feeling love or hearing a sound.' +
-        '<br>Your task is to decide if experiencing one event could cause the other to happen.' +
-        '<br>We’ll start with a quick practice round. Click “Next” when you’re ready.</p>'
-      ],
+        '<br>In this experiment you will be presented with pairs of events.' +
+        '<br>These events describe different experiences (e.g. feeling love) that a person (i.e. a human being) might have.' +
+        '<br>You will be asked to <b>indicate whether experiencing one event can cause a person to experience the other.</b>' +
+        ' <br>First, we shall do a test round. Click next when ready.</p>'],
       show_clickable_nav: true
     };
 
-    ///var slider_labels = ['Definitely not', 'Unlikely', 'Possibly', 'Likely', 'Definitely yes']
-    var slider_labels = ['Definitely not', 'Very slightly', 'Slightly', 'Somewhat', 'Quite a bit', 'Very much', 'Definitely yes']
+    var slider_labels = ['Definitely not', 'Unlikely', 'Possibly', 'Likely', 'Definitely yes']
 
     var practice = {
     type: jsPsychHtmlSliderResponse,
         stimulus: `<div style="margin-bottom: 50px; text-align: center;">
-                  <p>To what extent do you agree with the statement below? </div>
-                    <p style="font-size: 32px">Can&nbsp;&nbsp;<strong>feeling safe</strong>&nbsp;&nbsp;&nbsp;
-                    <span style="font-size: 32px;">cause someone to start&nbsp;&nbsp;&nbsp;</span>
-                    <strong>feeling nauseated?</strong></p>`,
+                  <p><strong>Please read carefully:</strong> To what extent do you agree with the statement below? </div>
+                    <p style="font-size: 48px">Can&nbsp;&nbsp;&nbsp;<strong>feeling safe</strong>&nbsp;&nbsp;&nbsp;
+                    <span style="font-size: 32px;">cause someone to&nbsp;&nbsp;&nbsp;</span>
+                    <strong>feel nauseated</strong></p>`,
         labels: slider_labels,
         slider_width: 1000,
+        //min: 1,
+        //max: 5,
+        //step: 1,
+        //slider_start: 3, 
         require_movement: true,
-        prompt: '<p>Note: We’re not asking if event X <em>always</em> causes event Y. We just want to know if you think <em>it is possible</em> for event X to cause event Y.</p>',
+        prompt: '<p>NB: We do not mean "can x always cause y". What we simply mean is, do you think it is possible for x to cause y?</p>',
         data: {
           trial_id: 'practice_round'
         }
@@ -104,165 +105,114 @@
     data: { trial_id: 'practice_feedback'}
   };
 
-// Function to create pairs and conditions remains the same
-var cognitive = ['remembering something', 'hearing something', 'thinking about something', 'choosing what to do', 'seeing something'];
-var physical = ['reaching for something', 'sitting down', 'taking a walk', 'kicking something', 'jumping up and down'];
-var physiological = ['feeling hungry', 'feeling tired', 'feeling sick', 'feeling pain', 'feeling scared'];
+    var cognitiveItems = ['feel happy', 'detect sounds']
+    var physicalItems = ['sit down', 'take a walk']
+    var physiologicalItems = ['feeling sick', 'feeling tired']
 
-// Combine all categories into one object
-var categories = {
-  cognitive: cognitive,
-  physical: physical,
-  physiological: physiological
-};
-
-// Function to create pairs remains unchanged
-function createPairs(categories) {
-  var pairs = [];
-  var categoryKeys = Object.keys(categories);
-
-  for (var i = 0; i < categoryKeys.length; i++) {
-    for (var j = i; j < categoryKeys.length; j++) {
-      var categoryA = categoryKeys[i];
-      var categoryB = categoryKeys[j];
-
-      if (i === j) {
-        for (var x = 0; x < categories[categoryA].length; x++) {
-          for (var y = 0; y < categories[categoryA].length; y++) {
-            if (x !== y) {
-              pairs.push({
-                itemA: categories[categoryA][x],
-                itemB: categories[categoryA][y],
-                categoryA: categoryA,
-                categoryB: categoryB
-              });
-            }
-          }
-        }
-      } 
-      else {
-        for (var x = 0; x < categories[categoryA].length; x++) {
-          for (var y = 0; y < categories[categoryB].length; y++) {
-            pairs.push({
-              itemA: categories[categoryA][x],
-              itemB: categories[categoryB][y],
-              categoryA: categoryA,
-              categoryB: categoryB
-            });
-            pairs.push({
-              itemA: categories[categoryB][y],
-              itemB: categories[categoryA][x],
-              categoryA: categoryB,
-              categoryB: categoryA
-            });
-          }
-        }
+    //create all possible pairs
+    var pairs = [];
+    for (var i = 0; i < mentalItems.length; i++) {
+      for (var j = 0; j < physicalItems.length; j++) {
+        pairs.push({
+          mentalItem: mentalItems[i],
+          physicalItem: physicalItems[j],
+        });
       }
-    }
-  }
-  return pairs;
-}
+    } 
 
-// Generate all 210 pairs
-var pairs = createPairs(categories);
+    //shuffle the pairs to randomize the order
+    pairs = jsPsych.randomization.shuffle(pairs);
 
-// Shuffle the pairs
-pairs = jsPsych.randomization.shuffle(pairs);
+    var trials = pairs.map(function(pair, index) {
+      return {
+        type: jsPsychHtmlSliderResponse,
+        stimulus: `<div style="margin-bottom: 50px; text-align: center;">
+                  <p><strong>Please read carefully:</strong> To what extent do you agree with the statement below?</p>
+                  </div>
+                  <p style="font-size: 48px"><strong>${pair.mentalItem}</strong>&nbsp;&nbsp;&nbsp;
+                    <span style="font-size: 32px;">can cause&nbsp;&nbsp;&nbsp;</span>
+                    <strong>${pair.physicalItem}</strong></p>`,
+        labels: slider_labels,
+        slider_width: 1000,
+        //min: 1,
+        //max: 5,
+        //step: 1,
+        //slider_start: 3, 
+        require_movement: true,
+        data: {
+          trial_id: 'causal_trial_' + (index + 1),
+          mentalItem: pair.mentalItem,
+          physicalItem: pair.physicalItem,
+        },
+      };
+    });
 
-// Split pairs into 5 conditions of 42 pairs each
-function createConditions(pairs, numConditions) {
-  var conditions = [];
-  for (var i = 0; i < numConditions; i++) {
-    var conditionPairs = pairs.slice(i * 42, (i + 1) * 42); // Take 42 pairs for each condition
-    conditions.push(conditionPairs);
-  }
-  return conditions;
-}
-
-// Create 5 conditions
-var conditions = createConditions(pairs, 5);
-
-// Assign participants randomly to a condition
-function assignToCondition(conditions) {
-  var randomConditionIndex = Math.floor(Math.random() * conditions.length); // Randomly assign to condition
-  var assignedCondition = conditions[randomConditionIndex]; // Get the pairs for that condition
-  return jsPsych.randomization.shuffle(assignedCondition); // Shuffle the pairs within the condition
-}
-
-// Assign participant to a condition and shuffle pairs
-var participantPairs = assignToCondition(conditions);
-
-// Create the attention checks
-var attentionCheck1 = {
-  type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move the slider all the way to the&nbsp;&nbsp;<strong>left</strong></p>`,
-  labels: ['Not at all', 'Very slightly', 'Slightly', 'Somewhat', 'Quite a bit', 'Very much', 'Definitely'],
-  slider_width: 1000,
-  require_movement: true,
-  data: { trial_id: 'attention_check_1' },
-  on_finish: function(data) {
-    data.correct = data.response === 0; // Check if the response was all the way to the left
-  }
-};
-
-var attentionCheck2 = {
-  type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider to&nbsp;&nbsp;<strong>Quite a bit</strong></p>`,
-  labels: slider_labels,
-  slider_width: 1000,
-  require_movement: true,
-  data: { trial_id: 'attention_check_2' },
-  on_finish: function(data) {
-    data.correct = data.response === 4; // Check if "Quite a bit" was selected
-  }
-};
-
-var attentionCheck3 = {
-  type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider all the way to the&nbsp;&nbsp;<strong>right</strong></p>`,
-  labels: slider_labels,
-  slider_width: 1000,
-  require_movement: true,
-  data: { trial_id: 'attention_check_3' },
-  on_finish: function(data) {
-    data.correct = data.response === 1; // Check if the response was all the way to the right
-  }
-};
-
-// Insert attention checks at trials 10, 20, and 30
-function insertAttentionChecks(trials) {
-  trials.splice(9, 0, attentionCheck1);  // Insert check 1 at trial 10 (index 9)
-  trials.splice(19, 0, attentionCheck2); // Insert check 2 at trial 20 (index 19)
-  trials.splice(29, 0, attentionCheck3); // Insert check 3 at trial 30 (index 29)
-  return trials;
-}
-
-// Create trials for the participant's condition
-var trials = participantPairs.map(function(pair, index) {
-  return {
+    var attention_check = {
     type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 32px;">Can&nbsp;&nbsp;<strong>${pair.itemA}</strong>&nbsp;&nbsp;cause someone to start&nbsp;&nbsp;<strong>${pair.itemB}</strong>?</p>`,
-    labels: slider_labels,
-    slider_width: 1000,
-    require_movement: true,
-    data: {
-      trial_id: 'causal_trial_' + (index + 1),
-      itemA: pair.itemA,
-      itemB: pair.itemB,
-      categoryA: pair.categoryA,
-      categoryB: pair.categoryB
-    }
-  };
-});
+        stimulus: `<div style="margin-bottom: 50px; text-align: center;">
+                  <p><strong>Please read carefully:</strong> On this trial, please ignore previous instructions and move the slider all the way to the left.</p>
+                  </div>
+                  <p style="font-size: 48px">Can <strong>exercising self restraint</strong>&nbsp;&nbsp;&nbsp;
+                    <span style="font-size: 32px;">cause someone to&nbsp;&nbsp;&nbsp;</span>
+                    <strong>smell scents</strong></p>`,
+        labels: slider_labels,
+        slider_width: 1000,
+        //min: 1,
+        //max: 5,
+        //step: 1,
+        //slider_start: 3, 
+        require_movement: true,
+        data: {
+          trial_id: 'attention_check'
+        }
+      };
 
-// Insert the attention checks
-trials = insertAttentionChecks(trials);
+  var cognitiveItems_2 = ['remembering something', 'hearing something', 'thinking about something', 'Choosing what to do', 'Seeing something']
+  var physicalItems_2 = ['Reaching for something', 'Sitting down', 'Taking a walk', 'Kicking something', 'Jumping up and down']
+  var physiologicalItems_2 = ['Feeling hungry', 'Feeling tired', 'Feeling sick', 'Feeling pain', 'Feeling scared']
+    //reate all possible pairs
+    var pairs_2 = [];
+    for (var i = 0; i < mentalItems_2.length; i++) {
+      for (var j = 0; j < physicalItems_2.length; j++) {
+        pairs_2.push({
+          mentalItem_2: mentalItems_2[i],
+          physicalItem_2: physicalItems_2[j],
+        });
+      }
+    } 
+
+    //shuffle the pairs to randomize the order
+    pairs_2 = jsPsych.randomization.shuffle(pairs_2);
+
+    var trials_2 = pairs_2.map(function(pair, index) {
+      return {
+        type: jsPsychHtmlSliderResponse,
+        stimulus: `<div style="margin-bottom: 50px; text-align: center;">
+                  <p><strong>Please read carefully:</strong> To what extent do you agree with the statement below?</p>
+                  </div>
+                  <p style="font-size: 48px">Can <strong>${pair.mentalItem_2}</strong>&nbsp;&nbsp;&nbsp;
+                    <span style="font-size: 32px;">cause someone to&nbsp;&nbsp;&nbsp;</span>
+                    <strong>${pair.physicalItem_2}</strong></p>`,
+        labels: slider_labels,
+        slider_width: 1000,
+        //min: 1,
+        //max: 5,
+        //step: 1,
+        //slider_start: 3, 
+        require_movement: true,
+        data: {
+          trial_id: 'causal_trial_' + (index + 1),
+          mentalItem: pair.mentalItem_2,
+          physicalItem: pair.physicalItem_2,
+        },
+      };
+    });
+
 
     feedback_demographics = {
     type: jsPsychSurveyHtmlForm,
     html: '<div style="max-width:700px; text-align:center;"> <p>' +
-        'Thank you for your participation. <br>We just have a few questions about yourself and your experience' +
-        '<br>What factors influenced how you decided to respond? Do you' +
+        'What factors influenced how you decided to respond? Do you' +
         ' have any questions or comments regarding the experiment?' +
         '</p> <textarea name="feedback" cols="40" rows="6"' +
         ' "autofocus"></textarea> <p> Please provide the following' +
@@ -339,7 +289,7 @@ trials = insertAttentionChecks(trials);
     // on_finish: function() { jsPsych.setProgressBar(1.0); }
 };
 
-    jsPsych.run([feedback_demographics, instructions, practice, practice_feedback, trials, feedback_demographics]);
+    jsPsych.run([consent, instructions, practice, practice_feedback, trials, attention_check, trials_2, feedback_demographics]);
 
   </script>
 </html>
