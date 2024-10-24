@@ -83,8 +83,8 @@
     var practice = {
     type: jsPsychHtmlSliderResponse,
         stimulus: `<div style="margin-bottom: 50px; text-align: center;">
-                    <p style="font-size: 32px">Can&nbsp;&nbsp;<strong>feeling safe</strong>&nbsp;&nbsp;&nbsp;
-                    <span style="font-size: 32px;">cause someone to &nbsp;&nbsp;&nbsp;</span>
+                    <p style="font-size: 32px">Can&nbsp;&nbsp;<strong>feeling safe</strong>&nbsp;&nbsp;
+                    <span style="font-size: 32px;">cause someone to&nbsp;&nbsp;</span>
                     <strong>feel nauseated?</strong></p>`,
         labels: slider_labels,
         slider_width: 1000,
@@ -261,7 +261,7 @@ var trials = participantPairs.map(function(pair, index) {
   var itemAWithIng = addIng(pair.itemA); // Append "ing" to the first item
   return {
     type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 32px;">Does <strong>${itemAWithIng}</strong> cause someone to <strong>${pair.itemB}</strong>?</p>`,
+    stimulus: `<p style="font-size: 32px;">Can <strong>${itemAWithIng}</strong> cause someone to <strong>${pair.itemB}</strong>?</p>`,
     labels: slider_labels,
     slider_width: width,
     require_movement: true,
