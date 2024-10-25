@@ -3,27 +3,20 @@
   <head>
     <script src="jspsych/dist/jspsych.js"></script>
     <script src="jspsych/dist/plugin-instructions.js"></script>
-    <script src="jspsych/dist/plugin-html-button-response.js"></script>
     <script src="jspsych/dist/plugin-html-slider-response.js"></script>
-    <script src="jspsych/dist/plugin-survey-html-form.js"></script>
-    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
     <link rel="stylesheet" href="jspsych/dist/jspsych.css">
     <style>
-      img {
-        width: 300px;
-      }
-
       #quitButton {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      padding: 10px;
-      background-color: white;
-      color: black;
-      border: 2px solid black;
-      cursor: pointer;
-      font-size: 16px;
-    }
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: white;
+        color: black;
+        border: 2px solid black;
+        cursor: pointer;
+        font-size: 16px;
+      }
     </style>
   </head>
   <body></body>
@@ -31,423 +24,131 @@
   <button id="quitButton">Quit</button>
 
   <script>
+    document.getElementById('quitButton').addEventListener('click', function() {
+      jsPsych.abortExperiment('The participant chose to quit the experiment.');
+    });
 
-    // Add an event listener to the Quit button to trigger abortExperiment
-document.getElementById('quitButton').addEventListener('click', function() {
-  jsPsych.abortExperiment('The participant chose to quit the experiment.');
-});
-
-
-var jsPsych = initJsPsych({ //NB: always init jspsych before doing anything or expt will inexplicably crash!
-      default_iti: 250, 
+    var jsPsych = initJsPsych({
+      default_iti: 250,
       on_finish: function() {
-        window.location = "https://connect.cloudresearch.com/participant/project/987AE15E5A/complete" //redirect to mturk
+        window.location = "https://connect.cloudresearch.com/participant/project/987AE15E5A/complete";
       },
       show_progress_bar: true
     });
-  
 
-    console.log(jsPsych.version);
+    var cognitive = ['remember something', 'hear something', 'think about something', 'choose what to do', 'see something'];
+    var physical = ['reach for something', 'sit down', 'take a walk', 'kick something', 'jump up and down'];
+    var physiological = ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared'];
 
-    //-------------------------------------------------------------------------------------------------------------------------------------
-  //experiment variables
-  const mturk_pilot_mode = true
-  const data_collection = true
-
-    // capture info from mturk/connect, except in test mode
-  if(mturk_pilot_mode) { 
-    var study_id = 'pilot';
-    var session_id = 'pilot';
-     participant_id = 'pilot_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
-  } else {
-    participant_id = jsPsych.data.getURLVariable('participantId'); 
-    var assignment_id = jsPsych.data.getURLVariable('assignmentId');
-    var project_id = jsPsych.data.getURLVariable('projectId');
-  }
-
-jsPsych.data.addProperties({
-    mturk_participant_id: participant_id,
-    mturk_assignment_id: assignment_id,
-    mturk_project_id: project_id
-  })
-
-  const filename = `${participant_id}.csv`; //this needs to be assigned after running the ifelse statement
-    //-------------------------------------------------------------------------------------------------------------------------------------
-  
-    
-    var duration = '8 minutes';
-    var amount = '$2';
-    var consent = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: '<p><b>Consent Form</b></p> <div style="text-align:left;' +
-        'background-color:lightblue; padding:2vw; max-width:80vw;">' +
-        '<p><b>Purpose:</b> The purpose of this study is to understand ' +
-        'how people think about the physical and social world.</p>' +
-        '<p><b>Procedures:</b> In this study, you will watch videos, ' +
-        'read sentences, or see pictures, and answer simple questions ' +
-        'about them. This study should take approximately ' + duration + 
-        '</p><p><b>Participation:</b> Participation in this study is ' +
-        'voluntary. If you decide to join now, you can change your mind ' +
-        'later. ' +
-        '</p><p><b>Payment:</b> You will be paid $15.00/hour ' +
-        'for participating in this study. Given the estimated duration of ' +
-        duration + ', your payment will amount to ' + amount + '.</p>' +
-        '<p><b>Risks and benefits:</b> There are no risks associated ' +
-        'with participating in this study. There are no direct benefits ' +
-        'associated with participating in this study. </p><p><b>Use of ' +
-        'data by study researchers:</b> The research team led by Shari ' +
-        'Liu at JHU will have access to your answers. ' +
-        '</p><p><b>Publication of results:</b> The results of the research ' +
-        'may be presented at scientific meetings or published in scientific ' +
-        'journals. Your individual responses may be published. We will ' +
-        'never publish your name, the date that you participated, and any other ' +
-        'information that could be used to identify you. </p><p><b>' +
-        'Researcher contact information:</b> This study is run by Dr. ' +
-        'Shari Liu at JHU. If you have any questions or concerns about ' +
-        'this study, or in the very unlikely event of a research-related ' +
-        'injury, please contact sliu199@jhu.edu. ' +
-        '</p><p><b>Research rights information:</b> If you have questions about ' +
-        'your rights as a research participant or feel that you have not ' +
-        'been treated fairly, please call the Homewood Institutional Review ' +
-        'Board at Johns Hopkins University at (410) 516-6580. If you have ' +
-        'any questions or issues completing the survey, please email Shari ' +
-        'Liu at sliu199@jhu.edu. </p> </div>' +
-        '<p> Do you consent to participate? </p>',
-    choices: ['Yes', 'No'],
-    data: {trial_id: 'consent'},
-    on_finish: function(data) {
-    if (data.response === 1) {  // If 'No' is chosen 
-    jsPsych.abortExperiment('You did not consent to participate. The study will now end. Thank you for your time.');  
-    }
-  }
-};
-
-    var instructions = {
-      type: jsPsychInstructions,
-      pages: ['<br>In this game, you will see two things that might ' +
-        'happen to a person. <br> For example, someone might feel happy or hear a noise.' +
-        '<br>Your job is to tell us if one thing could make the other thing happen.' +
-        '<br>We will do a quick practice round first. When you’re ready, click "Next"'
-      ],
-      show_clickable_nav: true
+    var categories = {
+      cognitive: cognitive,
+      physical: physical,
+      physiological: physiological
     };
 
-    var slider_labels = ['Strongly disagree', 'Disagree', 'Neither agree nor disagree', 'Agree', 'Strongly agree']
-    var width = 1000
+    function convertToPastTense(item) {
+      if (item === "feel hungry") return "felt hungry";
+      if (item === "reach for something") return "reached for something";
+      if (item === "remember something") return "remembered something";
+      if (item === "hear something") return "heard something";
+      if (item === "kick something") return "kicked something";
+      if (item === "sit down") return "sat down";
+      if (item === "see something") return "saw something";
+      if (item === "take a walk") return "took a walk";
+      if (item === "jump up and down") return "jumped up and down";
+      if (item.startsWith("choose")) return "chose what to do";
+      if (item.startsWith("feel")) return "felt " + item.slice(5);
+      if (item.startsWith("think")) return "thought about something";
+      return item;
+    }
 
-    var practice = {
-    type: jsPsychHtmlSliderResponse,
-        stimulus: `<div style="margin-bottom: 50px; text-align: center;">
-                    <p style="font-size: 32px">Can&nbsp;&nbsp;<strong>feeling safe</strong>&nbsp;&nbsp;
-                    <span style="font-size: 32px;">make someone&nbsp;&nbsp;</span>
-                    <strong>feel nauseated?</strong></p>`,
-        labels: slider_labels,
-        slider_width: 1000,
-        require_movement: true,
-        prompt: '<p>Note: We’re not asking if one thing always makes the other happen. We just want to know if you think one thing <em> can</em> make the other happen </p>',
-        data: {
-          trial_id: 'practice_round'
-        }
-      };
+    function addIng(item) {
+      if (item === "think about something") return "thinking about something";
+      if (item === "reach for something") return "reaching for something";
+      if (item === "kick something") return "kicking something";
+      if (item === "remember something") return "remembering something";
+      if (item === "feel hungry") return "feeling hungry";
+      if (item === "hear something") return "hearing something";
+      if (item === "sit down") return "sitting down";
+      if (item === "see something") return "seeing something";
+      if (item === "take a walk") return "taking a walk";
+      if (item === "jump up and down") return "jumping up and down";
+      if (item.startsWith("choose")) return "choosing what to do";
+      if (item.startsWith("feel")) return "feeling " + item.slice(5);
+      return item;
+    }
 
-    var practice_feedback = {
-    type: jsPsychInstructions,
-    pages: ['<p>Great! You are ready to start the game. Click next to begin.</p>'],
-    show_clickable_nav: true,
-    data: { trial_id: 'practice_feedback'}
-  };
+    function createPairs(categories) {
+      var pairs = [];
+      var categoryKeys = Object.keys(categories);
 
+      for (var i = 0; i < categoryKeys.length; i++) {
+        for (var j = i; j < categoryKeys.length; j++) {
+          var categoryA = categoryKeys[i];
+          var categoryB = categoryKeys[j];
 
-var cognitive = ['remember something', 'hear something', 'think about something', 'choose what to do', 'see something'];
-var physical = ['reach for something', 'sit down', 'take a walk', 'kick something', 'jump up and down'];
-var physiological = ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared'];
-
-// Combine all categories into one object
-var categories = {
-  cognitive: cognitive,
-  physical: physical,
-  physiological: physiological
-};
-
-// Function to add "ing" correctly to the first item dynamically
-function addIng(item) {
-  if (item.startsWith("feel")) {
-    return item.replace("feel", "feeling");
-  } else if (item === "hear something") {
-    return "hearing something";
-  } else if (item === "sit down") {
-    return "sitting down";
-  } else if (item === "reach for something") {
-    return "reaching for something";
-  } else if (item === "jump up and down") {
-    return "jumping up and down";
-  } else if (item === "take a walk") {
-    return "taking a walk";
-  } else if (item.startsWith("choose")) {
-    return item.replace("choose", "choosing");
-  } else {
-    return item.replace(/(\w+)(\s.*)/, "$1ing$2");
-  }
-}
-
-// Function to create pairs
-function createPairs(categories) {
-  var pairs = [];
-  var categoryKeys = Object.keys(categories);
-
-  for (var i = 0; i < categoryKeys.length; i++) {
-    for (var j = i; j < categoryKeys.length; j++) {
-      var categoryA = categoryKeys[i];
-      var categoryB = categoryKeys[j];
-
-      if (i === j) {
-        for (var x = 0; x < categories[categoryA].length; x++) {
-          for (var y = 0; y < categories[categoryA].length; y++) {
-            if (x !== y) {
-              pairs.push({
-                itemA: categories[categoryA][x],
-                itemB: categories[categoryA][y],
-                categoryA: categoryA,
-                categoryB: categoryB
-              });
+          if (i === j) {
+            for (var x = 0; x < categories[categoryA].length; x++) {
+              for (var y = 0; y < categories[categoryA].length; y++) {
+                if (x !== y) {
+                  pairs.push({
+                    itemA: categories[categoryA][x],
+                    itemB: categories[categoryA][y],
+                    categoryA: categoryA,
+                    categoryB: categoryB
+                  });
+                }
+              }
+            }
+          } else {
+            for (var x = 0; x < categories[categoryA].length; x++) {
+              for (var y = 0; y < categories[categoryB].length; y++) {
+                pairs.push({
+                  itemA: categories[categoryA][x],
+                  itemB: categories[categoryB][y],
+                  categoryA: categoryA,
+                  categoryB: categoryB
+                });
+                pairs.push({
+                  itemA: categories[categoryB][y],
+                  itemB: categories[categoryA][x],
+                  categoryA: categoryB,
+                  categoryB: categoryA
+                });
+              }
             }
           }
         }
-      } 
-      else {
-        for (var x = 0; x < categories[categoryA].length; x++) {
-          for (var y = 0; y < categories[categoryB].length; y++) {
-            pairs.push({
-              itemA: categories[categoryA][x],
-              itemB: categories[categoryB][y],
-              categoryA: categoryA,
-              categoryB: categoryB
-            });
-            pairs.push({
-              itemA: categories[categoryB][y],
-              itemB: categories[categoryA][x],
-              categoryA: categoryB,
-              categoryB: categoryA
-            });
-          }
-        }
       }
+      return pairs;
     }
-  }
-  return pairs;
-}
 
-// Generate all 210 pairs
-var pairs = createPairs(categories);
+    var pairs = jsPsych.randomization.shuffle(createPairs(categories));
 
-// Shuffle the pairs
-pairs = jsPsych.randomization.shuffle(pairs);
+    var trials = pairs.map(function(pair, index) {
+      var itemA_past = convertToPastTense(pair.itemA);
+      var itemB_past = convertToPastTense(pair.itemB);
+      var itemA_withIng = addIng(pair.itemA);
 
-// Split pairs into 5 conditions of 42 pairs each
-function createConditions(pairs, numConditions) {
-  var conditions = [];
-  for (var i = 0; i < numConditions; i++) {
-    var conditionPairs = pairs.slice(i * 42, (i + 1) * 42); // Take 42 pairs for each condition
-    conditions.push(conditionPairs);
-  }
-  return conditions;
-}
+      return {
+        type: jsPsychHtmlSliderResponse,
+        stimulus: `<p style="font-size: 32px;">First, Sarah <strong>${itemA_past}</strong>.
+                   <span style="font-size: 32px">Then, she <strong>${itemB_past}</strong>.</span></p>
+                   <p><span style="font-size:32px">Do you think that <strong>${itemA_withIng}</strong> made her <strong>${pair.itemB}</strong>?</span></p>`,
+        labels: ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'],
+        slider_width: 1000,
+        require_movement: true,
+        data: {
+          trial_id: 'causal_trial_' + (index + 1),
+          itemA: pair.itemA,
+          itemB: pair.itemB,
+          categoryA: pair.categoryA,
+          categoryB: pair.categoryB
+        }
+      };
+    });
 
-// Create 5 conditions
-var conditions = createConditions(pairs, 5);
-
-// Assign participants randomly to a condition
-function assignToCondition(conditions) {
-  var randomConditionIndex = Math.floor(Math.random() * conditions.length); // Randomly assign to condition
-  var assignedCondition = conditions[randomConditionIndex]; // Get the pairs for that condition
-  return jsPsych.randomization.shuffle(assignedCondition); // Shuffle the pairs within the condition
-}
-
-// Assign participant to a condition and shuffle pairs
-var participantPairs = assignToCondition(conditions);
-
-// Create the attention checks
-var attentionCheck1 = {
-  type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move the slider all the way to the&nbsp;&nbsp;<strong>left</strong></p>`,
-  labels: slider_labels,
-  slider_width: width,
-  require_movement: true,
-  data: { trial_id: 'attention_check_1' },
-  on_finish: function(data) {
-    data.correct = data.response === 0; // Check if the response was all the way to the left
-  }
-};
-
-var attentionCheck2 = {
-  type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider to&nbsp;&nbsp;<strong>'Agree'</strong></p>`,
-  labels: slider_labels,
-  slider_width: width,
-  require_movement: true,
-  data: { trial_id: 'attention_check_2' },
-  on_finish: function(data) {
-    data.correct = data.response === 4; // Check if "Agree" was selected
-  }
-};
-
-var attentionCheck3 = {
-  type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider all the way to the&nbsp;&nbsp;<strong>right</strong></p>`,
-  labels: slider_labels,
-  slider_width: width,
-  require_movement: true,
-  data: { trial_id: 'attention_check_3' },
-  on_finish: function(data) {
-    data.correct = data.response === 6; // Check if the response was all the way to the right
-  }
-};
-
-// Insert attention checks at trials 10, 20, and 30
-function insertAttentionChecks(trials) {
-  trials.splice(9, 0, attentionCheck1);  // Insert check 1 at trial 10 (index 9)
-  trials.splice(19, 0, attentionCheck2); // Insert check 2 at trial 20 (index 19)
-  trials.splice(29, 0, attentionCheck3); // Insert check 3 at trial 30 (index 29)
-  return trials;
-}
-
-// Create trials for the participant's condition
-var trials = participantPairs.map(function(pair, index) {
-  var itemAWithIng = addIng(pair.itemA); // Append "ing" to the first item
-  return {
-    type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 32px;">Can <strong>${itemAWithIng}</strong> make someone <strong>${pair.itemB}</strong>?</p>`,
-    labels: slider_labels,
-    slider_width: width,
-    require_movement: true,
-    data: {
-      trial_id: 'causal_trial_' + (index + 1),
-      itemA: pair.itemA,
-      itemB: pair.itemB,
-      categoryA: pair.categoryA,
-      categoryB: pair.categoryB
-    }
-  };
-});
-
-// Insert the attention checks
-trials = insertAttentionChecks(trials);
-
-
-var debriefing = {
-  type: jsPsychInstructions,
-  pages: [
-    '<p style="font-size: 24px;"><strong>Debriefing</strong></p>' +
-    '<p>Thank you so much for helping us with this study!</p>' +
-    '<p>In this game, we asked you questions about different things ' +
-    'people might do or feel.' +
-    '<br> We wanted to know what you think happens ' +
-    'when people do things, like kicking a ball or feeling hungry. ' +
-    '<br>Does doing one thing sometimes cause another thing to happen? ' +
-    '<br>This helps us understand how people think about the world of minds and bodies.</p>' +
-    '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
-  ],
-  show_clickable_nav: true,
-  button_label_next: 'Next'
-};
-
-
-  var feedback_demographics = {
-    type: jsPsychSurveyHtmlForm,
-    html: '<div style="max-width:700px; text-align:center;"> <p>' +
-        'What factors influenced how you decided to respond? Do you' +
-        ' have any questions or comments regarding the experiment?' +
-        '</p> <textarea name="feedback" cols="40" rows="6"' +
-        ' "autofocus"></textarea> <p> Please provide the following' +
-        ' information to complete the study. </p> <div style="text-' +
-        'align:center;"> <div style="text-align:left; display:' +
-        'inline-block; margin-right:20px; line-height:1.8em;"> <ol>' +
-            '<li>Age:</li> <br>' +
-            '<li>Gender:</li> <br><br>' +
-            '<li>Race:</li> <br><br><br><br><br><br>' +
-            '<li>Ethnicity:</li>' +
-        '</ol> </div>' +
-        '<div style="text-align:left; display: inline-block;' +
-        ' line-height:1.8em;">' +
-            // age text box
-            '<input name="age" type="number"  min="18" max="100" /> <br> <br>' +
-            // gender options
-            '<input name="gender" type="radio" id="female" value=' +
-                '"Female" /> <label for="female"> Female </label>' +
-            '<input name="gender" type="radio" id="male" value=' +
-                '"Male" /> <label for="male"> Male </label>' +
-            '<input name="gender" type="radio" id="nonbinary" value=' +
-                '"Non-binary" /> <label for="nonbinary"> Non-binary </label> <br>' +
-            '<input name="gender" type="radio" id="other_gender" value=' +
-                '"other_gender" /> <label for="other_gender"> Other: <input' +
-                ' type="text" name="other_gender" /> </label> <br><br>' +
-            // race options
-            '<input name="race" type="radio" id="white" value=' +
-                '"White" /> <label for="white"> White </label> <br>' +
-            '<input name="race" type="radio" id="black" value=' +
-                '"Black/African American" /> <label for="black">' +
-                ' Black/African American </label> <br>' +
-            '<input name="race" type="radio" id="am_ind" value=' +
-                '"American Indian/Alaska Native" /> <label for="am_ind">' +
-                ' American Indian/Alaska Native </label> <br>' +
-            '<input name="race" type="radio" id="asian" value=' +
-                '"Asian" /> <label for="asian"> Asian </label> <br>' +
-            '<input name="race" type="radio" id="pac_isl" value=' +
-                '"Native Hawaiian/Pacific Islander" /> <label for="pac_isl">' +
-                ' Native Hawaiian/Pacific Islander </label> <br>' +
-            '<input name="race" type="radio" id="other_race" value="other_race" />' +
-                '<label for="other_race"> Other: <input type="text"' +
-                'name="other_race" /> </label> <br><br>' +
-            // ethnicity options
-            '<input name="ethnicity" type="radio" id="hisp" value=' +
-                '"Hispanic" /> <label for="hisp"> Hispanic </label>' +
-            '<input name="ethnicity" type="radio" id="nonhisp" value=' +
-                '"Non-Hispanic" /> <label for="nonhisp"> Non-Hispanic' +
-                ' </label>' +
-        '</div> </div>' +
-        '<p> Please press the finish button to complete the experiment. </p> </div>',
-    button_label: 'Finish',
-    data: { trial_id: 'demographics_survey'},
-    on_finish: function(data){
-
-      data.feedback = data.response['feedback'];
-      data.age = data.response['age'];
-      data.ethnicity = data.response['ethnicity']
-      data.gender = data.response['gender']
-      data.race = data.response['race']
-
-      //override undefined or other values
-      if (data.gender == "other_gender" || typeof data.gender == "undefined") {
-        data.gender = data.response['other_gender']};
-      delete data.other_gender;
-
-      if (data.race == "other_race" || typeof data.race == "undefined") {
-        data.race = data.response['other_race']};
-      delete data.other_race;
-
-      if (typeof data.ethnicity == "undefined") {
-        data.ethnicity = ""}
-    }
-    // on_start: function() { jsPsych.setProgressBar(0.96); },
-    // on_finish: function() { jsPsych.setProgressBar(1.0); }
-};
-
-const save_data = {
-                type: jsPsychPipe,
-                action: "save",
-                experiment_id: "SO63gxlALpE9",
-                filename: filename,
-                data_string: ()=>jsPsych.data.get().csv()
-              };
-
-
-var timeline = [consent, instructions, practice, practice_feedback, trials, debriefing, feedback_demographics];
-
-if (data_collection) {
-  timeline.push(save_data); 
-}
-
-jsPsych.run(timeline);
+    jsPsych.run(trials);
 
   </script>
 </html>
