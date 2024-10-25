@@ -278,13 +278,13 @@ var attentionCheck1 = {
 
 var attentionCheck2 = {
   type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider to&nbsp;&nbsp;<strong>'Agree'</strong></p>`,
+  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider to&nbsp;&nbsp;<strong>'Maybe yes'</strong></p>`,
   labels: slider_labels,
   slider_width: width,
   require_movement: true,
   data: { trial_id: 'attention_check_2' },
   on_finish: function(data) {
-    data.correct = data.response === 4; // Check if "Agree" was selected
+    data.correct = data.response === 4; // Check if "Maybe yes" was selected (actually idk value of maybe agree)
   }
 };
 
@@ -341,7 +341,7 @@ var debriefing = {
     '<p style="font-size: 24px;"><strong>Debriefing</strong></p>' +
     '<p>Thank you so much for helping us with this study!</p>' +
     '<p>In this game, we asked you questions about different things ' +
-    'people might do or feel.' +
+    'a person might do or feel.' +
     '<br> We wanted to know what you think happens ' +
     'when people do things, like kicking a ball or feeling hungry. ' +
     '<br>Does doing one thing sometimes cause another thing to happen? ' +
