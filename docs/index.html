@@ -34,7 +34,7 @@
     var jsPsych = initJsPsych({
       default_iti: 250,
       on_finish: function() {
-        window.location = "https://connect.cloudresearch.com/participant/project/987AE15E5A/complete";
+        window.location = "https://connect.cloudresearch.com/participant/project/478F668072/complete";
       },
       show_progress_bar: true
     });
@@ -284,7 +284,7 @@ var attentionCheck2 = {
   require_movement: true,
   data: { trial_id: 'attention_check_2' },
   on_finish: function(data) {
-    data.correct = data.response === 4; // Check if "Maybe yes" was selected (actually idk value of maybe agree)
+    data.correct = data.response === 75; // Check if "Maybe yes" was selected 
   }
 };
 
@@ -296,7 +296,7 @@ var attentionCheck3 = {
   require_movement: true,
   data: { trial_id: 'attention_check_3' },
   on_finish: function(data) {
-    data.correct = data.response === 6; // Check if the response was all the way to the right
+    data.correct = data.response === 100; // Check if the response was all the way to the right
   }
 };
 

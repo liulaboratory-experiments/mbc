@@ -1,0 +1,107 @@
+---
+title: "MBC"
+output: html_document
+date: "2024-10-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(scipen = 1, digits = 3)
+library(pacman)
+
+pacman::p_load(plyr,
+               tidyverse,
+               metafor,
+               lme4,
+               lmerTest,
+               cowplot,
+               easystats,
+               sjPlot,
+               kableExtra,
+               easystats,
+               patchwork,
+               plotly
+               )
+
+sessionInfo()
+```
+
+# Continuous simulation
+
+hypotheses: 
+- strong: (mental_physical & physical_mental) > 0
+- weak: (mental_physical & physical_mental) > mental_mental and physical_physical
+- does this account for intermediate causal states?
+
+Lets assume 3 items:
+- mental = {thoughts, feelings, physiology}
+- physical = {action A, action B, action C}
+This leads to 30 pairs:
+- across pairs = 9 (across) + 9 (across, reverse) = 18
+- within pairs = 6 (within mental + reverse) + 6 (within, physical + reverse) = 12
+
+Open questions:
+- pair averages?
+- for simulation: what is the distribution of causal ratings?
+- should we specify direct causal links, or also intermediate causes.
+- congruence between action and mental state. High congruence leads to high scores. Reverse for low congruence. 
+- ah I see. There are lower animals which we see as more or less sensory motor. They are behaving agents, and they have body but not mind. 
+- but us humans, maybe we can't have body without mind. But maybe some actions are independent of itentions i.e. unintentional actions, actions caused by physical forces. And so i can see how they can come apart. 
+But there is the key question of, in the case of intentional behaviors, 
+Some agents are goal-directed, but not due to their mental states, probably due to programming. 
+- i.e. self driving cars, we may not think of as having nitentions. But dualism was way before machines. 
+- So there must be cases of brains behaving in ways that you can't attribute to someone's intention. 
+- Wow I am now convinced that MIND and BODY (including Brain) are overlapping venn diagrams.
+you can have body with mind, body without mind, and mind without body simultaneously. 
+maybe I should write something about Kamala harris and venn diagrams and how that solves most disputed in science (somethings are many things. esp arguments of the form x is distinct from y, vs x is not distinct from y)
+
+(but what is MIND? is it immaterial. yeah its just an immaterial cause. Its like "will" lets say). ANd so perhaps we think its possible to do things unwillingly. 
+
+what we are not saying:
+- minds do not exist(?)
+- only minds exist for certain
+- minds are entirely distinct from bodies
+
+mybe talk about decision boundaries as applied to mind-body problem. I think talk of venn diagram leads to talk about binarizing decision boundaries.
+
+
+hmm maybe we can take a decision theory approach to this?
+
+Maybe we can get a clue into people's prior beliefs in ambiguous cases? 
+- perhaps when they think of bodies, they 
+
+
+is it possible for there to be overlapping venn diagrams and the data to still cluster as it did?
+
+```{r}
+acr_mental_to_physical = round(rnorm(n = 18, mean = 80, sd = 10), 0)
+acr_physical_to_mental = round(rnorm(n = 18, mean = 70, sd = 10), 0)
+wit_physical_physical = round(rnorm(n = 12, mean = 30, sd = 10), 0) #can an action cause another (maybe indirectly (lifting causes tiredness causes to sit down and relax))
+wit_mental_mental = round(rnorm(n = 12, mean = 60, sd = 10), 0)
+
+mean(c(acr_mental_to_physical, acr_physical_to_mental))
+mean(c(wit_physical_physical, wit_physical_physical))
+
+t.test(c(acr_mental_to_physical,acr_physical_to_mental), c(wit_physical_physical, wit_physical_physical))
+
+
+```
+
+
+# Discrete simulation
+
+1 - 5
+```{r}
+acr_mental_to_physical = round(rnorm(n = 18, mean = 4, sd = 2), 0)
+round(runif(n = 10, min = 0, max = 6),0)
+acr_physical_to_mental = round(rnorm(n = 18, mean = 5, sd = 2), 0)
+wit_physical_physical = round(rnorm(n = 12, mean = 3, sd = 10), 0) 
+wit_mental_mental = round(rnorm(n = 12, mean = 60, sd = 10), 0)
+
+mean(c(acr_mental_to_physical, acr_physical_to_mental))
+mean(c(wit_physical_physical, wit_physical_physical))
+
+t.test(c(acr_mental_to_physical,acr_physical_to_mental), c(wit_physical_physical, wit_physical_physical))
+```
+
+
