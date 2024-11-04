@@ -38,7 +38,7 @@ directory_path <- here("code", "analysis", "pilot", "data")
 file_paths <- list.files(path = directory_path, pattern = "^pilot_", full.names = TRUE)
 d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x)))
 
-names(d)
+
 ```
 # Exclusions
 
@@ -103,7 +103,7 @@ df <- d %>%
 ```{r}
 df %>%
   ggplot(aes(x = item_pairs, y = response)) +
-  geom_point() +
+  geom_point(alpha = .3) +
   geom_point(stat = "summary", fun = "mean", size = 1, shape = 23, 
              fill = "white", color = "black") +
   theme(axis.text.x = element_text(angle = 90, size = 3))
@@ -436,6 +436,81 @@ plot(g, layout = layout,
      vertex.label.cex = 0.7,
      edge.arrow.size = 0.3,
      vertex.color = V(g)$color)
+```
+
+## connecting categories
+
+```{r}
+# Step 1: Aggregate thickness between category pairs to simplify to category-only edges
+category_edges <- df_network %>%
+  group_by(categoryA, categoryB) %>%
+  summarize(thickness = mean(thickness), distance = mean(distance), .groups = 'drop')
+
+# Step 2: Define the nodes (categories) for the graph
+category_nodes <- data.frame(
+  name = unique(c(category_edges$categoryA, category_edges$categoryB))
+)
+
+# Step 3: Create the graph using only categories as nodes
+g_category <- graph_from_data_frame(d = category_edges, vertices = category_nodes, directed = TRUE)
+
+# Step 4: Assign thickness for the edges and colors for nodes by category
+E(g_category)$thickness <- category_edges$thickness
+V(g_category)$color <- category_colors[V(g_category)$name]
+
+# Step 5: Set layout and plot the simplified graph
+layout_category <- layout_with_fr(g_category, weights = E(g_category)$distance,
+                                  niter = 10000, area = vcount(g_category)^2,
+                                  repulserad = vcount(g_category)^5)
+
+plot(g_category, layout = layout_category,
+     vertex.label.color = "black",
+     vertex.size = 40,       # Larger nodes for emphasis
+     edge.width = E(g_category)$thickness / 10,  # Adjust edge thickness
+     edge.curved = 0.2,
+     vertex.label.cex = 1,   # Larger labels for clarity
+     edge.arrow.size = 0.3,
+     vertex.color = V(g_category)$color)
+```
+
+```{r}
+# aggregate thickness
+category_edges <- df_network %>%
+  group_by(categoryA, categoryB) %>%
+  summarize(thickness = mean(thickness), distance = mean(distance), .groups = 'drop')
+
+# define nodes
+category_nodes <- data.frame(
+  name = unique(c(category_edges$categoryA, category_edges$categoryB))
+)
+
+# create the graph using categories as nodes
+g_category <- graph_from_data_frame(d = category_edges, vertices = category_nodes, directed = TRUE)
+
+# assign edge thickness and color nodes by category
+E(g_category)$thickness <- category_edges$thickness
+V(g_category)$color <- category_colors[V(g_category)$name]
+
+# set edge labels to show strench
+E(g_category)$label <- round(E(g_category)$thickness, 1)  
+E(g_category)$label.cex <- 0.8 
+
+
+layout_category <- layout_with_fr(g_category, weights = E(g_category)$distance,
+                                  niter = 1000, area = vcount(g_category)^4,
+                                  repulserad = vcount(g_category)^4)
+
+plot(g_category, layout = layout_category,
+     vertex.label.color = "black",
+     vertex.size = 80,
+     edge.width = E(g_category)$thickness / 50,  
+     edge.curved = 0.2,
+     vertex.label.cex = 1,
+     edge.arrow.size = 0.3,
+     vertex.color = V(g_category)$color,
+     edge.label = E(g_category)$label,
+     edge.label.cex = 0.8,      
+     edge.label.color = "black")  
 ```
 
 

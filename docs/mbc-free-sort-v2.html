@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jspsych/dist/jspsych.js"></script>
+    <script src="jspsych/dist/plugin-instructions.js"></script>
+    <script src="jspsych/dist/plugin-survey-html-form.js"></script>
+    <script src="jspsych/dist/plugin-canvas-keyboard-response.js"></script>
+    <script src="jspsych/dist/plugin-preload.js"></script>
+    <script src="jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="jspsych/dist/plugin-free-sort.js"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <link rel="stylesheet" href="jspsych/dist/jspsych.css">
+    <style>
+      #quitButton {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: white;
+        color: black;
+        border: 2px solid black;
+        cursor: pointer;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body></body>
+
+  <button id="quitButton">Quit</button>
+
+  
+  <script>
+      document.getElementById('quitButton').addEventListener('click', function() {
+      jsPsych.abortExperiment('The participant chose to quit the experiment.');
+    });
+
+  var jsPsych = initJsPsych({
+    default_iti: 250,
+    on_finish: function() {
+      //window.location = "https://connect.cloudresearch.com/participant/project/478F668072/complete";
+      jsPsych.data.displayData();
+
+    },
+    show_progress_bar: true
+  });
+
+  var preload = {
+    type: jsPsychPreload,
+    auto_preload: true
+  };
+
+  var instructions = {
+      type: jsPsychInstructions,
+      pages: ['<br>Hi there! Today, we’re going to play a fun game with some words. ' +
+      '<br>You’ll see some cards with different things you can experience. ' +
+      '<br>Your job is to put these cards into groups that make sense to you. ' +
+      '<br>There are no right or wrong answer—just put them together in ways that feel right!. ' +
+      '<br>When you’re ready, click "Next"'
+      ],
+      show_clickable_nav: true
+    };
+
+
+    var example = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: '<div style="text-align: center;">' +
+              '<p>This is an example way to group all 15 events.<br>' +
+              'In this example, the 15 items are placed in four groups. However, you can create as few or as many groups as you would like.<br>' +
+              'Just ensure all items are inside the circle. ' +
+              'When you are ready, click "Next" to begin.</p>' +
+              '<img src="images/keynote/example.png" style="width: 530px; height: 460px; margin-top: 10px;">' +
+            '</div>',
+  choices: ['Next']
+};
+
+// Define the images and their paths
+var images = [
+  'images/keynote/items/items.002.png', 'images/keynote/items/items.003.png', 'images/keynote/items/items.004.png',
+  'images/keynote/items/items.005.png', 'images/keynote/items/items.006.png', 'images/keynote/items/items.007.png',
+  'images/keynote/items/items.008.png', 'images/keynote/items/items.009.png', 'images/keynote/items/items.010.png',
+  'images/keynote/items/items.011.png', 'images/keynote/items/items.012.png', 'images/keynote/items/items.013.png',
+  'images/keynote/items/items.014.png', 'images/keynote/items/items.015.png', 'images/keynote/items/items.016.png'
+];
+
+// Preload images and get original dimensions
+var imageDims = {};
+var scalingFactor = 0.4; // Scale images to 50% of their original size
+
+images.forEach((src, index) => {
+  var img = new Image();
+  img.onload = function() {
+    imageDims[src] = { width: img.width * scalingFactor, height: img.height * scalingFactor }; // Scale dimensions
+  };
+  img.src = src;
+});
+
+// Define the free-sort trial
+var trial_1 = {
+  type: jsPsychFreeSort,
+  stimuli: images,
+  sort_area_height: 600,
+  sort_area_width: 600,
+  prompt: 'Please group similar events together. Take as long as you would like. ',
+  column_spread_factor: 0.5,
+  on_load: function() {
+    // Apply scaled dimensions to each image
+    images.forEach((src) => {
+      var imgElement = document.querySelector(`img[src="${src}"]`);
+      if (imgElement && imageDims[src]) {
+        imgElement.style.width = `${imageDims[src].width}px`;
+        imgElement.style.height = `${imageDims[src].height}px`;
+      }
+    });
+  }
+};
+
+jsPsych.run({
+  timeline: [preload, instructions, example, trial_1]
+});
+
+  </script>
+</html>
