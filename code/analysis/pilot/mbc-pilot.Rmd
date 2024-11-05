@@ -29,6 +29,7 @@ walk(c("select", "filter", "rename", "mutate", "summarise"), ~ conflict_prefer(.
 conflicts_prefer(plotly::layout)
 theme_set(theme_bw())
 sessionInfo()
+
 ```
 
 # Read data
@@ -37,7 +38,6 @@ sessionInfo()
 directory_path <- here("code", "analysis", "pilot", "data")
 file_paths <- list.files(path = directory_path, pattern = "^pilot_", full.names = TRUE)
 d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x)))
-
 
 ```
 # Exclusions
@@ -94,6 +94,22 @@ df <- d %>%
   ungroup() %>%  #reordering item labels
   mutate(item_pairs = fct_reorder(item_pairs, item_pair_means, .desc = TRUE)) 
 
+```
+
+
+- pairs are not some regular multiple of 193 due to random assignment which leads to repeat assignments for some subejct
+
+```{r}
+pairs <- df %>% distinct(item_pairs)
+
+write.csv(pairs, "pairs.csv" )
+
+
+pairs
+
+ df %>%
+   # select(trial_id, item_pairs) %>% 
+   distinct(item_pairs, .keep_all = TRUE)
 ```
 
 # Plots
