@@ -4,6 +4,7 @@
     <script src="jspsych/dist/jspsych.js"></script>
     <script src="jspsych/dist/plugin-instructions.js"></script>
     <script src="jspsych/dist/plugin-survey-html-form.js"></script>
+    <script src="jspsych/dist/plugin-preload.js"></script>
     <script src="jspsych/dist/plugin-html-button-response.js"></script>
     <script src="jspsych/dist/plugin-html-slider-response.js"></script>
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
@@ -40,6 +41,10 @@
       show_progress_bar: true
     });
 
+    var preload = {
+    type: jsPsychPreload,
+    auto_preload: true
+  };
       //-------------------------------------------------------------------------------------------------------------------------------------
   //experiment variables
   const mturk_pilot_mode = true
@@ -287,7 +292,7 @@ function assignToCondition(conditions) {
 // Assign participant to a condition
 var participantPairs = assignToCondition(conditions);
 
-var slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes']
+var slider_labels = ['Not at all alike', 'Maybe not alike', 'Unsure', 'Maybe alike', 'Extremely alike']
 var slider_widths = 1000
 
 // Create the attention checks
@@ -334,26 +339,6 @@ function insertAttentionChecks(trials) {
   trials.splice(47, 0, attentionCheck3);  // Insert check 3 at trial 48 (index 47)
   return trials;
 }
-
-// // Create similarity judgment trials
-// var trials = participantPairs.map(function(pair, index) {
-//   return {
-//     type: jsPsychHtmlSliderResponse,
-//     stimulus: `<p style="font-size: 32px;">One day, Sarah <strong>${pair.itemA}</strong>.
-//                <span style="font-size: 32px">Another time, she <strong>${pair.itemB}</strong>.</span></p>
-//                <p><span style="font-size:32px">Do you think <strong>${pair.itemA}</strong> and <strong>${pair.itemB}</strong> are kind of like each other, or not really?</span></p>`,
-//     labels: slider_labels,
-//     slider_width: 1000,
-//     require_movement: true,
-//     data: {
-//       trial_id: 'similarity_trial_' + (index + 1),
-//       itemA: pair.itemA,
-//       itemB: pair.itemB,
-//       categoryA: pair.categoryA,
-//       categoryB: pair.categoryB
-//     }
-//   };
-// });
 
 function convertToPastTense(item) {
       if (item === "feel hungry") return "felt hungry";
@@ -416,7 +401,7 @@ var trials = participantPairs.map(function(pair, index) {
 // Insert attention checks into the trials
 trials = insertAttentionChecks(trials);
 
-jsPsych.run([trials])
+jsPsych.run([preload, trials])
 
   </script>
 </html>
