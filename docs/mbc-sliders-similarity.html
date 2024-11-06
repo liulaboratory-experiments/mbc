@@ -292,7 +292,7 @@ function assignToCondition(conditions) {
 // Assign participant to a condition
 var participantPairs = assignToCondition(conditions);
 
-var slider_labels = ['Not at all alike', 'Maybe not alike', 'Unsure', 'Maybe alike', 'Extremely alike']
+var slider_labels = ['Not at all similar', 'Maybe not similar', 'Unsure', 'Maybe similar', 'Definitely similar']
 var slider_widths = 1000
 
 // Create the attention checks
@@ -384,7 +384,7 @@ var trials = participantPairs.map(function(pair, index) {
         type: jsPsychHtmlSliderResponse,
         stimulus: `<p style="font-size: 32px;">First, Sarah <strong>${itemA_past}</strong>.
                    <span style="font-size: 32px">Then, she <strong>${itemB_past}</strong>.</span></p>
-                   <p><span style="font-size:32px">Do you think that <strong>${itemA_withIng}</strong> and <strong>${itemB_withIng}</strong> <br>are kind of like each other, or not really?</span></p>`,
+                   <p><span style="font-size:32px">Do you think that <strong>${itemA_withIng}</strong> and <strong>${itemB_withIng}</strong> <br>are similar events to each other, or not really?</span></p>`,
         labels: slider_labels,
         slider_width: slider_widths,
         require_movement: true,
