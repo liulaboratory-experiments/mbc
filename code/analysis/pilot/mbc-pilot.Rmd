@@ -102,14 +102,38 @@ df <- d %>%
 ```{r}
 pairs <- df %>% distinct(item_pairs)
 
-write.csv(pairs, "pairs.csv" )
 
 
 pairs
 
- df %>%
+pairs <- df %>%
    # select(trial_id, item_pairs) %>% 
-   distinct(item_pairs, .keep_all = TRUE)
+   distinct(item_pairs, .keep_all = TRUE) %>% 
+   select(itemA, itemB, categoryA, categoryB)
+ 
+write.csv(pairs, "pairs.csv", row.names = FALSE)
+
+
+dput(pairs)
+
+
+# R script to convert the dataframe to JavaScript format
+df_t <- structure(list(itemA = c("feel tired", "feel pain", "think about something", 
+    "take a walk", "feel tired"), itemB = c("remember something", 
+    "jump up and down", "feel sick", "hear something", "feel scared"), 
+    categoryA = c("bio", "bio", "cog", "act", "bio"), 
+    categoryB = c("cog", "act", "bio", "cog", "bio")), 
+    row.names = c(NA, -5L), class = c("tbl_df", "tbl", "data.frame"))
+
+# Convert to JavaScript format
+js_data <- paste0("{ itemA: \"", pairs$itemA, "\", itemB: \"", pairs$itemB, 
+                  "\", categoryA: \"", pairs$categoryA, "\", categoryB: \"", pairs$categoryB, "\" },")
+cat(js_data, sep = "\n")
+
+
+
+
+ 
 ```
 
 # Plots
