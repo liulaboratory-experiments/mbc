@@ -120,10 +120,10 @@ jsPsych.data.addProperties({
 
 var instructions = {
       type: jsPsychInstructions,
-      pages: ['<br>In this game, you will see two things that might ' +
-        'happen to a person named Sarah. <br> For example, Sarah might feel happy or hear a noise.' +
-        '<br>Your job is to tell us if the two experiences are similar to each other.' +
-        '<br>We will do a quick practice round first. When you’re ready, click "Next"'
+      pages: ['<br>In this game, you will see two things that a person ' +
+        ' might exprience. <br> For example, feeling happy or hearing a noise.' +
+        '<br>Your job is to tell us if the two events are similar to each other.' 
+        //'<br>We will do a quick practice round first. When you’re ready, click "Next"'
       ],
       show_clickable_nav: true
     };
@@ -440,8 +440,11 @@ var trials = participantPairs.map(function(pair, index) {
 
       return {
         type: jsPsychHtmlSliderResponse,
-        stimulus: `<p style="font-size: 32px;">One day, Sarah <strong>${itemA_past}</strong>.
-                   <span style="font-size: 32px">Another day, she <strong>${itemB_past}</strong>.</span></p>
+        // stimulus: `<p style="font-size: 32px;">One day, Sarah <strong>${itemA_past}</strong>.
+        //            <span style="font-size: 32px">Another day, she <strong>${itemB_past}</strong>.</span></p>
+        //            <p><span style="font-size:32px">How similar are <strong>${itemA_withIng}</strong> and <strong>${itemB_withIng}</strong>?</span></p>`,
+        stimulus: `<p style="font-size: 32px;">Consider these two events: <strong>${itemA_withIng}</strong>
+                   <span style="font-size: 32px">and <strong>${itemB_withIng}</strong>.</span></p>
                    <p><span style="font-size:32px">How similar are <strong>${itemA_withIng}</strong> and <strong>${itemB_withIng}</strong>?</span></p>`,
         labels: slider_labels,
         slider_width: slider_widths,
