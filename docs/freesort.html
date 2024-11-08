@@ -127,10 +127,9 @@ jsPsych.data.addProperties({
 
   var instructions = {
       type: jsPsychInstructions,
-      pages: ['<br>Hi there! Today, we’re going to play a game with some words. ' +
-      '<br>You will see cards showing different experiences a person can have. ' +
-      '<br>Your job is to organize these cards into groups that make sense to you. ' +
-      '<br>There are no right or wrong answers—just put them together in ways that feel right! ' +
+      pages: ['<br>In this game, you will see 15 cards describing different experiences a person can have. ' +
+      '<br>Your job is to organize these cards into groups based on how similar they are. ' +
+      '<br>There are no right or wrong answers; just put them together in ways that make sense to you. ' +
       '<br>Let us see a practice example. '
       ],
       show_clickable_nav: true
@@ -160,7 +159,7 @@ var example_video = {
   prompt: `
         <button id="playButton" style="margin-top: -5px;">Play</button>
         <div style="margin-top: 10px; text-align: center;">
-        <p>This video shows an example way to drag and drop the events into groups. <br> You can create as many or as few groups as you would like. Hit 'play' to watch!</p>
+        <p>This video shows one possible way to group the events. <br> You can create as many or as few groups as you would like. Hit 'play' to watch</p>
       </div>
   `,
   data: {trial_id: 'example_videos'},
