@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Directory containing the images
-image_dir="/Users/jouta1/github-projects/mbc/docs/images/rounded"
-output_dir="/Users/jouta1/github-projects/mbc/docs/images/items-shapes-rounded"
+image_dir="/Users/jouta1/github-projects/mbc/docs/images/items-circles"
+output_dir="/Users/jouta1/github-projects/mbc/docs/images/items-circles-cropped"
 
 # Create the output directory if it doesn't exist
 mkdir -p "$output_dir"

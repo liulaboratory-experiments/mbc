@@ -150,7 +150,7 @@ jsPsych.data.addProperties({
 
 var example_video = {
   type: jsPsychVideoButtonResponse,
-  stimulus: ['video/example-video.mp4'],
+  stimulus: ['video/example-video-circles.mp4'],
   choices: ['Next'], 
   // width: 854, //Instead of specifying a fixed width, we're making it relative in videoElement.style.width
   autoplay: false,
@@ -236,21 +236,21 @@ var example_video = {
     //change_border_background_color: false,  // Disable background color change
   };
 
-  var trial_sorting_2 = {
+  var trial_sorting_circles = {
     type: jsPsychFreeSort,
-    stimuli: ['images/items-shapes/img1.png', 'images/items-shapes/img2.png', 'images/items-shapes/img3.png', 
-              'images/items-shapes/img4.png', 'images/items-shapes/img5.png','images/items-shapes/img6.png', 
-              'images/items-shapes/img7.png', 'images/items-shapes/img8.png', 'images/items-shapes/img9.png', 
-              'images/items-shapes/img10.png','images/items-shapes/img11.png', 'images/items-shapes/img12.png', 
-              'images/items-shapes/img13.png', 'images/items-shapes/img14.png', 'images/items-shapes/img15.png'],  // Use generated text images
-    stim_height: 80,
-    stim_width: 87,
-    sort_area_height: 600,
-    sort_area_width: 800,
+    stimuli: ['images/items-circles-cropped/img1.png', 'images/items-circles-cropped/img2.png', 'images/items-circles-cropped/img3.png', 
+              'images/items-circles-cropped/img4.png', 'images/items-circles-cropped/img5.png','images/items-circles-cropped/img6.png', 
+              'images/items-circles-cropped/img7.png', 'images/items-circles-cropped/img8.png', 'images/items-circles-cropped/img9.png', 
+              'images/items-circles-cropped/img10.png','images/items-circles-cropped/img11.png', 'images/items-circles-cropped/img12.png', 
+              'images/items-circles-cropped/img13.png', 'images/items-circles-cropped/img14.png', 'images/items-circles-cropped/img15.png'],  // Use generated text images
+    stim_height: 100,
+    stim_width: 100,
+    sort_area_height: 700,
+    sort_area_width: 700,
     prompt: 'Please group similar phrases together. Take as long as you would like.<br>',
     scale_factor: 1.1, // Set close to 1.0 for subtle magnification or 1.0 to disable
     column_spread_factor: .75,
-    sort_area_shape: "square" // Set to "square" to change the sort area to a square shape
+    //sort_area_shape: "square" // Set to "square" to change the sort area to a square shape
     //change_border_background_color: false,  // Disable background color change
   };
 
@@ -359,7 +359,7 @@ const save_data = {
                 data_string: ()=>jsPsych.data.get().csv()
               };
 
-var timeline = [preload, consent, instructions, example_video, trial_sorting_2, debrief, feedback_demographics];
+var timeline = [preload, consent, instructions, example_video, trial_sorting_circles, debrief, feedback_demographics];
 
 if (data_collection) {
   timeline.push(save_data); 
