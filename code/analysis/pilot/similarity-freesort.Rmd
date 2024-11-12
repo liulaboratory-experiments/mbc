@@ -50,55 +50,46 @@ d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x)))
 
 
 ```{r}
-# Retain relevant columns and parse JSON
 df <- d %>% 
   relocate(mturk_participant_id, .before = "success") %>%
   select(mturk_participant_id, trial_type, rt, final_locations) %>%
   filter(trial_type == "free-sort") %>%
-  mutate(parsed_location = map(final_locations, fromJSON)) %>%
-  unnest(parsed_location)  # Expand parsed JSON %>% 
+  mutate(parsed_location = map(final_locations, fromJSON)) %>% #extract data saved as json
+  unnest(parsed_location)  # Expand parsed JSON 
 
-# Define mapping vector
 items <- c("choose what to do", "reach for something", "feel scared", 
            "experience pain", "get sick", "get tired", "become hungry", 
            "see something", "think about something", "hear something", 
            "remember something", "jump up and down", "kick something", 
            "take a walk", "sit down")
 
-# Map image number to items
 df <- df %>%
   mutate(img_number = as.numeric(str_extract(src, "\\d+")), 
          items = items[img_number]) %>%
   select(-c("final_locations", "src"))
 
-# Calculate the mean x and y coordinates for each unique item
 df_mean_locations <- df %>%
   group_by(items) %>%
   summarize(x = mean(x, na.rm = TRUE), y = mean(y, na.rm = TRUE)) %>%
   ungroup()
 
-# Calculate Euclidean distances between all pairs
+#Euclidean distance
 dist_matrix <- dist(df_mean_locations[, c("x", "y")], method = "euclidean")
 
-# Convert the distance object to a data frame for easier viewing
 dist_df <- as.data.frame(as.matrix(dist_matrix))
 rownames(dist_df) <- df_mean_locations$items
 colnames(dist_df) <- df_mean_locations$items
 
-# Define the desired order of items
 desired_order <- c("see something", "hear something", "choose what to do", 
                    "remember something", "think about something", "reach for something", 
                    "sit down", "jump up and down", "kick something", "take a walk", 
                    "get tired", "become hungry", "feel scared", "experience pain", "get sick")
 
-# Normalize distances to be between 0 and 1
-max_distance <- max(dist_df)  # Get the maximum distance
-dist_df_normalized <- dist_df / max_distance  # Normalize to range [0, 1]
+#normalize to 0 to 1 (or -1 to 1?)
+max_distance <- max(dist_df) 
+dist_df_normalized <- dist_df / max_distance  
 
-# Convert normalized distances to similarities
-similarity_df <- 1 - dist_df_normalized  # Similarity is highest (1) when distance is 0, lowest (0) when distance is max
-
-# Reorder the similarity matrix based on the desired order
+similarity_df <- 1 - dist_df_normalized 
 similarity_df_ordered <- similarity_df[desired_order, desired_order]
 
 ```
@@ -116,4 +107,14 @@ corrplot(as.matrix(similarity_df_ordered),
          addgrid.col = "darkgray")
 ```
 
+# check feedback
+
+```{r}
+df_feedback <- d %>% 
+  select(feedback) %>% 
+  drop_na(feedback)
+
+cat(df_feedback$feedback, sep = "\n\n")
+  
+```
 
