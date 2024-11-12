@@ -5,9 +5,9 @@ These are materials for the mind brain causation project.
 ```
 .
 ├── code
-│   └── analysis 
+│   └── analysis ##contains r markdown analysis files and data files
 │       └── pilot
-└── docs
+└── docs ##contains experiment files such as stimuli and html files
     ├── images
     │   ├── items-circles
     │   ├── items-roundedSquare
