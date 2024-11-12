@@ -39,8 +39,8 @@
   var jsPsych = initJsPsych({
     default_iti: 250,
     on_finish: function() {
-      //window.location = "https://connect.cloudresearch.com/participant/project/478F668072/complete";
-      jsPsych.data.displayData();
+      window.location = "https://connect.cloudresearch.com/participant/project/5E9C4633CD/complete";
+      //jsPsych.data.displayData();
 
     },
     show_progress_bar: true
@@ -54,9 +54,9 @@
 
     // capture info from mturk/connect, except in test mode
   if(mturk_pilot_mode) { 
-    var study_id = 'pilot';
-    var session_id = 'pilot';
-     participant_id = 'pilot_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
+    var study_id = 'test';
+    var session_id = 'test';
+     participant_id = 'test_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
   } else {
     participant_id = jsPsych.data.getURLVariable('participantId'); 
     var assignment_id = jsPsych.data.getURLVariable('assignmentId');
