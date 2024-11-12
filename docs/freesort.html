@@ -361,7 +361,7 @@ const save_data = {
                 data_string: ()=>jsPsych.data.get().csv()
               };
 
-var timeline = [preload, instructions, example_video, trial_sorting_circles, debrief, feedback_demographics];
+var timeline = [preload, consent, instructions, example_video, trial_sorting_circles, debrief, feedback_demographics];
 
 if (data_collection) {
   timeline.push(save_data); 
