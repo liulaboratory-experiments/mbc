@@ -8,27 +8,35 @@ date: "2024-11-12"
 # Load necessary libraries
 library(jsonlite)
 library(dplyr)
+library(corrplot)
+
+```
+
+# read 
+
+```{r}
 
 # Your JSON data
-json_data <- '[{"src":"images/items-circles-cropped/img6.png","x":610.4166666666667,"y":0},{"src":"images/items-circles-cropped/img9.png","x":-60.41666666666666,"y":550},{"src":"images/items-circles-cropped/img5.png","x":610.4166666666667,"y":183.33333333333334},{"src":"images/items-circles-cropped/img7.png","x":-60.41666666666666,"y":366.6666666666667},{"src":"images/items-circles-cropped/img11.png","x":610.4166666666667,"y":366.6666666666667},{"src":"images/items-circles-cropped/img8.png","x":-60.41666666666666,"y":183.33333333333334},{"src":"images/items-circles-cropped/img15.png","x":610.4166666666667,"y":550},{"src":"images/items-circles-cropped/img14.png","x":-60.41666666666666,"y":0},{"src":"images/items-circles-cropped/img10.png","x":793.75,"y":0},{"src":"images/items-circles-cropped/img3.png","x":-243.75,"y":550},{"src":"images/items-circles-cropped/img13.png","x":793.75,"y":183.33333333333334},{"src":"images/items-circles-cropped/img2.png","x":-243.75,"y":366.6666666666667},{"src":"images/items-circles-cropped/img4.png","x":793.75,"y":366.6666666666667},{"src":"images/items-circles-cropped/img1.png","x":-243.75,"y":183.33333333333334},{"src":"images/items-circles-cropped/img12.png","x":793.75,"y":550}]'
+json_data <- '[{"src":"images/items-circles/img11.png","x":451,"y":154},{"src":"images/items-circles/img8.png","x":463,"y":228},{"src":"images/items-circles/img5.png","x":418,"y":453},{"src":"images/items-circles/img13.png","x":134,"y":127},{"src":"images/items-circles/img2.png","x":41,"y":234},{"src":"images/items-circles/img14.png","x":76,"y":179},{"src":"images/items-circles/img7.png","x":262,"y":518},{"src":"images/items-circles/img15.png","x":176,"y":98},{"src":"images/items-circles/img10.png","x":493,"y":188},{"src":"images/items-circles/img12.png","x":221,"y":70},{"src":"images/items-circles/img4.png","x":311,"y":502},{"src":"images/items-circles/img9.png","x":539,"y":257},{"src":"images/items-circles/img6.png","x":457,"y":427},{"src":"images/items-circles/img3.png","x":363,"y":481},{"src":"images/items-circles/img1.png","x":426,"y":79}]'
 
+```
+
+# wrangle
+```{r}
 # Parse the JSON data into a data frame
 data <- fromJSON(json_data)
 
-
 # Create a named vector for the mappings
 items <- c("choose what to do", "reach for something", "feel scared", 
-                      "experience pain", "get sick", "get tired", "become hungry", 
-                      "see something", "think about something", "hear something", 
-                      "remember something", "jump up and down", "kick something", 
-                      "take a walk", "sit down")
-
+           "experience pain", "get sick", "get tired", "become hungry", 
+           "see something", "think about something", "hear something", 
+           "remember something", "jump up and down", "kick something", 
+           "take a walk", "sit down")
 
 # Add the new column by extracting the number from src and mapping to descriptions
 data <- data %>% 
   mutate(img_number = as.numeric(str_extract(src, "\\d+")),
          items = items[img_number])
-
 
 # Calculate Euclidean distances between all pairs
 dist_matrix <- dist(data[, c("x", "y")], method = "euclidean")
@@ -37,13 +45,6 @@ dist_matrix <- dist(data[, c("x", "y")], method = "euclidean")
 dist_df <- as.data.frame(as.matrix(dist_matrix))
 rownames(dist_df) <- data$items
 colnames(dist_df) <- data$items
-
-# Display the distance matrix
-dist_df
-
-
-# Load necessary library
-library(corrplot)
 
 # Define the desired order of items
 desired_order <- c("see something", "hear something", "choose what to do", 
@@ -55,31 +56,24 @@ desired_order <- c("see something", "hear something", "choose what to do",
 max_distance <- max(dist_df)  # Get the maximum distance
 dist_df_normalized <- dist_df / max_distance  # Normalize to range [0, 1]
 
-# Reorder the normalized distance matrix based on the desired order
-dist_df_ordered <- dist_df_normalized[desired_order, desired_order]
+# Convert normalized distances to similarities
+similarity_df <- 1 - dist_df_normalized  # Similarity is highest (1) when distance is 0, lowest (0) when distance is max
 
-# Plot the reordered and normalized distance matrix
-corrplot(as.matrix(dist_df_ordered), 
+# Reorder the similarity matrix based on the desired order
+similarity_df_ordered <- similarity_df[desired_order, desired_order]
+
+```
+
+# plot
+
+```{r}
+# Plot the reordered similarity matrix
+corrplot(as.matrix(similarity_df_ordered), 
          method = "color", 
          tl.col = "black", 
          is.corr = FALSE,  # This is not a correlation matrix
-         title = "Normalized Euclidean Distance Matrix for Items (Ordered)",
+         title = "Similarity Matrix for Items (Ordered)",
          addgrid.col = "darkgray")
-```
-
-```{r}
-
-# Load corrplot
-library(corrplot)
-
-# Plot the distance matrix
-corrplot(as.matrix(dist_df), 
-         method = "color", 
-         tl.col = "black", 
-         is.corr = FALSE,  # Set to FALSE because this is not a correlation matrix
-         title = "Euclidean Distance Matrix for Items",
-         addgrid.col = "darkgray",
-         cl.lim = c(min(dist_df), max(dist_df)))  # Scale color limits based on the min and max distances
 ```
 
 
