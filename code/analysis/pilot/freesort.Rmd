@@ -5,46 +5,85 @@ date: "2024-11-12"
 ---
 
 ```{r setup, include=FALSE}
-# Load necessary libraries
-library(jsonlite)
-library(dplyr)
-library(corrplot)
+library(pacman)
+pacman::p_load(tidyverse,
+               ggforce,
+               conflicted,
+               here,
+               cowplot,
+               lme4,
+               lmerTest,
+               effects,
+               performance,
+               purrr,
+               readr,
+               igraph,
+               ggraph,
+               tidygraph,
+               visNetwork,
+               jsonlite,
+               corrplot,
+               stringr,
+               scales)
+
+library(plotly) #for some reason this never loads via pacman
+walk(c("select", "filter", "rename", "mutate", "summarize"), ~ conflict_prefer(.x, "dplyr"))
+conflicts_prefer(plotly::layout)
+conflicts_prefer(here::here)
+theme_set(theme_bw())
+sessionInfo()
 
 ```
+
+
 
 # read 
 
 ```{r}
-
-# Your JSON data
-json_data <- '[{"src":"images/items-circles/img11.png","x":451,"y":154},{"src":"images/items-circles/img8.png","x":463,"y":228},{"src":"images/items-circles/img5.png","x":418,"y":453},{"src":"images/items-circles/img13.png","x":134,"y":127},{"src":"images/items-circles/img2.png","x":41,"y":234},{"src":"images/items-circles/img14.png","x":76,"y":179},{"src":"images/items-circles/img7.png","x":262,"y":518},{"src":"images/items-circles/img15.png","x":176,"y":98},{"src":"images/items-circles/img10.png","x":493,"y":188},{"src":"images/items-circles/img12.png","x":221,"y":70},{"src":"images/items-circles/img4.png","x":311,"y":502},{"src":"images/items-circles/img9.png","x":539,"y":257},{"src":"images/items-circles/img6.png","x":457,"y":427},{"src":"images/items-circles/img3.png","x":363,"y":481},{"src":"images/items-circles/img1.png","x":426,"y":79}]'
+directory_path <- here("code", "analysis", "pilot", "data-freesort")
+file_paths <- list.files(path = directory_path, full.names = TRUE)
+d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x)))
 
 ```
 
 # wrangle
-```{r}
-# Parse the JSON data into a data frame
-data <- fromJSON(json_data)
 
-# Create a named vector for the mappings
+
+```{r}
+# Retain relevant columns and parse JSON
+df <- d %>% 
+  relocate(mturk_participant_id, .before = "success") %>%
+  select(mturk_participant_id, trial_type, rt, final_locations) %>%
+  filter(trial_type == "free-sort") %>%
+  mutate(parsed_location = map(final_locations, fromJSON)) %>%
+  unnest(parsed_location)  # Expand parsed JSON %>% 
+
+# Define mapping vector
 items <- c("choose what to do", "reach for something", "feel scared", 
            "experience pain", "get sick", "get tired", "become hungry", 
            "see something", "think about something", "hear something", 
            "remember something", "jump up and down", "kick something", 
            "take a walk", "sit down")
 
-# Add the new column by extracting the number from src and mapping to descriptions
-data <- data %>% 
-  mutate(img_number = as.numeric(str_extract(src, "\\d+")),
-         items = items[img_number])
+# Map image number to items
+df <- df %>%
+  mutate(img_number = as.numeric(str_extract(src, "\\d+")), 
+         items = items[img_number]) %>%
+  select(-c("final_locations", "src"))
+
+# Calculate the mean x and y coordinates for each unique item
+df_mean_locations <- df %>%
+  group_by(items) %>%
+  summarize(x = mean(x, na.rm = TRUE), y = mean(y, na.rm = TRUE)) %>%
+  ungroup()
 
 # Calculate Euclidean distances between all pairs
-dist_matrix <- dist(data[, c("x", "y")], method = "euclidean")
+dist_matrix <- dist(df_mean_locations[, c("x", "y")], method = "euclidean")
 
 # Convert the distance object to a data frame for easier viewing
 dist_df <- as.data.frame(as.matrix(dist_matrix))
-rownames(dist_df) <- data$items
-colnames(dist_df) <- data$items
+rownames(dist_df) <- df_mean_locations$items
+colnames(dist_df) <- df_mean_locations$items
 
 # Define the desired order of items
 desired_order <- c("see something", "hear something", "choose what to do", 
@@ -63,6 +102,7 @@ similarity_df <- 1 - dist_df_normalized  # Similarity is highest (1) when distan
 similarity_df_ordered <- similarity_df[desired_order, desired_order]
 
 ```
+
 
 # plot
 

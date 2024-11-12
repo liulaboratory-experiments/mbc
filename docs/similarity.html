@@ -36,7 +36,7 @@
     var jsPsych = initJsPsych({
       default_iti: 250,
       on_finish: function() {
-        window.location = "https://connect.cloudresearch.com/participant/project/478F668072/complete";
+        window.location = "https://connect.cloudresearch.com/participant/project/88C4D73CF6/complete";
       },
       show_progress_bar: true
     });
@@ -47,7 +47,7 @@
   };
       //-------------------------------------------------------------------------------------------------------------------------------------
   //experiment variables
-  const mturk_pilot_mode = true
+  const mturk_pilot_mode = false
   const data_collection = true
 
     // capture info from mturk/connect, except in test mode
@@ -368,13 +368,13 @@ var attentionCheck1 = {
 
 var attentionCheck2 = {
   type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider to&nbsp;&nbsp;<strong>'Maybe yes'</strong></p>`,
+  stimulus: `<p style="font-size: 32px;">This is a&nbsp;&nbsp;<strong>check.</strong>&nbsp;&nbsp;Please move slider to&nbsp;&nbsp;<strong>'Somewhat similar'</strong></p>`,
   labels: slider_labels,
   slider_width: 1000,
   require_movement: true,
   data: { trial_id: 'attention_check_2' },
   on_finish: function(data) {
-    data.correct = data.response === 75; // Check if "Maybe yes" was selected
+    data.correct = data.response === 75; // Check if "Somewhat similar" was selected
   }
 };
 
@@ -472,7 +472,7 @@ var debrief = {
     'a person might do or feel.' +
     '<br> We wanted to know what you think happens ' +
     'when people do things, like kicking a ball or feeling hungry. ' +
-    '<br>Is doing one thing sometimes similar to another thing, and does one cause the other? ' +
+    '<br>Is doing, thinking or feeling one thing sometimes similar to another thing? ' +
     '<br>This helps us understand how people think about the world of minds and bodies.</p>' +
     '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
   ],
