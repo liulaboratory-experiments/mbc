@@ -1,0 +1,505 @@
+"mturk_participant_id","trial_id","rt","response","itemA","itemB","categoryA","categoryB","type","category_pairs","item_pairs","item_pair_means"
+"pilot_2w19ksqx74","causal_trial_1",6897,78,"feel tired","remember something","bio","cog","across domain","bio-cog","feel tired-remember something",77
+"pilot_2w19ksqx74","causal_trial_2",26109,25,"feel pain","jump up and down","bio","act","across domain","bio-act","feel pain-jump up and down",48
+"pilot_2w19ksqx74","causal_trial_3",4350,78,"think about something","feel sick","cog","bio","across domain","cog-bio","think about something-feel sick",81
+"pilot_2w19ksqx74","causal_trial_4",11835,68,"take a walk","hear something","act","cog","across domain","act-cog","take a walk-hear something",39
+"pilot_2w19ksqx74","causal_trial_5",8079,60,"feel tired","feel scared","bio","bio","within domain","bio-bio","feel tired-feel scared",51
+"pilot_2w19ksqx74","causal_trial_6",17583,92,"take a walk","choose what to do","act","cog","across domain","act-cog","take a walk-choose what to do",59
+"pilot_2w19ksqx74","causal_trial_7",10788,87,"hear something","sit down","cog","act","across domain","cog-act","hear something-sit down",87
+"pilot_2w19ksqx74","causal_trial_8",4936,84,"sit down","remember something","act","cog","across domain","act-cog","sit down-remember something",69
+"pilot_2w19ksqx74","causal_trial_9",8177,75,"think about something","kick something","cog","act","across domain","cog-act","think about something-kick something",62
+"pilot_2w19ksqx74","causal_trial_10",6071,27,"feel hungry","hear something","bio","cog","across domain","bio-cog","feel hungry-hear something",36
+"pilot_2w19ksqx74","causal_trial_11",3552,76,"see something","feel pain","cog","bio","across domain","cog-bio","see something-feel pain",64
+"pilot_2w19ksqx74","causal_trial_12",5412,63,"feel scared","feel hungry","bio","bio","within domain","bio-bio","feel scared-feel hungry",63
+"pilot_2w19ksqx74","causal_trial_13",7142,95,"think about something","take a walk","cog","act","across domain","cog-act","think about something-take a walk",83
+"pilot_2w19ksqx74","causal_trial_14",4670,68,"feel tired","feel pain","bio","bio","within domain","bio-bio","feel tired-feel pain",67
+"pilot_2w19ksqx74","causal_trial_15",8285,68,"choose what to do","take a walk","cog","act","across domain","cog-act","choose what to do-take a walk",76
+"pilot_2w19ksqx74","causal_trial_16",32769,78,"take a walk","jump up and down","act","act","within domain","act-act","take a walk-jump up and down",56
+"pilot_2w19ksqx74","causal_trial_17",6650,85,"feel scared","choose what to do","bio","cog","across domain","bio-cog","feel scared-choose what to do",76
+"pilot_2w19ksqx74","causal_trial_18",4366,40,"remember something","hear something","cog","cog","within domain","cog-cog","remember something-hear something",16
+"pilot_2w19ksqx74","causal_trial_19",53180,83,"reach for something","think about something","act","cog","across domain","act-cog","reach for something-think about something",62
+"pilot_2w19ksqx74","causal_trial_20",5543,60,"remember something","feel hungry","cog","bio","across domain","cog-bio","remember something-feel hungry",54
+"pilot_2w19ksqx74","causal_trial_21",3472,50,"kick something","feel hungry","act","bio","across domain","act-bio","kick something-feel hungry",64
+"pilot_2w19ksqx74","causal_trial_22",3478,97,"feel scared","feel sick","bio","bio","within domain","bio-bio","feel scared-feel sick",72
+"pilot_2w19ksqx74","causal_trial_23",26295,75,"feel sick","feel scared","bio","bio","within domain","bio-bio","feel sick-feel scared",84
+"pilot_2w19ksqx74","causal_trial_24",6128,80,"feel tired","choose what to do","bio","cog","across domain","bio-cog","feel tired-choose what to do",68
+"pilot_2w19ksqx74","causal_trial_25",4358,90,"jump up and down","kick something","act","act","within domain","act-act","jump up and down-kick something",54
+"pilot_2w19ksqx74","causal_trial_26",3618,65,"kick something","choose what to do","act","cog","across domain","act-cog","kick something-choose what to do",65
+"pilot_2w19ksqx74","causal_trial_27",6314,96,"take a walk","feel tired","act","bio","across domain","act-bio","take a walk-feel tired",64
+"pilot_2w19ksqx74","causal_trial_28",30422,77,"choose what to do","kick something","cog","act","across domain","cog-act","choose what to do-kick something",80
+"pilot_2w19ksqx74","causal_trial_29",7829,77,"think about something","feel pain","cog","bio","across domain","cog-bio","think about something-feel pain",58
+"pilot_2w19ksqx74","causal_trial_30",4036,89,"remember something","feel tired","cog","bio","across domain","cog-bio","remember something-feel tired",66
+"pilot_2w19ksqx74","causal_trial_31",5931,75,"sit down","hear something","act","cog","across domain","act-cog","sit down-hear something",49
+"pilot_2w19ksqx74","causal_trial_32",7257,88,"jump up and down","remember something","act","cog","across domain","act-cog","jump up and down-remember something",88
+"pilot_2w19ksqx74","causal_trial_33",26136,77,"sit down","take a walk","act","act","within domain","act-act","sit down-take a walk",36
+"pilot_2w19ksqx74","causal_trial_34",3018,91,"feel tired","feel sick","bio","bio","within domain","bio-bio","feel tired-feel sick",91
+"pilot_2w19ksqx74","causal_trial_35",3068,69,"hear something","take a walk","cog","act","across domain","cog-act","hear something-take a walk",50
+"pilot_2w19ksqx74","causal_trial_36",6264,100,"think about something","remember something","cog","cog","within domain","cog-cog","think about something-remember something",92
+"pilot_2w19ksqx74","causal_trial_37",3102,95,"jump up and down","feel tired","act","bio","across domain","act-bio","jump up and down-feel tired",98
+"pilot_2w19ksqx74","causal_trial_38",27169,67,"reach for something","sit down","act","act","within domain","act-act","reach for something-sit down",67
+"pilot_2w19ksqx74","causal_trial_39",12600,76,"hear something","choose what to do","cog","cog","within domain","cog-cog","hear something-choose what to do",77
+"pilot_2w19ksqx74","causal_trial_40",4853,100,"remember something","think about something","cog","cog","within domain","cog-cog","remember something-think about something",92
+"pilot_2w19ksqx74","causal_trial_41",21386,100,"take a walk","see something","act","cog","across domain","act-cog","take a walk-see something",90
+"pilot_2w19ksqx74","causal_trial_42",3068,95,"reach for something","hear something","act","cog","across domain","act-cog","reach for something-hear something",60
+"pilot_2zv63jjqvs","causal_trial_1",29362,78,"choose what to do","feel scared","cog","bio","across domain","cog-bio","choose what to do-feel scared",84
+"pilot_2zv63jjqvs","causal_trial_2",9879,77,"hear something","kick something","cog","act","across domain","cog-act","hear something-kick something",77
+"pilot_2zv63jjqvs","causal_trial_3",12929,78,"hear something","choose what to do","cog","cog","within domain","cog-cog","hear something-choose what to do",77
+"pilot_2zv63jjqvs","causal_trial_4",8196,100,"choose what to do","sit down","cog","act","across domain","cog-act","choose what to do-sit down",83
+"pilot_2zv63jjqvs","causal_trial_5",12129,75,"see something","feel hungry","cog","bio","across domain","cog-bio","see something-feel hungry",64
+"pilot_2zv63jjqvs","causal_trial_6",12597,23,"feel hungry","feel scared","bio","bio","within domain","bio-bio","feel hungry-feel scared",23
+"pilot_2zv63jjqvs","causal_trial_7",8913,77,"think about something","choose what to do","cog","cog","within domain","cog-cog","think about something-choose what to do",70
+"pilot_2zv63jjqvs","causal_trial_8",19930,76,"choose what to do","feel sick","cog","bio","across domain","cog-bio","choose what to do-feel sick",76
+"pilot_2zv63jjqvs","causal_trial_9",28999,100,"jump up and down","feel tired","act","bio","across domain","act-bio","jump up and down-feel tired",98
+"pilot_2zv63jjqvs","causal_trial_10",11895,76,"reach for something","feel hungry","act","bio","across domain","act-bio","reach for something-feel hungry",59
+"pilot_2zv63jjqvs","causal_trial_11",6646,76,"reach for something","feel pain","act","bio","across domain","act-bio","reach for something-feel pain",76
+"pilot_2zv63jjqvs","causal_trial_12",8579,76,"jump up and down","sit down","act","act","within domain","act-act","jump up and down-sit down",59
+"pilot_2zv63jjqvs","causal_trial_13",11380,74,"sit down","jump up and down","act","act","within domain","act-act","sit down-jump up and down",37
+"pilot_2zv63jjqvs","causal_trial_14",17196,74,"sit down","feel sick","act","bio","across domain","act-bio","sit down-feel sick",54
+"pilot_2zv63jjqvs","causal_trial_15",27263,75,"feel pain","feel scared","bio","bio","within domain","bio-bio","feel pain-feel scared",87
+"pilot_2zv63jjqvs","causal_trial_16",7796,74,"feel pain","feel tired","bio","bio","within domain","bio-bio","feel pain-feel tired",64
+"pilot_2zv63jjqvs","causal_trial_17",8430,72,"feel sick","remember something","bio","cog","across domain","bio-cog","feel sick-remember something",72
+"pilot_2zv63jjqvs","causal_trial_18",8481,75,"take a walk","choose what to do","act","cog","across domain","act-cog","take a walk-choose what to do",59
+"pilot_2zv63jjqvs","causal_trial_19",38330,75,"take a walk","reach for something","act","act","within domain","act-act","take a walk-reach for something",66
+"pilot_2zv63jjqvs","causal_trial_20",6681,76,"think about something","feel tired","cog","bio","across domain","cog-bio","think about something-feel tired",69
+"pilot_2zv63jjqvs","causal_trial_21",5813,75,"feel hungry","reach for something","bio","act","across domain","bio-act","feel hungry-reach for something",84
+"pilot_2zv63jjqvs","causal_trial_22",14346,75,"feel tired","feel scared","bio","bio","within domain","bio-bio","feel tired-feel scared",51
+"pilot_2zv63jjqvs","causal_trial_23",8013,75,"choose what to do","feel pain","cog","bio","across domain","cog-bio","choose what to do-feel pain",46
+"pilot_2zv63jjqvs","causal_trial_24",7296,74,"feel tired","kick something","bio","act","across domain","bio-act","feel tired-kick something",55
+"pilot_2zv63jjqvs","causal_trial_25",4896,75,"feel pain","kick something","bio","act","across domain","bio-act","feel pain-kick something",54
+"pilot_2zv63jjqvs","causal_trial_26",14898,15,"feel tired","hear something","bio","cog","across domain","bio-cog","feel tired-hear something",15
+"pilot_2zv63jjqvs","causal_trial_27",4797,75,"see something","feel pain","cog","bio","across domain","cog-bio","see something-feel pain",64
+"pilot_2zv63jjqvs","causal_trial_28",7180,74,"jump up and down","feel hungry","act","bio","across domain","act-bio","jump up and down-feel hungry",63
+"pilot_2zv63jjqvs","causal_trial_29",4682,75,"feel tired","take a walk","bio","act","across domain","bio-act","feel tired-take a walk",52
+"pilot_2zv63jjqvs","causal_trial_30",5896,100,"feel sick","feel pain","bio","bio","within domain","bio-bio","feel sick-feel pain",87
+"pilot_2zv63jjqvs","causal_trial_31",6147,76,"think about something","take a walk","cog","act","across domain","cog-act","think about something-take a walk",83
+"pilot_2zv63jjqvs","causal_trial_32",4313,76,"see something","feel scared","cog","bio","across domain","cog-bio","see something-feel scared",79
+"pilot_2zv63jjqvs","causal_trial_33",7097,25,"feel pain","hear something","bio","cog","across domain","bio-cog","feel pain-hear something",25
+"pilot_2zv63jjqvs","causal_trial_34",4647,76,"remember something","feel pain","cog","bio","across domain","cog-bio","remember something-feel pain",56
+"pilot_2zv63jjqvs","causal_trial_35",5562,77,"think about something","reach for something","cog","act","across domain","cog-act","think about something-reach for something",79
+"pilot_2zv63jjqvs","causal_trial_36",4463,77,"jump up and down","feel pain","act","bio","across domain","act-bio","jump up and down-feel pain",65
+"pilot_2zv63jjqvs","causal_trial_37",5631,76,"feel pain","feel hungry","bio","bio","within domain","bio-bio","feel pain-feel hungry",50
+"pilot_2zv63jjqvs","causal_trial_38",4712,77,"hear something","remember something","cog","cog","within domain","cog-cog","hear something-remember something",56
+"pilot_2zv63jjqvs","causal_trial_39",31781,76,"kick something","feel scared","act","bio","across domain","act-bio","kick something-feel scared",75
+"pilot_2zv63jjqvs","causal_trial_40",5898,76,"feel scared","sit down","bio","act","across domain","bio-act","feel scared-sit down",72
+"pilot_2zv63jjqvs","causal_trial_41",4761,77,"think about something","feel scared","cog","bio","across domain","cog-bio","think about something-feel scared",69
+"pilot_2zv63jjqvs","causal_trial_42",4680,77,"feel tired","choose what to do","bio","cog","across domain","bio-cog","feel tired-choose what to do",68
+"pilot_41dqpcukma","causal_trial_1",3361,70,"see something","feel scared","cog","bio","across domain","cog-bio","see something-feel scared",79
+"pilot_41dqpcukma","causal_trial_2",3206,63,"think about something","feel scared","cog","bio","across domain","cog-bio","think about something-feel scared",69
+"pilot_41dqpcukma","causal_trial_3",2457,32,"take a walk","feel tired","act","bio","across domain","act-bio","take a walk-feel tired",64
+"pilot_41dqpcukma","causal_trial_4",2354,58,"feel scared","remember something","bio","cog","across domain","bio-cog","feel scared-remember something",78
+"pilot_41dqpcukma","causal_trial_5",3952,28,"sit down","hear something","act","cog","across domain","act-cog","sit down-hear something",49
+"pilot_41dqpcukma","causal_trial_6",3091,42,"take a walk","choose what to do","act","cog","across domain","act-cog","take a walk-choose what to do",59
+"pilot_41dqpcukma","causal_trial_7",6147,79,"feel pain","feel tired","bio","bio","within domain","bio-bio","feel pain-feel tired",64
+"pilot_41dqpcukma","causal_trial_8",3439,75,"take a walk","see something","act","cog","across domain","act-cog","take a walk-see something",90
+"pilot_41dqpcukma","causal_trial_9",3215,31,"see something","feel tired","cog","bio","across domain","cog-bio","see something-feel tired",31
+"pilot_41dqpcukma","causal_trial_10",2917,33,"reach for something","feel hungry","act","bio","across domain","act-bio","reach for something-feel hungry",59
+"pilot_41dqpcukma","causal_trial_11",2454,66,"feel pain","sit down","bio","act","across domain","bio-act","feel pain-sit down",77
+"pilot_41dqpcukma","causal_trial_12",2438,36,"remember something","take a walk","cog","act","across domain","cog-act","remember something-take a walk",51
+"pilot_41dqpcukma","causal_trial_13",3705,65,"think about something","jump up and down","cog","act","across domain","cog-act","think about something-jump up and down",74
+"pilot_41dqpcukma","causal_trial_14",2282,35,"hear something","jump up and down","cog","act","across domain","cog-act","hear something-jump up and down",38
+"pilot_41dqpcukma","causal_trial_15",3367,67,"feel hungry","feel pain","bio","bio","within domain","bio-bio","feel hungry-feel pain",78
+"pilot_41dqpcukma","causal_trial_16",2729,20,"kick something","reach for something","act","act","within domain","act-act","kick something-reach for something",63
+"pilot_41dqpcukma","causal_trial_17",2722,49,"feel scared","see something","bio","cog","across domain","bio-cog","feel scared-see something",28
+"pilot_41dqpcukma","causal_trial_18",4200,61,"feel pain","take a walk","bio","act","across domain","bio-act","feel pain-take a walk",61
+"pilot_41dqpcukma","causal_trial_19",3206,61,"see something","hear something","cog","cog","within domain","cog-cog","see something-hear something",55
+"pilot_41dqpcukma","causal_trial_20",2583,31,"sit down","take a walk","act","act","within domain","act-act","sit down-take a walk",36
+"pilot_41dqpcukma","causal_trial_21",3184,63,"see something","feel pain","cog","bio","across domain","cog-bio","see something-feel pain",64
+"pilot_41dqpcukma","causal_trial_22",3631,63,"feel tired","think about something","bio","cog","across domain","bio-cog","feel tired-think about something",63
+"pilot_41dqpcukma","causal_trial_23",2405,19,"jump up and down","sit down","act","act","within domain","act-act","jump up and down-sit down",59
+"pilot_41dqpcukma","causal_trial_24",2439,31,"see something","feel hungry","cog","bio","across domain","cog-bio","see something-feel hungry",64
+"pilot_41dqpcukma","causal_trial_25",2534,33,"feel pain","kick something","bio","act","across domain","bio-act","feel pain-kick something",54
+"pilot_41dqpcukma","causal_trial_26",2201,64,"feel scared","feel pain","bio","bio","within domain","bio-bio","feel scared-feel pain",68
+"pilot_41dqpcukma","causal_trial_27",1922,33,"feel sick","reach for something","bio","act","across domain","bio-act","feel sick-reach for something",62
+"pilot_41dqpcukma","causal_trial_28",2569,39,"see something","sit down","cog","act","across domain","cog-act","see something-sit down",56
+"pilot_41dqpcukma","causal_trial_29",2716,60,"kick something","sit down","act","act","within domain","act-act","kick something-sit down",55
+"pilot_41dqpcukma","causal_trial_30",2551,27,"reach for something","think about something","act","cog","across domain","act-cog","reach for something-think about something",62
+"pilot_41dqpcukma","causal_trial_31",2916,19,"sit down","feel tired","act","bio","across domain","act-bio","sit down-feel tired",19
+"pilot_41dqpcukma","causal_trial_32",2607,64,"feel sick","feel pain","bio","bio","within domain","bio-bio","feel sick-feel pain",87
+"pilot_41dqpcukma","causal_trial_33",2031,35,"feel scared","think about something","bio","cog","across domain","bio-cog","feel scared-think about something",67
+"pilot_41dqpcukma","causal_trial_34",4204,63,"feel tired","reach for something","bio","act","across domain","bio-act","feel tired-reach for something",63
+"pilot_41dqpcukma","causal_trial_35",3216,63,"hear something","feel hungry","cog","bio","across domain","cog-bio","hear something-feel hungry",55
+"pilot_41dqpcukma","causal_trial_36",184023,61,"take a walk","feel pain","act","bio","across domain","act-bio","take a walk-feel pain",71
+"pilot_41dqpcukma","causal_trial_37",89944,61,"remember something","kick something","cog","act","across domain","cog-act","remember something-kick something",60
+"pilot_41dqpcukma","causal_trial_38",32005,61,"think about something","choose what to do","cog","cog","within domain","cog-cog","think about something-choose what to do",70
+"pilot_41dqpcukma","causal_trial_39",6888,62,"take a walk","think about something","act","cog","across domain","act-cog","take a walk-think about something",75
+"pilot_41dqpcukma","causal_trial_40",72363,61,"jump up and down","feel sick","act","bio","across domain","act-bio","jump up and down-feel sick",59
+"pilot_41dqpcukma","causal_trial_41",2767,62,"kick something","take a walk","act","act","within domain","act-act","kick something-take a walk",37
+"pilot_41dqpcukma","causal_trial_42",3364,61,"feel tired","kick something","bio","act","across domain","bio-act","feel tired-kick something",55
+"pilot_anxvs9jox4","causal_trial_1",5236,63,"hear something","feel hungry","cog","bio","across domain","cog-bio","hear something-feel hungry",55
+"pilot_anxvs9jox4","causal_trial_2",3819,76,"feel pain","reach for something","bio","act","across domain","bio-act","feel pain-reach for something",72
+"pilot_anxvs9jox4","causal_trial_3",4564,25,"reach for something","feel sick","act","bio","across domain","act-bio","reach for something-feel sick",37
+"pilot_anxvs9jox4","causal_trial_4",6963,0,"reach for something","hear something","act","cog","across domain","act-cog","reach for something-hear something",60
+"pilot_anxvs9jox4","causal_trial_5",25207,75,"jump up and down","think about something","act","cog","across domain","act-cog","jump up and down-think about something",50
+"pilot_anxvs9jox4","causal_trial_6",2882,95,"remember something","feel scared","cog","bio","across domain","cog-bio","remember something-feel scared",89
+"pilot_anxvs9jox4","causal_trial_7",3486,96,"feel pain","feel scared","bio","bio","within domain","bio-bio","feel pain-feel scared",87
+"pilot_anxvs9jox4","causal_trial_8",3811,27,"reach for something","kick something","act","act","within domain","act-act","reach for something-kick something",52
+"pilot_anxvs9jox4","causal_trial_9",4165,85,"remember something","think about something","cog","cog","within domain","cog-cog","remember something-think about something",92
+"pilot_anxvs9jox4","causal_trial_10",3645,74,"feel scared","choose what to do","bio","cog","across domain","bio-cog","feel scared-choose what to do",76
+"pilot_anxvs9jox4","causal_trial_11",3459,25,"feel sick","take a walk","bio","act","across domain","bio-act","feel sick-take a walk",38
+"pilot_anxvs9jox4","causal_trial_12",3030,70,"take a walk","feel sick","act","bio","across domain","act-bio","take a walk-feel sick",71
+"pilot_anxvs9jox4","causal_trial_13",6005,26,"take a walk","choose what to do","act","cog","across domain","act-cog","take a walk-choose what to do",59
+"pilot_anxvs9jox4","causal_trial_14",3278,77,"see something","jump up and down","cog","act","across domain","cog-act","see something-jump up and down",78
+"pilot_anxvs9jox4","causal_trial_15",2742,100,"think about something","feel sick","cog","bio","across domain","cog-bio","think about something-feel sick",81
+"pilot_anxvs9jox4","causal_trial_16",4486,0,"feel sick","see something","bio","cog","across domain","bio-cog","feel sick-see something",34
+"pilot_anxvs9jox4","causal_trial_17",4952,0,"take a walk","hear something","act","cog","across domain","act-cog","take a walk-hear something",39
+"pilot_anxvs9jox4","causal_trial_18",3484,0,"hear something","see something","cog","cog","within domain","cog-cog","hear something-see something",0
+"pilot_anxvs9jox4","causal_trial_19",4190,75,"take a walk","think about something","act","cog","across domain","act-cog","take a walk-think about something",75
+"pilot_anxvs9jox4","causal_trial_20",3187,75,"feel pain","choose what to do","bio","cog","across domain","bio-cog","feel pain-choose what to do",72
+"pilot_anxvs9jox4","causal_trial_21",2777,76,"feel sick","sit down","bio","act","across domain","bio-act","feel sick-sit down",76
+"pilot_anxvs9jox4","causal_trial_22",3256,76,"feel sick","reach for something","bio","act","across domain","bio-act","feel sick-reach for something",62
+"pilot_anxvs9jox4","causal_trial_23",3169,0,"jump up and down","kick something","act","act","within domain","act-act","jump up and down-kick something",54
+"pilot_anxvs9jox4","causal_trial_24",2596,0,"feel tired","see something","bio","cog","across domain","bio-cog","feel tired-see something",0
+"pilot_anxvs9jox4","causal_trial_25",2789,72,"kick something","feel tired","act","bio","across domain","act-bio","kick something-feel tired",50
+"pilot_anxvs9jox4","causal_trial_26",31841,28,"feel hungry","feel tired","bio","bio","within domain","bio-bio","feel hungry-feel tired",55
+"pilot_anxvs9jox4","causal_trial_27",6897,100,"feel pain","remember something","bio","cog","across domain","bio-cog","feel pain-remember something",100
+"pilot_anxvs9jox4","causal_trial_28",3151,71,"kick something","remember something","act","cog","across domain","act-cog","kick something-remember something",56
+"pilot_anxvs9jox4","causal_trial_29",8983,70,"sit down","see something","act","cog","across domain","act-cog","sit down-see something",62
+"pilot_anxvs9jox4","causal_trial_30",3396,79,"think about something","jump up and down","cog","act","across domain","cog-act","think about something-jump up and down",74
+"pilot_anxvs9jox4","causal_trial_31",3073,100,"choose what to do","feel scared","cog","bio","across domain","cog-bio","choose what to do-feel scared",84
+"pilot_anxvs9jox4","causal_trial_32",14017,75,"feel pain","think about something","bio","cog","across domain","bio-cog","feel pain-think about something",46
+"pilot_anxvs9jox4","causal_trial_33",2904,0,"feel scared","hear something","bio","cog","across domain","bio-cog","feel scared-hear something",28
+"pilot_anxvs9jox4","causal_trial_34",2794,82,"think about something","feel tired","cog","bio","across domain","cog-bio","think about something-feel tired",69
+"pilot_anxvs9jox4","causal_trial_35",2798,78,"see something","feel hungry","cog","bio","across domain","cog-bio","see something-feel hungry",64
+"pilot_anxvs9jox4","causal_trial_36",6617,32,"take a walk","feel scared","act","bio","across domain","act-bio","take a walk-feel scared",26
+"pilot_anxvs9jox4","causal_trial_37",14412,76,"feel scared","feel sick","bio","bio","within domain","bio-bio","feel scared-feel sick",72
+"pilot_anxvs9jox4","causal_trial_38",6893,71,"feel scared","take a walk","bio","act","across domain","bio-act","feel scared-take a walk",55
+"pilot_anxvs9jox4","causal_trial_39",2612,24,"feel hungry","jump up and down","bio","act","across domain","bio-act","feel hungry-jump up and down",31
+"pilot_anxvs9jox4","causal_trial_40",4066,77,"feel hungry","feel pain","bio","bio","within domain","bio-bio","feel hungry-feel pain",78
+"pilot_anxvs9jox4","causal_trial_41",3283,0,"remember something","hear something","cog","cog","within domain","cog-cog","remember something-hear something",16
+"pilot_anxvs9jox4","causal_trial_42",27975,62,"kick something","see something","act","cog","across domain","act-cog","kick something-see something",64
+"pilot_bzhngrpsyr","causal_trial_1",71460,40,"feel pain","feel sick","bio","bio","within domain","bio-bio","feel pain-feel sick",67
+"pilot_bzhngrpsyr","causal_trial_2",7402,68,"take a walk","feel sick","act","bio","across domain","act-bio","take a walk-feel sick",71
+"pilot_bzhngrpsyr","causal_trial_3",18390,40,"choose what to do","jump up and down","cog","act","across domain","cog-act","choose what to do-jump up and down",60
+"pilot_bzhngrpsyr","causal_trial_4",11396,69,"feel sick","feel tired","bio","bio","within domain","bio-bio","feel sick-feel tired",72
+"pilot_bzhngrpsyr","causal_trial_5",16593,30,"hear something","take a walk","cog","act","across domain","cog-act","hear something-take a walk",50
+"pilot_bzhngrpsyr","causal_trial_6",13991,34,"hear something","remember something","cog","cog","within domain","cog-cog","hear something-remember something",56
+"pilot_bzhngrpsyr","causal_trial_7",13264,43,"feel hungry","think about something","bio","cog","across domain","bio-cog","feel hungry-think about something",59
+"pilot_bzhngrpsyr","causal_trial_8",17907,40,"kick something","feel tired","act","bio","across domain","act-bio","kick something-feel tired",50
+"pilot_bzhngrpsyr","causal_trial_9",7411,36,"sit down","reach for something","act","act","within domain","act-act","sit down-reach for something",36
+"pilot_bzhngrpsyr","causal_trial_10",6360,55,"feel scared","hear something","bio","cog","across domain","bio-cog","feel scared-hear something",28
+"pilot_bzhngrpsyr","causal_trial_11",9510,61,"feel sick","take a walk","bio","act","across domain","bio-act","feel sick-take a walk",38
+"pilot_bzhngrpsyr","causal_trial_12",8740,36,"feel tired","choose what to do","bio","cog","across domain","bio-cog","feel tired-choose what to do",68
+"pilot_bzhngrpsyr","causal_trial_13",9001,43,"think about something","choose what to do","cog","cog","within domain","cog-cog","think about something-choose what to do",70
+"pilot_bzhngrpsyr","causal_trial_14",11344,34,"think about something","feel tired","cog","bio","across domain","cog-bio","think about something-feel tired",69
+"pilot_bzhngrpsyr","causal_trial_15",13914,68,"remember something","jump up and down","cog","act","across domain","cog-act","remember something-jump up and down",76
+"pilot_bzhngrpsyr","causal_trial_16",5310,39,"jump up and down","feel hungry","act","bio","across domain","act-bio","jump up and down-feel hungry",63
+"pilot_bzhngrpsyr","causal_trial_17",9315,45,"feel scared","jump up and down","bio","act","across domain","bio-act","feel scared-jump up and down",50
+"pilot_bzhngrpsyr","causal_trial_18",8213,46,"remember something","feel hungry","cog","bio","across domain","cog-bio","remember something-feel hungry",54
+"pilot_bzhngrpsyr","causal_trial_19",17842,35,"feel tired","take a walk","bio","act","across domain","bio-act","feel tired-take a walk",52
+"pilot_bzhngrpsyr","causal_trial_20",32030,35,"sit down","hear something","act","cog","across domain","act-cog","sit down-hear something",49
+"pilot_bzhngrpsyr","causal_trial_21",15413,32,"jump up and down","feel pain","act","bio","across domain","act-bio","jump up and down-feel pain",65
+"pilot_bzhngrpsyr","causal_trial_22",27166,43,"think about something","feel scared","cog","bio","across domain","cog-bio","think about something-feel scared",69
+"pilot_bzhngrpsyr","causal_trial_23",5949,39,"jump up and down","kick something","act","act","within domain","act-act","jump up and down-kick something",54
+"pilot_bzhngrpsyr","causal_trial_24",7222,41,"remember something","feel tired","cog","bio","across domain","cog-bio","remember something-feel tired",66
+"pilot_bzhngrpsyr","causal_trial_25",6378,42,"hear something","jump up and down","cog","act","across domain","cog-act","hear something-jump up and down",38
+"pilot_bzhngrpsyr","causal_trial_26",6213,41,"feel pain","choose what to do","bio","cog","across domain","bio-cog","feel pain-choose what to do",72
+"pilot_bzhngrpsyr","causal_trial_27",6199,54,"feel scared","think about something","bio","cog","across domain","bio-cog","feel scared-think about something",67
+"pilot_bzhngrpsyr","causal_trial_28",5426,45,"feel scared","sit down","bio","act","across domain","bio-act","feel scared-sit down",72
+"pilot_bzhngrpsyr","causal_trial_29",4599,45,"feel sick","feel hungry","bio","bio","within domain","bio-bio","feel sick-feel hungry",45
+"pilot_bzhngrpsyr","causal_trial_30",7463,54,"feel pain","see something","bio","cog","across domain","bio-cog","feel pain-see something",26
+"pilot_bzhngrpsyr","causal_trial_31",6111,45,"feel hungry","remember something","bio","cog","across domain","bio-cog","feel hungry-remember something",45
+"pilot_bzhngrpsyr","causal_trial_32",4413,48,"choose what to do","think about something","cog","cog","within domain","cog-cog","choose what to do-think about something",48
+"pilot_bzhngrpsyr","causal_trial_33",5510,52,"see something","choose what to do","cog","cog","within domain","cog-cog","see something-choose what to do",68
+"pilot_bzhngrpsyr","causal_trial_34",4466,44,"feel hungry","hear something","bio","cog","across domain","bio-cog","feel hungry-hear something",36
+"pilot_bzhngrpsyr","causal_trial_35",5450,45,"sit down","feel hungry","act","bio","across domain","act-bio","sit down-feel hungry",45
+"pilot_bzhngrpsyr","causal_trial_36",6875,47,"sit down","remember something","act","cog","across domain","act-cog","sit down-remember something",69
+"pilot_bzhngrpsyr","causal_trial_37",4872,44,"feel pain","reach for something","bio","act","across domain","bio-act","feel pain-reach for something",72
+"pilot_bzhngrpsyr","causal_trial_38",8877,40,"jump up and down","feel sick","act","bio","across domain","act-bio","jump up and down-feel sick",59
+"pilot_bzhngrpsyr","causal_trial_39",5245,43,"feel scared","feel sick","bio","bio","within domain","bio-bio","feel scared-feel sick",72
+"pilot_bzhngrpsyr","causal_trial_40",5071,48,"see something","sit down","cog","act","across domain","cog-act","see something-sit down",56
+"pilot_bzhngrpsyr","causal_trial_41",6222,46,"choose what to do","remember something","cog","cog","within domain","cog-cog","choose what to do-remember something",58
+"pilot_bzhngrpsyr","causal_trial_42",5373,55,"jump up and down","see something","act","cog","across domain","act-cog","jump up and down-see something",63
+"pilot_cjdb5fo72m","causal_trial_1",6492,96,"kick something","hear something","act","cog","across domain","act-cog","kick something-hear something",97
+"pilot_cjdb5fo72m","causal_trial_2",4525,4,"feel sick","jump up and down","bio","act","across domain","bio-act","feel sick-jump up and down",38
+"pilot_cjdb5fo72m","causal_trial_3",5917,75,"feel hungry","reach for something","bio","act","across domain","bio-act","feel hungry-reach for something",84
+"pilot_cjdb5fo72m","causal_trial_4",7306,82,"take a walk","sit down","act","act","within domain","act-act","take a walk-sit down",84
+"pilot_cjdb5fo72m","causal_trial_5",7252,75,"feel sick","think about something","bio","cog","across domain","bio-cog","feel sick-think about something",75
+"pilot_cjdb5fo72m","causal_trial_6",3849,74,"reach for something","hear something","act","cog","across domain","act-cog","reach for something-hear something",60
+"pilot_cjdb5fo72m","causal_trial_7",5297,75,"remember something","feel sick","cog","bio","across domain","cog-bio","remember something-feel sick",78
+"pilot_cjdb5fo72m","causal_trial_8",6335,86,"see something","kick something","cog","act","across domain","cog-act","see something-kick something",86
+"pilot_cjdb5fo72m","causal_trial_9",6760,81,"choose what to do","jump up and down","cog","act","across domain","cog-act","choose what to do-jump up and down",60
+"pilot_cjdb5fo72m","causal_trial_10",6872,37,"feel scared","take a walk","bio","act","across domain","bio-act","feel scared-take a walk",55
+"pilot_cjdb5fo72m","causal_trial_11",8095,75,"choose what to do","feel sick","cog","bio","across domain","cog-bio","choose what to do-feel sick",76
+"pilot_cjdb5fo72m","causal_trial_12",16652,64,"take a walk","think about something","act","cog","across domain","act-cog","take a walk-think about something",75
+"pilot_cjdb5fo72m","causal_trial_13",5492,62,"choose what to do","feel hungry","cog","bio","across domain","cog-bio","choose what to do-feel hungry",62
+"pilot_cjdb5fo72m","causal_trial_14",9737,64,"reach for something","feel sick","act","bio","across domain","act-bio","reach for something-feel sick",37
+"pilot_cjdb5fo72m","causal_trial_15",9258,100,"think about something","choose what to do","cog","cog","within domain","cog-cog","think about something-choose what to do",70
+"pilot_cjdb5fo72m","causal_trial_16",5807,76,"hear something","think about something","cog","cog","within domain","cog-cog","hear something-think about something",70
+"pilot_cjdb5fo72m","causal_trial_17",5653,11,"feel pain","see something","bio","cog","across domain","bio-cog","feel pain-see something",26
+"pilot_cjdb5fo72m","causal_trial_18",5899,84,"choose what to do","kick something","cog","act","across domain","cog-act","choose what to do-kick something",80
+"pilot_cjdb5fo72m","causal_trial_19",9962,64,"kick something","remember something","act","cog","across domain","act-cog","kick something-remember something",56
+"pilot_cjdb5fo72m","causal_trial_20",6818,20,"feel hungry","jump up and down","bio","act","across domain","bio-act","feel hungry-jump up and down",31
+"pilot_cjdb5fo72m","causal_trial_21",5681,86,"feel pain","sit down","bio","act","across domain","bio-act","feel pain-sit down",77
+"pilot_cjdb5fo72m","causal_trial_22",5575,25,"sit down","kick something","act","act","within domain","act-act","sit down-kick something",22
+"pilot_cjdb5fo72m","causal_trial_23",8641,7,"think about something","hear something","cog","cog","within domain","cog-cog","think about something-hear something",8
+"pilot_cjdb5fo72m","causal_trial_24",6467,82,"remember something","feel scared","cog","bio","across domain","cog-bio","remember something-feel scared",89
+"pilot_cjdb5fo72m","causal_trial_25",13268,61,"feel tired","feel scared","bio","bio","within domain","bio-bio","feel tired-feel scared",51
+"pilot_cjdb5fo72m","causal_trial_26",5460,68,"feel pain","feel sick","bio","bio","within domain","bio-bio","feel pain-feel sick",67
+"pilot_cjdb5fo72m","causal_trial_27",6461,9,"choose what to do","hear something","cog","cog","within domain","cog-cog","choose what to do-hear something",9
+"pilot_cjdb5fo72m","causal_trial_28",5133,82,"choose what to do","reach for something","cog","act","across domain","cog-act","choose what to do-reach for something",78
+"pilot_cjdb5fo72m","causal_trial_29",3473,89,"feel tired","sit down","bio","act","across domain","bio-act","feel tired-sit down",89
+"pilot_cjdb5fo72m","causal_trial_30",4650,84,"choose what to do","feel scared","cog","bio","across domain","cog-bio","choose what to do-feel scared",84
+"pilot_cjdb5fo72m","causal_trial_31",4300,75,"reach for something","think about something","act","cog","across domain","act-cog","reach for something-think about something",62
+"pilot_cjdb5fo72m","causal_trial_32",5532,83,"see something","jump up and down","cog","act","across domain","cog-act","see something-jump up and down",78
+"pilot_cjdb5fo72m","causal_trial_33",5951,20,"remember something","see something","cog","cog","within domain","cog-cog","remember something-see something",10
+"pilot_cjdb5fo72m","causal_trial_34",6805,7,"remember something","hear something","cog","cog","within domain","cog-cog","remember something-hear something",16
+"pilot_cjdb5fo72m","causal_trial_35",6987,19,"reach for something","take a walk","act","act","within domain","act-act","reach for something-take a walk",19
+"pilot_cjdb5fo72m","causal_trial_36",4089,83,"jump up and down","feel pain","act","bio","across domain","act-bio","jump up and down-feel pain",65
+"pilot_cjdb5fo72m","causal_trial_37",9055,55,"sit down","see something","act","cog","across domain","act-cog","sit down-see something",62
+"pilot_cjdb5fo72m","causal_trial_38",8616,83,"kick something","jump up and down","act","act","within domain","act-act","kick something-jump up and down",66
+"pilot_cjdb5fo72m","causal_trial_39",6344,22,"feel pain","feel hungry","bio","bio","within domain","bio-bio","feel pain-feel hungry",50
+"pilot_cjdb5fo72m","causal_trial_40",7285,41,"sit down","feel sick","act","bio","across domain","act-bio","sit down-feel sick",54
+"pilot_cjdb5fo72m","causal_trial_41",7700,25,"feel tired","kick something","bio","act","across domain","bio-act","feel tired-kick something",55
+"pilot_cjdb5fo72m","causal_trial_42",6230,78,"hear something","choose what to do","cog","cog","within domain","cog-cog","hear something-choose what to do",77
+"pilot_fy20d4dn6x","causal_trial_1",3982,76,"remember something","feel sick","cog","bio","across domain","cog-bio","remember something-feel sick",78
+"pilot_fy20d4dn6x","causal_trial_2",3643,43,"sit down","feel sick","act","bio","across domain","act-bio","sit down-feel sick",54
+"pilot_fy20d4dn6x","causal_trial_3",4020,76,"jump up and down","feel hungry","act","bio","across domain","act-bio","jump up and down-feel hungry",63
+"pilot_fy20d4dn6x","causal_trial_4",14005,76,"reach for something","hear something","act","cog","across domain","act-cog","reach for something-hear something",60
+"pilot_fy20d4dn6x","causal_trial_5",6268,71,"jump up and down","sit down","act","act","within domain","act-act","jump up and down-sit down",59
+"pilot_fy20d4dn6x","causal_trial_6",8526,87,"see something","take a walk","cog","act","across domain","cog-act","see something-take a walk",79
+"pilot_fy20d4dn6x","causal_trial_7",3368,60,"feel tired","kick something","bio","act","across domain","bio-act","feel tired-kick something",55
+"pilot_fy20d4dn6x","causal_trial_8",5255,96,"feel sick","feel pain","bio","bio","within domain","bio-bio","feel sick-feel pain",87
+"pilot_fy20d4dn6x","causal_trial_9",5059,77,"choose what to do","sit down","cog","act","across domain","cog-act","choose what to do-sit down",83
+"pilot_fy20d4dn6x","causal_trial_10",4799,65,"take a walk","kick something","act","act","within domain","act-act","take a walk-kick something",47
+"pilot_fy20d4dn6x","causal_trial_11",18244,70,"hear something","feel tired","cog","bio","across domain","cog-bio","hear something-feel tired",70
+"pilot_fy20d4dn6x","causal_trial_12",8914,75,"think about something","kick something","cog","act","across domain","cog-act","think about something-kick something",62
+"pilot_fy20d4dn6x","causal_trial_13",2268,75,"feel tired","feel hungry","bio","bio","within domain","bio-bio","feel tired-feel hungry",75
+"pilot_fy20d4dn6x","causal_trial_14",2633,57,"feel tired","remember something","bio","cog","across domain","bio-cog","feel tired-remember something",77
+"pilot_fy20d4dn6x","causal_trial_15",16251,72,"feel pain","sit down","bio","act","across domain","bio-act","feel pain-sit down",77
+"pilot_fy20d4dn6x","causal_trial_16",4152,79,"feel hungry","feel tired","bio","bio","within domain","bio-bio","feel hungry-feel tired",55
+"pilot_fy20d4dn6x","causal_trial_17",15756,68,"kick something","feel scared","act","bio","across domain","act-bio","kick something-feel scared",75
+"pilot_fy20d4dn6x","causal_trial_18",6909,84,"feel scared","kick something","bio","act","across domain","bio-act","feel scared-kick something",89
+"pilot_fy20d4dn6x","causal_trial_19",4828,73,"feel pain","reach for something","bio","act","across domain","bio-act","feel pain-reach for something",72
+"pilot_fy20d4dn6x","causal_trial_20",4385,78,"feel hungry","feel pain","bio","bio","within domain","bio-bio","feel hungry-feel pain",78
+"pilot_fy20d4dn6x","causal_trial_21",5641,75,"feel hungry","think about something","bio","cog","across domain","bio-cog","feel hungry-think about something",59
+"pilot_fy20d4dn6x","causal_trial_22",4240,63,"reach for something","feel sick","act","bio","across domain","act-bio","reach for something-feel sick",37
+"pilot_fy20d4dn6x","causal_trial_23",4306,39,"jump up and down","feel scared","act","bio","across domain","act-bio","jump up and down-feel scared",50
+"pilot_fy20d4dn6x","causal_trial_24",20344,71,"jump up and down","see something","act","cog","across domain","act-cog","jump up and down-see something",63
+"pilot_fy20d4dn6x","causal_trial_25",5889,82,"feel hungry","feel sick","bio","bio","within domain","bio-bio","feel hungry-feel sick",82
+"pilot_fy20d4dn6x","causal_trial_26",3013,69,"jump up and down","reach for something","act","act","within domain","act-act","jump up and down-reach for something",69
+"pilot_fy20d4dn6x","causal_trial_27",10411,74,"kick something","feel hungry","act","bio","across domain","act-bio","kick something-feel hungry",64
+"pilot_fy20d4dn6x","causal_trial_28",6251,79,"feel scared","sit down","bio","act","across domain","bio-act","feel scared-sit down",72
+"pilot_fy20d4dn6x","causal_trial_29",4489,69,"kick something","think about something","act","cog","across domain","act-cog","kick something-think about something",81
+"pilot_fy20d4dn6x","causal_trial_30",4840,76,"see something","hear something","cog","cog","within domain","cog-cog","see something-hear something",55
+"pilot_fy20d4dn6x","causal_trial_31",2373,86,"feel tired","feel pain","bio","bio","within domain","bio-bio","feel tired-feel pain",67
+"pilot_fy20d4dn6x","causal_trial_32",4160,94,"kick something","feel tired","act","bio","across domain","act-bio","kick something-feel tired",50
+"pilot_fy20d4dn6x","causal_trial_33",2486,56,"feel hungry","see something","bio","cog","across domain","bio-cog","feel hungry-see something",56
+"pilot_fy20d4dn6x","causal_trial_34",22719,93,"feel pain","feel sick","bio","bio","within domain","bio-bio","feel pain-feel sick",67
+"pilot_fy20d4dn6x","causal_trial_35",3960,85,"choose what to do","take a walk","cog","act","across domain","cog-act","choose what to do-take a walk",76
+"pilot_fy20d4dn6x","causal_trial_36",2696,87,"feel hungry","reach for something","bio","act","across domain","bio-act","feel hungry-reach for something",84
+"pilot_fy20d4dn6x","causal_trial_37",3238,75,"think about something","feel sick","cog","bio","across domain","cog-bio","think about something-feel sick",81
+"pilot_fy20d4dn6x","causal_trial_38",2584,79,"feel tired","choose what to do","bio","cog","across domain","bio-cog","feel tired-choose what to do",68
+"pilot_fy20d4dn6x","causal_trial_39",3083,38,"feel hungry","jump up and down","bio","act","across domain","bio-act","feel hungry-jump up and down",31
+"pilot_fy20d4dn6x","causal_trial_40",2608,25,"feel tired","take a walk","bio","act","across domain","bio-act","feel tired-take a walk",52
+"pilot_fy20d4dn6x","causal_trial_41",10374,60,"jump up and down","take a walk","act","act","within domain","act-act","jump up and down-take a walk",42
+"pilot_fy20d4dn6x","causal_trial_42",1985,68,"reach for something","feel hungry","act","bio","across domain","act-bio","reach for something-feel hungry",59
+"pilot_hn1zep0ba1","causal_trial_1",9487,75,"feel scared","remember something","bio","cog","across domain","bio-cog","feel scared-remember something",78
+"pilot_hn1zep0ba1","causal_trial_2",6539,75,"feel tired","take a walk","bio","act","across domain","bio-act","feel tired-take a walk",52
+"pilot_hn1zep0ba1","causal_trial_3",16450,75,"sit down","feel pain","act","bio","across domain","act-bio","sit down-feel pain",75
+"pilot_hn1zep0ba1","causal_trial_4",8043,100,"remember something","reach for something","cog","act","across domain","cog-act","remember something-reach for something",88
+"pilot_hn1zep0ba1","causal_trial_5",4736,0,"sit down","take a walk","act","act","within domain","act-act","sit down-take a walk",36
+"pilot_hn1zep0ba1","causal_trial_6",8658,98,"kick something","hear something","act","cog","across domain","act-cog","kick something-hear something",97
+"pilot_hn1zep0ba1","causal_trial_7",6004,12,"hear something","feel pain","cog","bio","across domain","cog-bio","hear something-feel pain",44
+"pilot_hn1zep0ba1","causal_trial_8",8356,63,"choose what to do","feel hungry","cog","bio","across domain","cog-bio","choose what to do-feel hungry",62
+"pilot_hn1zep0ba1","causal_trial_9",8837,39,"choose what to do","remember something","cog","cog","within domain","cog-cog","choose what to do-remember something",58
+"pilot_hn1zep0ba1","causal_trial_10",6635,64,"hear something","think about something","cog","cog","within domain","cog-cog","hear something-think about something",70
+"pilot_hn1zep0ba1","causal_trial_11",8557,56,"remember something","feel hungry","cog","bio","across domain","cog-bio","remember something-feel hungry",54
+"pilot_hn1zep0ba1","causal_trial_12",6545,75,"choose what to do","reach for something","cog","act","across domain","cog-act","choose what to do-reach for something",78
+"pilot_hn1zep0ba1","causal_trial_13",5124,35,"remember something","feel pain","cog","bio","across domain","cog-bio","remember something-feel pain",56
+"pilot_hn1zep0ba1","causal_trial_14",4623,60,"hear something","reach for something","cog","act","across domain","cog-act","hear something-reach for something",62
+"pilot_hn1zep0ba1","causal_trial_15",6237,85,"take a walk","see something","act","cog","across domain","act-cog","take a walk-see something",90
+"pilot_hn1zep0ba1","causal_trial_16",4443,9,"reach for something","feel sick","act","bio","across domain","act-bio","reach for something-feel sick",37
+"pilot_hn1zep0ba1","causal_trial_17",6517,35,"remember something","sit down","cog","act","across domain","cog-act","remember something-sit down",36
+"pilot_hn1zep0ba1","causal_trial_18",6271,77,"sit down","feel sick","act","bio","across domain","act-bio","sit down-feel sick",54
+"pilot_hn1zep0ba1","causal_trial_19",5331,65,"feel tired","feel pain","bio","bio","within domain","bio-bio","feel tired-feel pain",67
+"pilot_hn1zep0ba1","causal_trial_20",9426,75,"feel scared","take a walk","bio","act","across domain","bio-act","feel scared-take a walk",55
+"pilot_hn1zep0ba1","causal_trial_21",7879,89,"jump up and down","kick something","act","act","within domain","act-act","jump up and down-kick something",54
+"pilot_hn1zep0ba1","causal_trial_22",5034,11,"kick something","feel tired","act","bio","across domain","act-bio","kick something-feel tired",50
+"pilot_hn1zep0ba1","causal_trial_23",4380,39,"think about something","feel pain","cog","bio","across domain","cog-bio","think about something-feel pain",58
+"pilot_hn1zep0ba1","causal_trial_24",3702,77,"feel pain","sit down","bio","act","across domain","bio-act","feel pain-sit down",77
+"pilot_hn1zep0ba1","causal_trial_25",4875,26,"reach for something","feel tired","act","bio","across domain","act-bio","reach for something-feel tired",49
+"pilot_hn1zep0ba1","causal_trial_26",5358,100,"feel pain","feel scared","bio","bio","within domain","bio-bio","feel pain-feel scared",87
+"pilot_hn1zep0ba1","causal_trial_27",4099,81,"feel hungry","choose what to do","bio","cog","across domain","bio-cog","feel hungry-choose what to do",88
+"pilot_hn1zep0ba1","causal_trial_28",4058,61,"see something","feel hungry","cog","bio","across domain","cog-bio","see something-feel hungry",64
+"pilot_hn1zep0ba1","causal_trial_29",3307,83,"feel sick","feel tired","bio","bio","within domain","bio-bio","feel sick-feel tired",72
+"pilot_hn1zep0ba1","causal_trial_30",5305,61,"choose what to do","feel pain","cog","bio","across domain","cog-bio","choose what to do-feel pain",46
+"pilot_hn1zep0ba1","causal_trial_31",4246,76,"see something","take a walk","cog","act","across domain","cog-act","see something-take a walk",79
+"pilot_hn1zep0ba1","causal_trial_32",4531,87,"feel scared","sit down","bio","act","across domain","bio-act","feel scared-sit down",72
+"pilot_hn1zep0ba1","causal_trial_33",9669,86,"feel sick","feel scared","bio","bio","within domain","bio-bio","feel sick-feel scared",84
+"pilot_hn1zep0ba1","causal_trial_34",6357,88,"sit down","think about something","act","cog","across domain","act-cog","sit down-think about something",58
+"pilot_hn1zep0ba1","causal_trial_35",8964,67,"feel sick","see something","bio","cog","across domain","bio-cog","feel sick-see something",34
+"pilot_hn1zep0ba1","causal_trial_36",3997,77,"think about something","take a walk","cog","act","across domain","cog-act","think about something-take a walk",83
+"pilot_hn1zep0ba1","causal_trial_37",4632,87,"feel scared","feel pain","bio","bio","within domain","bio-bio","feel scared-feel pain",68
+"pilot_hn1zep0ba1","causal_trial_38",3947,75,"feel hungry","take a walk","bio","act","across domain","bio-act","feel hungry-take a walk",34
+"pilot_hn1zep0ba1","causal_trial_39",4043,76,"feel scared","jump up and down","bio","act","across domain","bio-act","feel scared-jump up and down",50
+"pilot_hn1zep0ba1","causal_trial_40",3787,66,"feel pain","choose what to do","bio","cog","across domain","bio-cog","feel pain-choose what to do",72
+"pilot_hn1zep0ba1","causal_trial_41",4530,85,"feel scared","reach for something","bio","act","across domain","bio-act","feel scared-reach for something",78
+"pilot_hn1zep0ba1","causal_trial_42",5685,29,"jump up and down","choose what to do","act","cog","across domain","act-cog","jump up and down-choose what to do",29
+"pilot_htdpl9r472","causal_trial_1",7394,0,"sit down","jump up and down","act","act","within domain","act-act","sit down-jump up and down",37
+"pilot_htdpl9r472","causal_trial_2",5829,77,"feel pain","feel scared","bio","bio","within domain","bio-bio","feel pain-feel scared",87
+"pilot_htdpl9r472","causal_trial_3",7607,70,"feel pain","feel hungry","bio","bio","within domain","bio-bio","feel pain-feel hungry",50
+"pilot_htdpl9r472","causal_trial_4",8146,99,"feel scared","think about something","bio","cog","across domain","bio-cog","feel scared-think about something",67
+"pilot_htdpl9r472","causal_trial_5",4642,100,"feel pain","remember something","bio","cog","across domain","bio-cog","feel pain-remember something",100
+"pilot_htdpl9r472","causal_trial_6",7236,43,"see something","feel pain","cog","bio","across domain","cog-bio","see something-feel pain",64
+"pilot_htdpl9r472","causal_trial_7",5505,98,"take a walk","see something","act","cog","across domain","act-cog","take a walk-see something",90
+"pilot_htdpl9r472","causal_trial_8",6533,6,"kick something","take a walk","act","act","within domain","act-act","kick something-take a walk",37
+"pilot_htdpl9r472","causal_trial_9",6807,95,"feel tired","remember something","bio","cog","across domain","bio-cog","feel tired-remember something",77
+"pilot_htdpl9r472","causal_trial_10",8180,81,"sit down","choose what to do","act","cog","across domain","act-cog","sit down-choose what to do",81
+"pilot_htdpl9r472","causal_trial_11",4984,12,"feel hungry","take a walk","bio","act","across domain","bio-act","feel hungry-take a walk",34
+"pilot_htdpl9r472","causal_trial_12",5801,50,"see something","hear something","cog","cog","within domain","cog-cog","see something-hear something",55
+"pilot_htdpl9r472","causal_trial_13",9924,65,"hear something","reach for something","cog","act","across domain","cog-act","hear something-reach for something",62
+"pilot_htdpl9r472","causal_trial_14",5654,93,"think about something","feel scared","cog","bio","across domain","cog-bio","think about something-feel scared",69
+"pilot_htdpl9r472","causal_trial_15",7760,41,"reach for something","hear something","act","cog","across domain","act-cog","reach for something-hear something",60
+"pilot_htdpl9r472","causal_trial_16",6703,100,"see something","reach for something","cog","act","across domain","cog-act","see something-reach for something",100
+"pilot_htdpl9r472","causal_trial_17",5877,72,"feel sick","feel tired","bio","bio","within domain","bio-bio","feel sick-feel tired",72
+"pilot_htdpl9r472","causal_trial_18",6768,84,"remember something","jump up and down","cog","act","across domain","cog-act","remember something-jump up and down",76
+"pilot_htdpl9r472","causal_trial_19",6102,87,"choose what to do","feel scared","cog","bio","across domain","cog-bio","choose what to do-feel scared",84
+"pilot_htdpl9r472","causal_trial_20",3655,99,"remember something","feel scared","cog","bio","across domain","cog-bio","remember something-feel scared",89
+"pilot_htdpl9r472","causal_trial_21",6729,64,"choose what to do","feel tired","cog","bio","across domain","cog-bio","choose what to do-feel tired",42
+"pilot_htdpl9r472","causal_trial_22",4675,89,"feel sick","feel pain","bio","bio","within domain","bio-bio","feel sick-feel pain",87
+"pilot_htdpl9r472","causal_trial_23",5434,93,"see something","jump up and down","cog","act","across domain","cog-act","see something-jump up and down",78
+"pilot_htdpl9r472","causal_trial_24",4587,98,"take a walk","think about something","act","cog","across domain","act-cog","take a walk-think about something",75
+"pilot_htdpl9r472","causal_trial_25",6212,34,"feel scared","see something","bio","cog","across domain","bio-cog","feel scared-see something",28
+"pilot_htdpl9r472","causal_trial_26",4231,70,"feel pain","jump up and down","bio","act","across domain","bio-act","feel pain-jump up and down",48
+"pilot_htdpl9r472","causal_trial_27",3574,94,"feel scared","kick something","bio","act","across domain","bio-act","feel scared-kick something",89
+"pilot_htdpl9r472","causal_trial_28",7818,16,"think about something","hear something","cog","cog","within domain","cog-cog","think about something-hear something",8
+"pilot_htdpl9r472","causal_trial_29",4260,100,"feel scared","remember something","bio","cog","across domain","bio-cog","feel scared-remember something",78
+"pilot_htdpl9r472","causal_trial_30",4945,77,"feel scared","sit down","bio","act","across domain","bio-act","feel scared-sit down",72
+"pilot_htdpl9r472","causal_trial_31",5053,81,"take a walk","feel sick","act","bio","across domain","act-bio","take a walk-feel sick",71
+"pilot_htdpl9r472","causal_trial_32",5348,63,"hear something","feel hungry","cog","bio","across domain","cog-bio","hear something-feel hungry",55
+"pilot_htdpl9r472","causal_trial_33",4669,54,"feel scared","feel pain","bio","bio","within domain","bio-bio","feel scared-feel pain",68
+"pilot_htdpl9r472","causal_trial_34",8146,56,"take a walk","reach for something","act","act","within domain","act-act","take a walk-reach for something",66
+"pilot_htdpl9r472","causal_trial_35",4283,97,"feel pain","choose what to do","bio","cog","across domain","bio-cog","feel pain-choose what to do",72
+"pilot_htdpl9r472","causal_trial_36",4910,83,"reach for something","choose what to do","act","cog","across domain","act-cog","reach for something-choose what to do",84
+"pilot_htdpl9r472","causal_trial_37",5338,93,"feel pain","reach for something","bio","act","across domain","bio-act","feel pain-reach for something",72
+"pilot_htdpl9r472","causal_trial_38",6881,72,"feel sick","jump up and down","bio","act","across domain","bio-act","feel sick-jump up and down",38
+"pilot_htdpl9r472","causal_trial_39",5108,86,"kick something","reach for something","act","act","within domain","act-act","kick something-reach for something",63
+"pilot_htdpl9r472","causal_trial_40",5671,99,"feel hungry","reach for something","bio","act","across domain","bio-act","feel hungry-reach for something",84
+"pilot_htdpl9r472","causal_trial_41",4434,74,"reach for something","remember something","act","cog","across domain","act-cog","reach for something-remember something",66
+"pilot_htdpl9r472","causal_trial_42",5162,76,"reach for something","kick something","act","act","within domain","act-act","reach for something-kick something",52
+"pilot_jyzkq05t0m","causal_trial_1",4232,83,"remember something","feel sick","cog","bio","across domain","cog-bio","remember something-feel sick",78
+"pilot_jyzkq05t0m","causal_trial_2",4300,0,"think about something","hear something","cog","cog","within domain","cog-cog","think about something-hear something",8
+"pilot_jyzkq05t0m","causal_trial_3",6343,81,"take a walk","feel pain","act","bio","across domain","act-bio","take a walk-feel pain",71
+"pilot_jyzkq05t0m","causal_trial_4",5268,60,"feel scared","jump up and down","bio","act","across domain","bio-act","feel scared-jump up and down",50
+"pilot_jyzkq05t0m","causal_trial_5",3612,25,"feel tired","feel scared","bio","bio","within domain","bio-bio","feel tired-feel scared",51
+"pilot_jyzkq05t0m","causal_trial_6",3172,100,"hear something","feel scared","cog","bio","across domain","cog-bio","hear something-feel scared",100
+"pilot_jyzkq05t0m","causal_trial_7",3401,59,"reach for something","remember something","act","cog","across domain","act-cog","reach for something-remember something",66
+"pilot_jyzkq05t0m","causal_trial_8",4320,29,"sit down","think about something","act","cog","across domain","act-cog","sit down-think about something",58
+"pilot_jyzkq05t0m","causal_trial_9",3844,56,"feel scared","think about something","bio","cog","across domain","bio-cog","feel scared-think about something",67
+"pilot_jyzkq05t0m","causal_trial_10",6888,50,"remember something","take a walk","cog","act","across domain","cog-act","remember something-take a walk",51
+"pilot_jyzkq05t0m","causal_trial_11",3853,100,"kick something","feel pain","act","bio","across domain","act-bio","kick something-feel pain",96
+"pilot_jyzkq05t0m","causal_trial_12",3011,42,"feel sick","kick something","bio","act","across domain","bio-act","feel sick-kick something",42
+"pilot_jyzkq05t0m","causal_trial_13",3699,60,"remember something","kick something","cog","act","across domain","cog-act","remember something-kick something",60
+"pilot_jyzkq05t0m","causal_trial_14",2796,24,"jump up and down","think about something","act","cog","across domain","act-cog","jump up and down-think about something",50
+"pilot_jyzkq05t0m","causal_trial_15",2557,38,"feel scared","take a walk","bio","act","across domain","bio-act","feel scared-take a walk",55
+"pilot_jyzkq05t0m","causal_trial_16",5099,92,"remember something","think about something","cog","cog","within domain","cog-cog","remember something-think about something",92
+"pilot_jyzkq05t0m","causal_trial_17",3527,67,"hear something","feel sick","cog","bio","across domain","cog-bio","hear something-feel sick",66
+"pilot_jyzkq05t0m","causal_trial_18",2975,85,"see something","feel sick","cog","bio","across domain","cog-bio","see something-feel sick",85
+"pilot_jyzkq05t0m","causal_trial_19",7526,0,"remember something","see something","cog","cog","within domain","cog-cog","remember something-see something",10
+"pilot_jyzkq05t0m","causal_trial_20",3951,40,"feel pain","feel tired","bio","bio","within domain","bio-bio","feel pain-feel tired",64
+"pilot_jyzkq05t0m","causal_trial_21",3395,76,"feel sick","reach for something","bio","act","across domain","bio-act","feel sick-reach for something",62
+"pilot_jyzkq05t0m","causal_trial_22",2542,75,"feel scared","reach for something","bio","act","across domain","bio-act","feel scared-reach for something",78
+"pilot_jyzkq05t0m","causal_trial_23",6286,68,"see something","sit down","cog","act","across domain","cog-act","see something-sit down",56
+"pilot_jyzkq05t0m","causal_trial_24",4757,20,"choose what to do","feel tired","cog","bio","across domain","cog-bio","choose what to do-feel tired",42
+"pilot_jyzkq05t0m","causal_trial_25",3536,65,"feel scared","sit down","bio","act","across domain","bio-act","feel scared-sit down",72
+"pilot_jyzkq05t0m","causal_trial_26",6183,18,"see something","hear something","cog","cog","within domain","cog-cog","see something-hear something",55
+"pilot_jyzkq05t0m","causal_trial_27",4239,82,"feel pain","choose what to do","bio","cog","across domain","bio-cog","feel pain-choose what to do",72
+"pilot_jyzkq05t0m","causal_trial_28",3750,81,"choose what to do","feel scared","cog","bio","across domain","cog-bio","choose what to do-feel scared",84
+"pilot_jyzkq05t0m","causal_trial_29",3785,0,"feel scared","see something","bio","cog","across domain","bio-cog","feel scared-see something",28
+"pilot_jyzkq05t0m","causal_trial_30",3993,83,"see something","jump up and down","cog","act","across domain","cog-act","see something-jump up and down",78
+"pilot_jyzkq05t0m","causal_trial_31",3495,85,"see something","choose what to do","cog","cog","within domain","cog-cog","see something-choose what to do",68
+"pilot_jyzkq05t0m","causal_trial_32",3650,37,"feel hungry","feel tired","bio","bio","within domain","bio-bio","feel hungry-feel tired",55
+"pilot_jyzkq05t0m","causal_trial_33",3769,77,"take a walk","feel sick","act","bio","across domain","act-bio","take a walk-feel sick",71
+"pilot_jyzkq05t0m","causal_trial_34",2824,29,"take a walk","kick something","act","act","within domain","act-act","take a walk-kick something",47
+"pilot_jyzkq05t0m","causal_trial_35",5606,86,"see something","kick something","cog","act","across domain","cog-act","see something-kick something",86
+"pilot_jyzkq05t0m","causal_trial_36",2733,50,"kick something","jump up and down","act","act","within domain","act-act","kick something-jump up and down",66
+"pilot_jyzkq05t0m","causal_trial_37",2983,36,"remember something","sit down","cog","act","across domain","cog-act","remember something-sit down",36
+"pilot_jyzkq05t0m","causal_trial_38",2906,91,"feel hungry","feel pain","bio","bio","within domain","bio-bio","feel hungry-feel pain",78
+"pilot_jyzkq05t0m","causal_trial_39",2879,75,"jump up and down","feel sick","act","bio","across domain","act-bio","jump up and down-feel sick",59
+"pilot_jyzkq05t0m","causal_trial_40",3994,15,"choose what to do","feel pain","cog","bio","across domain","cog-bio","choose what to do-feel pain",46
+"pilot_jyzkq05t0m","causal_trial_41",3890,38,"sit down","hear something","act","cog","across domain","act-cog","sit down-hear something",49
+"pilot_jyzkq05t0m","causal_trial_42",3311,88,"feel sick","feel pain","bio","bio","within domain","bio-bio","feel sick-feel pain",87
+"pilot_sv3offwvby","causal_trial_1",5605,75,"feel hungry","feel tired","bio","bio","within domain","bio-bio","feel hungry-feel tired",55
+"pilot_sv3offwvby","causal_trial_2",3846,82,"feel pain","sit down","bio","act","across domain","bio-act","feel pain-sit down",77
+"pilot_sv3offwvby","causal_trial_3",3964,18,"feel pain","think about something","bio","cog","across domain","bio-cog","feel pain-think about something",46
+"pilot_sv3offwvby","causal_trial_4",2996,77,"reach for something","feel pain","act","bio","across domain","act-bio","reach for something-feel pain",76
+"pilot_sv3offwvby","causal_trial_5",3579,93,"kick something","think about something","act","cog","across domain","act-cog","kick something-think about something",81
+"pilot_sv3offwvby","causal_trial_6",2546,20,"sit down","kick something","act","act","within domain","act-act","sit down-kick something",22
+"pilot_sv3offwvby","causal_trial_7",2463,69,"see something","hear something","cog","cog","within domain","cog-cog","see something-hear something",55
+"pilot_sv3offwvby","causal_trial_8",2645,78,"take a walk","feel hungry","act","bio","across domain","act-bio","take a walk-feel hungry",78
+"pilot_sv3offwvby","causal_trial_9",2414,23,"reach for something","see something","act","cog","across domain","act-cog","reach for something-see something",52
+"pilot_sv3offwvby","causal_trial_10",3897,17,"feel scared","jump up and down","bio","act","across domain","bio-act","feel scared-jump up and down",50
+"pilot_sv3offwvby","causal_trial_11",2796,70,"jump up and down","sit down","act","act","within domain","act-act","jump up and down-sit down",59
+"pilot_sv3offwvby","causal_trial_12",3300,91,"kick something","feel pain","act","bio","across domain","act-bio","kick something-feel pain",96
+"pilot_sv3offwvby","causal_trial_13",2759,33,"feel tired","feel scared","bio","bio","within domain","bio-bio","feel tired-feel scared",51
+"pilot_sv3offwvby","causal_trial_14",2681,84,"think about something","feel tired","cog","bio","across domain","cog-bio","think about something-feel tired",69
+"pilot_sv3offwvby","causal_trial_15",3030,33,"take a walk","jump up and down","act","act","within domain","act-act","take a walk-jump up and down",56
+"pilot_sv3offwvby","causal_trial_16",3297,74,"feel scared","reach for something","bio","act","across domain","bio-act","feel scared-reach for something",78
+"pilot_sv3offwvby","causal_trial_17",2446,26,"hear something","feel hungry","cog","bio","across domain","cog-bio","hear something-feel hungry",55
+"pilot_sv3offwvby","causal_trial_18",2080,70,"sit down","feel sick","act","bio","across domain","act-bio","sit down-feel sick",54
+"pilot_sv3offwvby","causal_trial_19",4363,77,"sit down","remember something","act","cog","across domain","act-cog","sit down-remember something",69
+"pilot_sv3offwvby","causal_trial_20",2163,33,"feel pain","feel hungry","bio","bio","within domain","bio-bio","feel pain-feel hungry",50
+"pilot_sv3offwvby","causal_trial_21",3098,66,"hear something","feel sick","cog","bio","across domain","cog-bio","hear something-feel sick",66
+"pilot_sv3offwvby","causal_trial_22",2180,29,"feel sick","take a walk","bio","act","across domain","bio-act","feel sick-take a walk",38
+"pilot_sv3offwvby","causal_trial_23",2646,71,"think about something","feel sick","cog","bio","across domain","cog-bio","think about something-feel sick",81
+"pilot_sv3offwvby","causal_trial_24",2530,72,"kick something","sit down","act","act","within domain","act-act","kick something-sit down",55
+"pilot_sv3offwvby","causal_trial_25",2646,13,"feel pain","see something","bio","cog","across domain","bio-cog","feel pain-see something",26
+"pilot_sv3offwvby","causal_trial_26",2697,23,"think about something","feel hungry","cog","bio","across domain","cog-bio","think about something-feel hungry",23
+"pilot_sv3offwvby","causal_trial_27",4531,73,"see something","feel hungry","cog","bio","across domain","cog-bio","see something-feel hungry",64
+"pilot_sv3offwvby","causal_trial_28",2281,23,"jump up and down","take a walk","act","act","within domain","act-act","jump up and down-take a walk",42
+"pilot_sv3offwvby","causal_trial_29",2347,15,"feel hungry","take a walk","bio","act","across domain","bio-act","feel hungry-take a walk",34
+"pilot_sv3offwvby","causal_trial_30",2879,69,"feel scared","choose what to do","bio","cog","across domain","bio-cog","feel scared-choose what to do",76
+"pilot_sv3offwvby","causal_trial_31",2429,25,"reach for something","feel sick","act","bio","across domain","act-bio","reach for something-feel sick",37
+"pilot_sv3offwvby","causal_trial_32",4348,73,"choose what to do","feel scared","cog","bio","across domain","cog-bio","choose what to do-feel scared",84
+"pilot_sv3offwvby","causal_trial_33",2330,69,"see something","sit down","cog","act","across domain","cog-act","see something-sit down",56
+"pilot_sv3offwvby","causal_trial_34",2496,13,"feel hungry","jump up and down","bio","act","across domain","bio-act","feel hungry-jump up and down",31
+"pilot_sv3offwvby","causal_trial_35",3880,20,"take a walk","feel scared","act","bio","across domain","act-bio","take a walk-feel scared",26
+"pilot_sv3offwvby","causal_trial_36",1980,21,"choose what to do","see something","cog","cog","within domain","cog-cog","choose what to do-see something",21
+"pilot_sv3offwvby","causal_trial_37",3446,68,"kick something","feel hungry","act","bio","across domain","act-bio","kick something-feel hungry",64
+"pilot_sv3offwvby","causal_trial_38",3664,77,"remember something","reach for something","cog","act","across domain","cog-act","remember something-reach for something",88
+"pilot_sv3offwvby","causal_trial_39",2331,28,"reach for something","kick something","act","act","within domain","act-act","reach for something-kick something",52
+"pilot_sv3offwvby","causal_trial_40",2429,72,"reach for something","feel tired","act","bio","across domain","act-bio","reach for something-feel tired",49
+"pilot_sv3offwvby","causal_trial_41",2631,78,"remember something","feel scared","cog","bio","across domain","cog-bio","remember something-feel scared",89
+"pilot_sv3offwvby","causal_trial_42",2701,67,"remember something","take a walk","cog","act","across domain","cog-act","remember something-take a walk",51
+"pilot_w9ul6gfmx6","causal_trial_1",13409,72,"reach for something","hear something","act","cog","across domain","act-cog","reach for something-hear something",60
+"pilot_w9ul6gfmx6","causal_trial_2",9921,15,"remember something","hear something","cog","cog","within domain","cog-cog","remember something-hear something",16
+"pilot_w9ul6gfmx6","causal_trial_3",26254,84,"kick something","reach for something","act","act","within domain","act-act","kick something-reach for something",63
+"pilot_w9ul6gfmx6","causal_trial_4",3349,71,"sit down","hear something","act","cog","across domain","act-cog","sit down-hear something",49
+"pilot_w9ul6gfmx6","causal_trial_5",9745,80,"kick something","feel scared","act","bio","across domain","act-bio","kick something-feel scared",75
+"pilot_w9ul6gfmx6","causal_trial_6",4650,79,"take a walk","feel hungry","act","bio","across domain","act-bio","take a walk-feel hungry",78
+"pilot_w9ul6gfmx6","causal_trial_7",7011,75,"hear something","feel pain","cog","bio","across domain","cog-bio","hear something-feel pain",44
+"pilot_w9ul6gfmx6","causal_trial_8",8617,50,"take a walk","hear something","act","cog","across domain","act-cog","take a walk-hear something",39
+"pilot_w9ul6gfmx6","causal_trial_9",5700,59,"take a walk","feel sick","act","bio","across domain","act-bio","take a walk-feel sick",71
+"pilot_w9ul6gfmx6","causal_trial_10",7849,81,"think about something","reach for something","cog","act","across domain","cog-act","think about something-reach for something",79
+"pilot_w9ul6gfmx6","causal_trial_11",14462,36,"think about something","kick something","cog","act","across domain","cog-act","think about something-kick something",62
+"pilot_w9ul6gfmx6","causal_trial_12",10076,88,"choose what to do","remember something","cog","cog","within domain","cog-cog","choose what to do-remember something",58
+"pilot_w9ul6gfmx6","causal_trial_13",6724,67,"kick something","see something","act","cog","across domain","act-cog","kick something-see something",64
+"pilot_w9ul6gfmx6","causal_trial_14",12378,50,"feel tired","feel pain","bio","bio","within domain","bio-bio","feel tired-feel pain",67
+"pilot_w9ul6gfmx6","causal_trial_15",20102,60,"jump up and down","feel scared","act","bio","across domain","act-bio","jump up and down-feel scared",50
+"pilot_w9ul6gfmx6","causal_trial_16",6275,75,"see something","take a walk","cog","act","across domain","cog-act","see something-take a walk",79
+"pilot_w9ul6gfmx6","causal_trial_17",23387,80,"reach for something","see something","act","cog","across domain","act-cog","reach for something-see something",52
+"pilot_w9ul6gfmx6","causal_trial_18",8848,32,"kick something","remember something","act","cog","across domain","act-cog","kick something-remember something",56
+"pilot_w9ul6gfmx6","causal_trial_19",20203,85,"take a walk","sit down","act","act","within domain","act-act","take a walk-sit down",84
+"pilot_w9ul6gfmx6","causal_trial_20",6769,35,"kick something","feel tired","act","bio","across domain","act-bio","kick something-feel tired",50
+"pilot_w9ul6gfmx6","causal_trial_21",51970,94,"feel hungry","choose what to do","bio","cog","across domain","bio-cog","feel hungry-choose what to do",88
+"pilot_w9ul6gfmx6","causal_trial_22",53230,90,"see something","feel scared","cog","bio","across domain","cog-bio","see something-feel scared",79
+"pilot_w9ul6gfmx6","causal_trial_23",2743,86,"feel sick","feel pain","bio","bio","within domain","bio-bio","feel sick-feel pain",87
+"pilot_w9ul6gfmx6","causal_trial_24",4027,92,"feel sick","feel scared","bio","bio","within domain","bio-bio","feel sick-feel scared",84
+"pilot_w9ul6gfmx6","causal_trial_25",3534,22,"sit down","feel sick","act","bio","across domain","act-bio","sit down-feel sick",54
+"pilot_w9ul6gfmx6","causal_trial_26",5525,89,"feel scared","think about something","bio","cog","across domain","bio-cog","feel scared-think about something",67
+"pilot_w9ul6gfmx6","causal_trial_27",3995,84,"reach for something","choose what to do","act","cog","across domain","act-cog","reach for something-choose what to do",84
+"pilot_w9ul6gfmx6","causal_trial_28",5515,59,"feel hungry","jump up and down","bio","act","across domain","bio-act","feel hungry-jump up and down",31
+"pilot_w9ul6gfmx6","causal_trial_29",3248,53,"see something","jump up and down","cog","act","across domain","cog-act","see something-jump up and down",78
+"pilot_w9ul6gfmx6","causal_trial_30",6175,34,"kick something","sit down","act","act","within domain","act-act","kick something-sit down",55
+"pilot_w9ul6gfmx6","causal_trial_31",28430,89,"remember something","feel scared","cog","bio","across domain","cog-bio","remember something-feel scared",89
+"pilot_w9ul6gfmx6","causal_trial_32",2663,68,"jump up and down","feel pain","act","bio","across domain","act-bio","jump up and down-feel pain",65
+"pilot_w9ul6gfmx6","causal_trial_33",5650,68,"remember something","feel tired","cog","bio","across domain","cog-bio","remember something-feel tired",66
+"pilot_w9ul6gfmx6","causal_trial_34",5346,75,"reach for something","kick something","act","act","within domain","act-act","reach for something-kick something",52
+"pilot_w9ul6gfmx6","causal_trial_35",4377,61,"hear something","feel hungry","cog","bio","across domain","cog-bio","hear something-feel hungry",55
+"pilot_w9ul6gfmx6","causal_trial_36",10756,73,"choose what to do","sit down","cog","act","across domain","cog-act","choose what to do-sit down",83
+"pilot_w9ul6gfmx6","causal_trial_37",45283,84,"think about something","remember something","cog","cog","within domain","cog-cog","think about something-remember something",92
+"pilot_w9ul6gfmx6","causal_trial_38",37741,78,"feel hungry","feel pain","bio","bio","within domain","bio-bio","feel hungry-feel pain",78
+"pilot_w9ul6gfmx6","causal_trial_39",2686,32,"choose what to do","feel pain","cog","bio","across domain","cog-bio","choose what to do-feel pain",46
+"pilot_w9ul6gfmx6","causal_trial_40",4300,43,"kick something","take a walk","act","act","within domain","act-act","kick something-take a walk",37
+"pilot_w9ul6gfmx6","causal_trial_41",3716,77,"think about something","jump up and down","cog","act","across domain","cog-act","think about something-jump up and down",74
+"pilot_w9ul6gfmx6","causal_trial_42",5677,63,"feel sick","feel tired","bio","bio","within domain","bio-bio","feel sick-feel tired",72

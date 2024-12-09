@@ -48,7 +48,7 @@ d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x)))
 - need to decide if we will exclude for failing all 3 attention checks or at least 1
 
 ```{r}
-d %>%
+#d %>%
   # mutate(correct = case_when(trial_id == "attention_check_1" & response == 0 ~ TRUE,
   #                            trial_id == "attention_check_3" & response == 100 ~ TRUE,
   #                            trial_id == "attention_check_2" & ( response > 60 & response < 80 )

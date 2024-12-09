@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://unpkg.com/jspsych"></script>
+        <script src="../dist/index.browser.js"></script>
+        <script src="jspsych/dist/plugin-instructions.js"></script>
+        <script src="https://unpkg.com/@jspsych-contrib/plugin-survey-slider@1.0.0"></script>
+        <link href="https://unpkg.com/jspsych/css/jspsych.css" rel="stylesheet" type="text/css">
+    </head>
+    <body></body>
+    <script>
+        const jsPsych = initJsPsych();
+
+        var slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes']
+
+        var instructions = {
+        type: jsPsychInstructions,
+        pages: ['<div style="font-size: 22px; text-align: center;">' +
+                '<br>In this game, you will see pairs of events that a ' +
+                'a person might experience. <br> For example, feeling happy or hearing a noise.' +
+                '<p>Your job is to tell us if experiencing one thing could make someone experience the other.' +
+                '<br>When you’re ready, click "Next"</p>'
+        ],
+        show_clickable_nav: true
+        };
+
+        var cognitive = ['remember something', 'hear something', 'think about something', 'choose what to do', 'see something'];
+        var physical = ['reach for something', 'sit down', 'take a walk', 'kick something', 'jump up and down'];
+        var physiological = ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared'];
+
+        var categories = {
+            cognitive: cognitive,
+            physical: physical,
+            physiological: physiological
+        };
+
+        // Combine all items into a single list
+        var allItems = cognitive.concat(physical, physiological);
+
+        // Shuffle items to randomize the effect order
+        var shuffledItems = jsPsych.randomization.shuffle(allItems);
+
+        // Function to add "ing" to an item
+        function addIng(item) {
+            if (item === "think about something") return "thinking about something";
+            if (item === "reach for something") return "reaching for something";
+            if (item === "kick something") return "kicking something";
+            if (item === "remember something") return "remembering something";
+            if (item === "feel hungry") return "feeling hungry";
+            if (item === "hear something") return "hearing something";
+            if (item === "sit down") return "sitting down";
+            if (item === "see something") return "seeing something";
+            if (item === "take a walk") return "taking a walk";
+            if (item === "jump up and down") return "jumping up and down";
+            if (item.startsWith("choose")) return "choosing what to do";
+            if (item.startsWith("feel")) return "feeling " + item.slice(5);
+            return item;
+        }
+
+        // Create pages where each page has the same effect but causes are shuffled
+        var pages = [];
+        shuffledItems.forEach(function(effectItem) {
+            // Randomize causes for this effect
+            var shuffledCauses = jsPsych.randomization.shuffle(
+                allItems.filter(causeItem => causeItem !== effectItem) // Exclude self-pairing
+            );
+
+            // Create questions for this effect with randomized causes
+            var questions = shuffledCauses.map(function(causeItem) {
+                var causeItemWithIng = addIng(causeItem);
+                return {
+                    prompt: `<p><span style="font-size:20px">Can <strong>${causeItemWithIng}</strong> cause someone to <strong>${effectItem}</strong>?</span></p>`,
+                    ticks: slider_labels
+                };
+            });
+
+            // Create a trial for this page
+            pages.push({
+                type: jsPsychSurveySlider,
+                preamble: `<p><span style="font-size:25px">To what extent does one event cause the other?</span></p>`,
+                questions: questions,
+                slider_width: 800
+            });
+        });
+
+        // Define attention checks
+        const attentionChecks = [
+            {
+                prompt: `<p><span style="font-size:20px">Please move the slider all the way to the <strong>left</strong></span></p>`,
+                ticks: slider_labels
+            },
+            {
+                prompt: `<p><span style="font-size:20px">Please move the slider to <strong>'Maybe not'</strong></span></p>`,
+                ticks: slider_labels
+            },
+            {
+                prompt: `<p><span style="font-size:20px">Please move the slider all the way to the <strong>right</strong></span></p>`,
+                ticks: slider_labels
+            }
+        ];
+
+        // Add attention checks to specific pages (4, 7, 10, 13) at random positions
+        [3, 6, 9, 12].forEach(function(pageIndex, i) {
+            // Get the current page questions
+            var pageQuestions = pages[pageIndex].questions;
+
+            // Select a random index to insert the attention check
+            var randomIndex = Math.floor(Math.random() * (pageQuestions.length + 1));
+
+            // Insert the attention check at the random index
+            pageQuestions.splice(randomIndex, 0, attentionChecks[i % attentionChecks.length]);
+        });
+
+        jsPsych.run([instructions, pages]);
+    </script>
+</html>

@@ -49,7 +49,7 @@ d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x)))
 - need to decide if we will exclude for failing all 3 attention checks or at least 1
 
 ```{r}
-d %>%
+#d %>%
   # mutate(correct = case_when(trial_id == "attention_check_1" & response == 0 ~ TRUE,
   #                            trial_id == "attention_check_3" & response == 100 ~ TRUE,
   #                            trial_id == "attention_check_2" & ( response > 60 & response < 80 )
@@ -96,12 +96,12 @@ df_means <-
   df %>%
   select(itemA:item_pair_means) %>%
   unique() %>%
-  mutate(mean_centered = (item_pair_means/100 - .5)*2)
+  mutate(mean_norm = 1 - item_pair_means/100)
   
 df_pair_means <- 
   df_means %>%
   ungroup() %>%
-  select(itemA, itemB, mean_centered) 
+  select(itemA, itemB, mean_norm) 
 
 df_pair_means$itemA <- factor(df_pair_means$itemA, levels=c("see something",
                                       "hear something",
@@ -135,6 +135,16 @@ df_pair_means$itemB <- factor(df_pair_means$itemB, levels=c("see something",
                                       "feel pain",
                                       "feel sick"))
 
+ 
+d <- df %>% 
+  select(itemA, itemB, categoryA, categoryB, item_pairs, type) %>% 
+  ungroup()
+
+write.csv(file = "categories.csv", d, row.names = FALSE)
+
+hist(df_means$mean_norm)
+
+
 
 ```
 
@@ -143,10 +153,10 @@ df_pair_means$itemB <- factor(df_pair_means$itemB, levels=c("see something",
 ## Corrplot
 
 ```{r}
-pair_matrix <- xtabs(mean_centered ~ itemA + itemB, data = df_pair_means)
+pair_matrix <- xtabs(mean_norm ~ itemA + itemB, data = df_pair_means)
 
-corrplot(pair_matrix, 
-         method="color",
+?corrplot(pair_matrix, 
+         method="color", 
          tl.col	= "black")
 ```
 
@@ -159,6 +169,10 @@ df %>%
   geom_point(stat = "summary", fun = "mean", size = 1, shape = 23, 
              fill = "white", color = "black") +
   theme(axis.text.x = element_text(angle = 90, size = 3))
+
+
+
+write.csv(df, "causation.csv", row.names = FALSE) 
 
 ```
 
