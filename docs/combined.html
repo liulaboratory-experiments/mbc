@@ -9,7 +9,15 @@
     </head>
     <body></body>
     <script>
-        const jsPsych = initJsPsych();
+
+        var jsPsych = initJsPsych({
+            default_iti: 250,
+            on_finish: function() {
+                jsPsych.data.displayData();
+            },
+            show_progress_bar: true
+        });
+
 
         var slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes']
 
