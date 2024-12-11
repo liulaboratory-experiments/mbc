@@ -373,19 +373,30 @@
 
 
 
-        jsPsych.run([preload, consent, // Add consent as the first trial
-            ...jsPsych.randomization.shuffle([[freesort_instructions, example_video, trial_sorting_circles],
-                                            [causality_instructions, ...causality_questions]]).flat(),
-            debrief, feedback_demographics
-        ]);
-
         const save_data = {
             type: jsPsychPipe,
             action: "save",
             experiment_id: "SO63gxlALpE9",
             filename: filename,
-            data_string: ()=>jsPsych.data.get().csv()
+            data_string: () => jsPsych.data.get().csv()
         };
+
+        const timeline = [
+            preload, 
+            consent, // Add consent as the first trial
+            ...jsPsych.randomization.shuffle([
+                [freesort_instructions, example_video, trial_sorting_circles],
+                [causality_instructions, ...causality_questions]
+            ]).flat(),
+            debrief, 
+            feedback_demographics
+        ];
+
+        if (data_collection) {
+            timeline.push(save_data); 
+        }
+
+        jsPsych.run(timeline);
 
     </script>
 </html>
