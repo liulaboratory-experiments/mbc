@@ -38,9 +38,10 @@
 
         var jsPsych = initJsPsych({
             on_finish: function() {
-                jsPsych.data.displayData();
+                window.location = "https://connect.cloudresearch.com/participant/project/7C118709E0/complete";
+                //jsPsych.data.displayData();
             },
-            show_progress_bar: true
+            show_progress_bar: trueco
         });
 
         //-------------------------------------------------------------------------------------------------------------------------------------
@@ -75,7 +76,7 @@
 
 
         var duration = '30 minutes';
-        var amount = '$8';
+        var amount = '$7.5';
         var consent = {
             type: jsPsychHtmlButtonResponse,
             stimulus: '<p><b>Consent Form</b></p> <div style="text-align:left;' +
