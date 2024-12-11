@@ -32,9 +32,10 @@
 
   
   <script>
-      document.getElementById('quitButton').addEventListener('click', function() {
-      jsPsych.abortExperiment('The participant chose to quit the experiment.');
-    });
+
+  document.getElementById('quitButton').addEventListener('click', function() {
+    jsPsych.abortExperiment('The participant chose to quit the experiment.');
+  });
 
   var jsPsych = initJsPsych({
     default_iti: 250,
@@ -78,7 +79,7 @@ jsPsych.data.addProperties({
   };
 
 
-  var duration = '4 minutes';
+    var duration = '4 minutes';
     var amount = '$1';
     var consent = {
     type: jsPsychHtmlButtonResponse,
@@ -122,8 +123,8 @@ jsPsych.data.addProperties({
     if (data.response === 1) {  // If 'No' is chosen 
     jsPsych.abortExperiment('You did not consent to participate. The study will now end. Thank you for your time.');  
     }
-  }
-};
+    }
+  };
 
   var instructions = {
       type: jsPsychInstructions,
@@ -135,19 +136,6 @@ jsPsych.data.addProperties({
       show_clickable_nav: true
     };
 
-  var example_image = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: '<div style="text-align: center;">' +
-              '<p>This is an example way to group all 15 events.<br>' +
-              'In this example, the 15 items are placed in four groups. However, you can create as few or as many groups as you would like.<br>' +
-              'Just ensure all items are inside the circle. ' +
-              'When you are ready, click "Next" to begin.</p>' +
-              '<img src="images/keynote/example.png" style="width: 530px; height: 460px; margin-top: 10px;">' +
-            '</div>',
-  choices: ['Next']
-};
-
-
 var example_video = {
   type: jsPsychVideoButtonResponse,
   stimulus: ['video/example-video-circles.mp4'],
@@ -157,8 +145,8 @@ var example_video = {
   response_ends_trial: true,
   response_allowed_while_playing: false,
   prompt: `
-        <button id="playButton" style="margin-top: -5px;">Play</button>
-        <div style="margin-top: 10px; text-align: center;">
+        <button id="playButton" style="margin-top: -1%;">Play</button>
+        <div style="margin-top: 1%; text-align: center;">
         <p>This video shows one possible way to group the events. You can create as many or as few groups as you would like. Hit 'play' to watch.
         <br> When you are ready to start the game, hit 'Next' </p>
       </div>
@@ -170,7 +158,7 @@ var example_video = {
       nextButton.style.position = 'relative';
       nextButton.style.top = 'auto';
       nextButton.style.right = 'auto';
-      nextButton.style.bottom = '-160px'; // Adjust this value as needed to position the Next button
+      nextButton.style.bottom = '-350%'; // Adjust this value as needed to position the Next button
       nextButton.style.left = '50%'; // Center the button horizontally
       nextButton.style.transform = 'translateX(-50%)'; // Ensure it's centered
 
@@ -222,7 +210,7 @@ var example_video = {
   }
 
   // Create images from phrases
-  const phraseImages = phrases.map(createTextImage);
+  //const phraseImages = phrases.map(createTextImage);
 
   // var trial_sorting = {
   //   type: jsPsychFreeSort,
@@ -238,25 +226,37 @@ var example_video = {
   // };
 
 
-  var trial_sorting_circles = {
+  //can't do a dynamic thing because there's only so small the screen can be. 
+//const area_width = (window.innerWidth * 50) / 100; // Calculate dynamic width
+//console.log("Viewport width (window.innerWidth):", window.innerWidth);
+// var area_height = window.innerWidth * .5
+// var area_width = window.innerWidth * .5;
+// var st_height = window.innerWidth * .1;
+// var st_width = window.innerWidth * .1;
+
+// console.log("stim height:", st_height);
+// console.log("stim width:", st_height);
+
+
+// Define the trial
+var trial_sorting_circles = {
     type: jsPsychFreeSort,
-    stimuli: ['images/items-circles/img1.png', 'images/items-circles/img2.png', 'images/items-circles/img3.png', 
-              'images/items-circles/img4.png', 'images/items-circles/img5.png','images/items-circles/img6.png', 
-              'images/items-circles/img7.png', 'images/items-circles/img8.png', 'images/items-circles/img9.png', 
-              'images/items-circles/img10.png','images/items-circles/img11.png', 'images/items-circles/img12.png', 
-              'images/items-circles/img13.png', 'images/items-circles/img14.png', 'images/items-circles/img15.png'],  // Use generated text images
+    stimuli: [
+        'images/items-circles/img1.png', 'images/items-circles/img2.png', 'images/items-circles/img3.png',
+        'images/items-circles/img4.png', 'images/items-circles/img5.png', 'images/items-circles/img6.png',
+        'images/items-circles/img7.png', 'images/items-circles/img8.png', 'images/items-circles/img9.png',
+        'images/items-circles/img10.png', 'images/items-circles/img11.png', 'images/items-circles/img12.png',
+        'images/items-circles/img13.png', 'images/items-circles/img14.png', 'images/items-circles/img15.png'
+    ], 
     stim_height: 100,
     stim_width: 100,
-    sort_area_height: 650,
-    sort_area_width: 650,
+    sort_area_height: 650, // Example: 50% of viewport height
+    sort_area_width: 650, // Use dynamic width
+    column_spread_factor: .75, // Use dynamically calculated value
     prompt: 'Please group similar phrases together. Take as long as you would like.<br>',
-    scale_factor: 1.1, // Set close to 1.0 for subtle magnification or 1.0 to disable
-    column_spread_factor: .75,
-    border_color_in: "#648fff"
-    //border_color_out: "#ffb000"
-    //sort_area_shape: "square" // Set to "square" to change the sort area to a square shape
-    //change_border_background_color: false,  // Disable background color change
-  };
+    scale_factor: 1.1,
+    border_color_in: "#648fff",
+};
 
 var debrief = {
   type: jsPsychInstructions,
