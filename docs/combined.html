@@ -210,12 +210,15 @@
             show_clickable_nav: true
         };
 
-        // Define items and functions
-        var cognitive = ['remember something', 'hear something', 'think about something', 'choose what to do', 'see something'];
-        var physical = ['reach for something', 'sit down', 'take a walk', 'kick something', 'jump up and down'];
-        var physiological = ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared'];
-        var allItems = cognitive.concat(physical, physiological);
+        // Define categories
+        const categories = {
+            cognitive: ['remember something', 'hear something', 'think about something', 'choose what to do', 'see something'],
+            physical: ['reach for something', 'sit down', 'take a walk', 'kick something', 'jump up and down'],
+            physiological: ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared']
+        };
 
+
+        // Define the addIng function
         function addIng(item) {
             if (item === "think about something") return "thinking about something";
             if (item === "reach for something") return "reaching for something";
@@ -232,22 +235,93 @@
             return item;
         }
 
-        // Define causality task with randomized conditions
-        var shuffledItems = jsPsych.randomization.shuffle(allItems);
-        var causality_questions = shuffledItems.map(function(effectItem) {
-            var causes = jsPsych.randomization.shuffle(allItems.filter(cause => cause !== effectItem));
-            return {
-                type: jsPsychSurveySlider,
-                preamble: '<p><span style="font-size:25px">To what extent can the first event make the second happen?</span></p>',
-                questions: causes.map(function(cause) {
-                    return {
-                        prompt: `<p><span style="font-size:20px">Can <strong>${addIng(cause)}</strong> make someone <strong>${effectItem}</strong>?</span></p>`,
-                        ticks: slider_labels
-                    };
-                }),
-                slider_width: 800
-            };
-        });
+        // Generate pairs with categories and "ing" forms
+        function createPairs(categories) {
+            const pairs = [];
+            const categoryKeys = Object.keys(categories);
+
+            for (let i = 0; i < categoryKeys.length; i++) {
+                for (let j = i; j < categoryKeys.length; j++) {
+                    const categoryA = categoryKeys[i];
+                    const categoryB = categoryKeys[j];
+
+                    if (i === j) {
+                        // Within-category pairs
+                        for (let x = 0; x < categories[categoryA].length; x++) {
+                            for (let y = 0; y < categories[categoryA].length; y++) {
+                                if (x !== y) {
+                                    pairs.push({
+                                        itemA: addIng(categories[categoryA][x]), // Add "ing"
+                                        itemB: addIng(categories[categoryA][y]), // Add "ing"
+                                        categoryA: categoryA,
+                                        categoryB: categoryB
+                                    });
+                                }
+                            }
+                        }
+                    } else {
+                        // Across-category pairs
+                        for (let x = 0; x < categories[categoryA].length; x++) {
+                            for (let y = 0; y < categories[categoryB].length; y++) {
+                                pairs.push({
+                                    itemA: addIng(categories[categoryA][x]), // Add "ing"
+                                    itemB: addIng(categories[categoryB][y]), // Add "ing"
+                                    categoryA: categoryA,
+                                    categoryB: categoryB
+                                });
+                                pairs.push({
+                                    itemA: addIng(categories[categoryB][y]), // Add "ing"
+                                    itemB: addIng(categories[categoryA][x]), // Add "ing"
+                                    categoryA: categoryB,
+                                    categoryB: categoryA
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return pairs;
+        }
+
+        // Create pairs and shuffle
+        let pairs = jsPsych.randomization.shuffle(createPairs(categories));
+
+        // Split into conditions
+        function createConditions(pairs, numConditions) {
+            const conditions = [];
+            const chunkSize = Math.ceil(pairs.length / numConditions);
+            for (let i = 0; i < numConditions; i++) {
+                conditions.push(pairs.slice(i * chunkSize, (i + 1) * chunkSize));
+            }
+            return conditions;
+        }
+
+        const conditions = createConditions(pairs, 5);
+
+        // Assign participant to a condition
+        function assignToCondition(conditions) {
+            const randomIndex = Math.floor(Math.random() * conditions.length);
+            return jsPsych.randomization.shuffle(conditions[randomIndex]);
+        }
+
+        const participantPairs = assignToCondition(conditions);
+
+        // Create causality questions with metadata
+        const causality_questions = participantPairs.map(pair => ({
+            type: jsPsychSurveySlider,
+            preamble: `<p><span style="font-size:25px">To what extent can the first event make the second happen?</span></p>`,
+            questions: [{
+                prompt: `<p><span style="font-size:20px">Can <strong>${pair.itemA}</strong> make someone <strong>${pair.itemB}</strong>?</span></p>`,
+                ticks: slider_labels
+            }],
+            slider_width: 800,
+            data: {
+                itemA: pair.itemA,
+                itemB: pair.itemB,
+                categoryA: pair.categoryA,
+                categoryB: pair.categoryB
+            }
+        }));
 
         // **ATTENTION CHECKS**
         const attentionChecks = [
