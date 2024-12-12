@@ -230,7 +230,9 @@
     const categories = {
       cognitive: ['remember something', 'hear something', 'think about something', 'choose what to do', 'see something'],
       physical: ['reach for something', 'sit down', 'take a walk', 'kick something', 'jump up and down'],
-      physiological: ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared'],
+      // physiological: ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared'],
+      physiological: ['become hungry', 'get tired', 'get sick', 'experience pain', 'feel scared']
+
     };
 
     // Add "ing" form for display
@@ -246,10 +248,14 @@
         'take a walk': 'taking a walk',
         'kick something': 'kicking something',
         'jump up and down': 'jumping up and down',
-        'feel hungry': 'feeling hungry',
-        'feel tired': 'feeling tired',
-        'feel sick': 'feeling sick',
-        'feel pain': 'feeling pain',
+        // 'feel hungry': 'feeling hungry',
+        // 'feel tired': 'feeling tired',
+        // 'feel sick': 'feeling sick',
+        // 'feel pain': 'feeling pain',
+        'become hungry': 'becoming hungry',
+        'get tired': 'getting tired',
+        'get sick': 'getting sick',
+        'experience pain': 'experiencing pain',
         'feel scared': 'feeling scared',
       };
       return ingMap[item] || item;

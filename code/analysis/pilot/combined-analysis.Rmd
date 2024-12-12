@@ -1,0 +1,320 @@
+---
+title: "causation"
+output: html_document
+date: "2024-10-28"
+---
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+pacman::p_load(tidyverse,
+               ggforce,
+               conflicted,
+               here,
+               cowplot,
+               lme4,
+               lmerTest,
+               effects,
+               Hmisc,
+               performance,
+               purrr,
+               readr,
+               igraph,
+               ggraph,
+               tidygraph,
+               visNetwork,
+               scales,
+               patchwork,
+               corrplot)
+
+library(plotly) #for some reason this never loads via pacman
+walk(c("select", "filter", "rename", "mutate", "summarise", "summarize"), ~ conflict_prefer(.x, "dplyr"))
+conflicts_prefer(plotly::layout)
+theme_set(theme_bw())
+sessionInfo()
+
+```
+
+# Parameters to tweak
+
+
+# todo: change items in causation to match items in freesort!!
+
+```{r}
+desired_order <- c("see something", "hear something", "choose what to do", #please note this shows 'experience pain!' rather than feel pain
+                   "remember something", "think about something", "reach for something", 
+                   "sit down", "jump up and down", "kick something", "take a walk", 
+                   "get tired", "become hungry", "feel scared", "experience pain", "get sick")
+
+freesort_columns <- c("subject_id", "x", "y", "item")
+# causation_columns <- c("subject_id", "itemA", "itemB", "trial_index", "original_trial_index", "response")
+causation_columns <- c("subject_id", "itemA", "itemB", "response")
+
+```
+
+# Read data
+
+```{r}
+directory_path <- here("code", "analysis", "pilot")
+d <- read_csv(here("code", "analysis", "pilot", "data_pilot_12_11_combined.csv"))
+
+```
+# Exclusions
+
+- for now, leaving undone
+- need to decide if we will exclude for failing all 3 attention checks or at least 1
+
+```{r}
+#d %>%
+  # mutate(correct = case_when(trial_id == "attention_check_1" & response == 0 ~ TRUE,
+  #                            trial_id == "attention_check_3" & response == 100 ~ TRUE,
+  #                            trial_id == "attention_check_2" & ( response > 60 & response < 80 )
+  #                            ~ TRUE,
+  #                            TRUE ~ correct)) %>% 
+  #group_by(mturk_participant_id) %>%
+  #filter(all(correct | is.na(correct))) %>% #remove 2 participants who failed at least 1 att check
+  #ungroup()
+
+```
+
+
+# Subject id names
+
+```{r}
+d <- d %>% 
+  rename("subject_id" = filename) %>% 
+  mutate(
+    subject_id = factor(subject_id), # Convert to factor to establish levels
+    subject_index = as.integer(subject_id), # Assign a numeric index based on factor levels
+    subject_id = sprintf("subj_%02d", subject_index) # Create the new sequential ID
+  ) %>%
+  select(-subject_index) # Remove the temporary index column if no longer needed
+
+```
+
+# Freesort: Visualize empirical euclidean distances
+
+## reshape data
+
+```{r}
+#get item pairs per person
+df_distances <- d %>%
+  filter(trial_type == "free_sort") %>%
+  select(freesort_columns) %>% 
+  select(subject_id, item) %>%
+  group_by(subject_id) %>%
+  summarize(pairs = list(expand.grid(itemA = item, itemB = item, stringsAsFactors = FALSE))) %>%
+  unnest(pairs) %>%
+  filter(itemA != itemB) %>% #remove self-pairs
+  left_join(d_freesort, by = c("subject_id", "itemA" = "item")) %>% #append itemA positions
+  rename(x_itemA = x, y_itemA = y) %>% 
+  left_join(d_freesort, by = c("subject_id", "itemB" = "item")) %>% #append itemB positions
+  rename(x_itemB = x, y_itemB = y) %>% 
+  group_by(subject_id) %>% 
+  mutate(euclidean_distance = sqrt((x_itemA - x_itemB)^2 + (y_itemA - y_itemB)^2),
+         emp_euclidean = ((euclidean_distance - min(euclidean_distance)) /
+                                   (max(euclidean_distance) - min(euclidean_distance)))) %>% #normalizing euclidean distances
+  select(subject_id, itemA, itemB, emp_euclidean) %>% 
+  ungroup() %>%
+  mutate(itemA = factor(itemA, levels = desired_order),
+         itemB = factor(itemB, levels = desired_order))
+
+```
+
+## plot raw responses
+
+```{r}
+d %>% 
+  filter(trial_type == "free_sort") %>%
+  mutate(y = 500 - y) %>% #invert y axis
+  ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_text(aes(label = item), size = 3, vjust = -.2) +
+  facet_wrap(~subject_id)
+
+```
+
+## plot subject-specific euclidean rdms
+
+```{r}
+plot_rdm <- function(data, subject, desired_order) { # Function to create RDM plot for a single subject
+  df_matrix <- data %>%
+    filter(subject_id == subject) %>%
+    select(-subject_id) %>%
+    select(itemA, itemB, emp_euclidean) %>% 
+    pivot_wider(names_from = itemB, values_from = emp_euclidean) %>%
+    column_to_rownames("itemA")
+  
+  df_matrix <- df_matrix[desired_order, desired_order] #reorder matrix
+  diag(df_matrix) <- 0  # Set diagonal to 0
+  
+  corrplot(as.matrix(df_matrix), method = "color", is.corr = FALSE,
+    tl.col = "black", title = paste("RDM - ", subject),
+    mar = c(0, 0, 2, 0), addgrid.col = "darkgray"
+  )
+}
+
+subject_ids <- unique(df_distances$subject_id)
+
+#generate plots
+plots <- map(subject_ids, ~plot_rdm(df_distances, .x, desired_order)) #run this entire line of code
+
+# save plots with subject name
+
+# subject_ids <- unique(df_distances$subject_id)
+# new_names <- paste0("subj_", str_pad(seq_along(subject_ids), width = 2, pad = "0")) # Generate new subject names
+# for (i in seq_along(subject_ids)) { # Loop to save each plot as a separate PDF
+#   pdf(paste0(new_names[i], ".pdf"), width = 8, height = 6)  # Open a PDF device
+#   plot_rdm(df_distances, subject_ids[i], desired_order)  # Generate the plot
+#   dev.off()  # Close the device to save the file
+# }
+
+```
+
+# Causation
+
+```{r}
+# Step 1: Normalize causality judgments
+df_normalized <- d %>%
+  filter(trial_type == "causation") %>% 
+  filter(!attention_check) %>% 
+  select(causation_columns) %>%
+  mutate(
+    dissimilarity = 1 - response / 100  # Transform judgments to dissimilarity
+  ) %>%
+  mutate(item_pairs = str_c(itemA, itemB, sep = "-"))  %>%
+  group_by(item_pairs) %>%
+  mutate(mean_dissimilarity = mean(dissimilarity, na.rm = TRUE)) %>%  # Average across participants
+  ungroup() 
+
+# Step 2: Apply Min-Max Scaling to Dissimilarity Scores
+df_normalized <- df_normalized %>%
+  mutate(
+    normalized_dissimilarity = (mean_dissimilarity - min(mean_dissimilarity)) /
+                                (max(mean_dissimilarity) - min(mean_dissimilarity))
+  )
+
+# Step 3: Create RDM
+df_rdm <- df_normalized %>%
+  distinct(item_pairs, .keep_all = TRUE) %>% 
+  select(itemA, itemB, normalized_dissimilarity) %>% 
+  pivot_wider(names_from = itemB, values_from = normalized_dissimilarity) %>%
+  column_to_rownames("itemA")  # Convert `itemA` to row names
+
+# Ensure proper ordering of items in the matrix
+desired_order <- c("see something", "hear something", "choose what to do",
+                   "remember something", "think about something",
+                   "reach for something", "sit down", "jump up and down",
+                   "kick something", "take a walk", "feel tired",
+                   "feel hungry", "feel scared", "feel pain", "feel sick")
+
+df_rdm <- df_rdm[desired_order, desired_order]
+
+# Step 4: Plot the RDM
+corrplot(
+  as.matrix(df_rdm),
+  method = "color",
+  is.corr = FALSE,
+  tl.col = "black",
+  title = "Causality Judgments RDM",
+  mar = c(0, 0, 2, 0),
+  addgrid.col = "darkgray"
+)
+
+```
+
+
+## Plot category means 
+
+```{r}
+df %>%
+  ggplot(aes(x = category_pairs, y = response, color = type)) +
+  geom_jitter(alpha = .4, size = 3, width = .1) +
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.2, color = "black") +
+  geom_point(stat = "summary", fun = "mean", size = 3, shape = 23, 
+             fill = "white", color = "black") +
+  theme_bw() +
+  theme(
+    axis.text = element_text(size = 12),
+    axis.text.x = element_text(angle = 90)) +
+  labs(x = "causation type")
+
+```
+
+## Plot domain averages
+
+```{r}
+df %>%
+  ggplot(aes(x = type, y = response)) +
+  geom_jitter(alpha = .4, size = 3, color = "skyblue", width = .1) +
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar",width = 0.2) +
+  geom_point(stat = "summary", fun = "mean", size = 3, shape = 23, fill = "white") +
+  theme_bw() +
+  theme(axis.text = element_text(size = 12)) +
+  labs(x = "causation type") 
+
+```
+
+## Some descriptive stats
+
+```{r}
+# df %>% 
+#   count(item_pairs) 
+# 
+# df %>% 
+#   count(category_pairs)
+# 
+# df %>% 
+#   count(type)
+# 
+# df %>%
+#   mutate(item_pairs = str_c(itemA, itemB, sep = "-"))  %>% 
+#   count(item_pairs) %>% 
+#   summarize(avg_item_mean = mean(n))
+# 
+# df %>% 
+#   mutate(item_pairs = str_c(itemA, itemB, sep = "-")) %>% 
+#   distinct(item_pairs) %>% 
+#   count() #number of unique items
+#   
+# #selecting three items to inspect ratings
+# df %>%
+#   mutate(item_pairs = str_c(itemA, itemB, sep = "-")) %>% 
+#   group_by(item_pairs) %>% 
+#   summarize(mean = mean(response)) %>% 
+#   arrange(desc(mean)) %>% 
+#   slice(3, 135, 191)
+# 
+# df %>%
+#   mutate(item_pairs = str_c(itemA, itemB, sep = "-")) %>% 
+#   filter(itemA == "see something") %>% 
+#   filter(item_pairs %in% c("see something-reach for something", "see something-feel tired")) %>% 
+#   # group_by(item_pairs) %>% 
+#   ggplot(aes(x = item_pairs, y = response)) +
+#   geom_bar(stat = "identity") +
+#   theme_bw() +
+#   theme(axis.text = element_text(size = 14),
+#         axis.title = element_text(size = 14))
+#   summarize(mean = mean(response)) %>% 
+#   arrange(desc(mean)) 
+#   
+# df %>%
+#   mutate(item_pairs = str_c(itemA, itemB, sep = "-")) %>% 
+#   filter(itemA == "reach for something") %>% 
+#   filter(item_pairs %in% c("reach for something-see something")) %>% 
+#   group_by(item_pairs) %>%
+#   summarize(mean = mean(response)) %>% 
+#   ggplot(aes(x = item_pairs, y = mean)) +
+#   geom_bar(stat = "identity") +
+#   theme_bw() +
+#   theme(axis.text = element_text(size = 14),
+#         axis.title = element_text(size = 14)) +
+#   scale_y_continuous(limits = c(0, 100)) 
+
+```
+
+
+
+
+
+

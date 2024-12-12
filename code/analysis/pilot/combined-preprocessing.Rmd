@@ -1,0 +1,238 @@
+---
+title: "causation"
+output: html_document
+date: "2024-10-28"
+---
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+pacman::p_load(tidyverse, here, jsonlite)
+sessionInfo()
+
+library(jsonlite)
+```
+
+# Read data
+
+```{r}
+directory_path <- here("code", "analysis", "pilot", "data-combined")
+file_paths <- list.files(path = directory_path, pattern = "^2024-", full.names = TRUE)
+d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x))) %>% 
+    filter(!str_detect(filename, "XX-XX-XX")) 
+```
+
+# PARSING
+
+# freesort data
+
+```{r}
+items <- c("choose what to do", "reach for something", "feel scared",  #items in exact order of img1.png to img15.png
+           "experience pain", "get sick", "get tired", "become hungry", 
+           "see something", "think about something", "hear something", 
+           "remember something", "jump up and down", "kick something", 
+           "take a walk", "sit down")
+
+# Process the final_locations column
+data_freesort <- d %>%
+  filter(trial_type == "free-sort") %>% # Filter for free-sort trials
+  select(filename, trial_index, final_locations) %>% # Select relevant columns
+  mutate(parsed_location = map(final_locations, ~ fromJSON(.))) %>% # Parse JSON
+  unnest(parsed_location) %>% # Unnest the list column
+  mutate(
+    img_number = as.numeric(str_extract(src, "\\d+")), # Extract image numbers from `src`
+    item = items[img_number] # Map image numbers to item labels
+  ) %>%
+  select(-c("final_locations", "src", "img_number")) %>% # Drop unnecessary columns
+  mutate(trial_type = "free_sort") %>% # Add a new column for trial type
+  relocate(trial_type, .after = filename) %>% # Place `trial_type` column next to `filename`
+  rename(original_trial_index = trial_index)
+
+```
+
+# causation data
+
+```{r}
+response_data <- d %>%
+  filter(trial_type == "survey-slider") %>% 
+  select(filename, trial_index, response) %>%
+  mutate(response = map(response, ~ tryCatch(
+    fromJSON(.) %>%
+      enframe(name = "question_id", value = "response"),
+    error = function(e) tibble(question_id = character(), response = character())
+  ))) %>%
+  unnest(response) %>% # Unnest the response JSON
+  mutate(
+    response = unlist(response), # Unlist response values
+    response = as.numeric(response), # Convert to numeric
+    question_index = str_remove(question_id, "Q") # Remove "Q" prefix
+  ) %>%
+  select(filename, trial_index, question_index, response) # Include trial_indexs
+
+metadata_data <- d %>%
+  select(filename, trial_index, `0`:`14`, `15`) %>% # Include trial_index
+  pivot_longer(
+    cols = -c(filename, trial_index),  # Exclude filename and trial_index from long format
+    names_to = "question_index",       # Convert column names to indices
+    values_to = "metadata"             # Column for metadata JSON
+  ) %>% 
+  mutate(
+    parsed_metadata = map(metadata, ~ {
+      if (is.na(.x)) {
+        tibble() # Handle NA metadata
+      } else {
+        fromJSON(.x, simplifyVector = FALSE) %>%
+          map(~ if (is.null(.)) NA else .) %>%  # Replace NULL with NA
+          as_tibble()
+      }
+    })
+  ) %>% 
+  unnest(parsed_metadata) %>%    # Unnest the parsed metadata columns
+  select(-metadata)             # Drop the original metadata column for clarity
+
+# Merge the response_data and metadata_data into data_causation
+data_causation <- response_data %>%
+  inner_join(metadata_data, by = c("filename", "trial_index", "question_index")) %>% 
+  mutate(trial_type = "causation") %>% 
+  relocate(trial_type, .after = filename) %>% # Place `trial_type` column next to `filename`
+  rename(original_trial_index = trial_index, 
+         original_question_index = question_index) %>% 
+  group_by(filename, trial_type) %>%
+  mutate(trial_index = dense_rank(original_trial_index),
+         question_index = row_number()) %>%
+  ungroup() %>% 
+  relocate(c("trial_index", "question_index"), .after = "trial_type") %>% 
+  relocate(c("original_trial_index", "original_question_index"), .after = "correct_response")
+
+```
+
+
+Merging the two, adding condition order columns
+
+# good!
+
+```{r}
+
+# Combine trial types to compare their starting original_trial_index
+trial_order_info <- bind_rows(
+  data_causation %>% distinct(filename, trial_type, original_trial_index),
+  data_freesort %>% distinct(filename, trial_type, original_trial_index)
+) %>%
+  group_by(filename) %>%
+  summarize(
+    trial_type_order = case_when(
+      min(original_trial_index[trial_type == "causation"]) < min(original_trial_index[trial_type == "free_sort"]) ~ 
+        list(c(causation = "first", free_sort = "second")),
+      TRUE ~ list(c(causation = "second", free_sort = "first"))
+    )
+  ) %>%
+  unnest_wider(trial_type_order)
+
+# Add trial_type_order to data_causation
+data_causation <- data_causation %>%
+  left_join(
+    trial_order_info %>% select(filename, causation),
+    by = "filename"
+  ) %>%
+  rename(trial_type_order = causation) %>%
+  relocate(trial_type_order, .after = trial_type)
+
+# Add trial_type_order to data_freesort
+data_freesort <- data_freesort %>%
+  left_join(
+    trial_order_info %>% select(filename, free_sort),
+    by = "filename"
+  ) %>%
+  rename(trial_type_order = free_sort) %>%
+  relocate(trial_type_order, .after = trial_type)
+
+```
+
+
+# Merge both data frames
+
+```{r}
+# Merge causation and free_sort dataframes
+data_combined <- bind_rows(
+  data_causation,
+  data_freesort
+)
+
+data_pilot_12_11_combined <- data_combined
+
+write.csv(data_pilot_12_11_combined, "data_pilot_12_11_combined.csv", row.names = F)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+
+Demographics
+
+```{r}
+
+# demographics
+df_demographics <- d %>% 
+  filter(trial_id == "demographics_survey") %>% 
+  select("mturk_participant_id", "trial_id", "filename", 
+         "feedback", "age", "ethnicity", "gender", "race") 
+
+```
+
+SCRAP
+
+# Exclusions
+
+- for now, leaving undone
+- need to decide if we will exclude for failing all 3 attention checks or at least 1
+
+```{r}
+d %>%
+  relocate(mturk_participant_id, .before = "trial_id") %>% 
+  mutate(correct = case_when(trial_id == "attention_check_1" & response == 0 ~ TRUE,
+                             trial_id == "attention_check_3" & response == 100 ~ TRUE,
+                             trial_id == "attention_check_2" & ( response > 60 & response < 80 )
+                             ~ TRUE,
+                             TRUE ~ correct)) %>%
+  filter(trial_id %in% c("attention_check_1", "attention_check_2", "attention_check_3")) %>% 
+  filter(correct == FALSE)
+  filter(mturk_participant_id == "pilot_2w19ksqx74") %>%
+  filter(trial_id %in% c("attention_check_1", "attention_check_2", "attention_check_3")) %>% 
+    
+  group_by(mturk_participant_id) %>%
+    count(correct)
+  filter(all(correct | is.na(correct))) %>% #remove 2 participants who failed at least 1 att check
+  ungroup()
+
+```
+
+

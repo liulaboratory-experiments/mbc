@@ -178,24 +178,24 @@
         }
         };
 
-        var trial_sorting_circles = {
-            type: jsPsychFreeSort,
-            stimuli: [
-                'images/items-circles/img1.png', 'images/items-circles/img2.png', 'images/items-circles/img3.png',
-                'images/items-circles/img4.png', 'images/items-circles/img5.png', 'images/items-circles/img6.png',
-                'images/items-circles/img7.png', 'images/items-circles/img8.png', 'images/items-circles/img9.png',
-                'images/items-circles/img10.png', 'images/items-circles/img11.png', 'images/items-circles/img12.png',
-                'images/items-circles/img13.png', 'images/items-circles/img14.png', 'images/items-circles/img15.png'
-            ], 
-            stim_height: 100,
-            stim_width: 100,
-            sort_area_height: 650,
-            sort_area_width: 650,
-            column_spread_factor: 0.75,
-            prompt: '<p style="font-size:20px">Please group similar phrases together. Take as long as you need.</p>',
-            scale_factor: 1.1,
-            border_color_in: "#648fff"
-        };
+    var trial_sorting_circles = {
+        type: jsPsychFreeSort,
+        stimuli: [
+            'images/items-circles/img1.png', 'images/items-circles/img2.png', 'images/items-circles/img3.png',
+            'images/items-circles/img4.png', 'images/items-circles/img5.png', 'images/items-circles/img6.png',
+            'images/items-circles/img7.png', 'images/items-circles/img8.png', 'images/items-circles/img9.png',
+            'images/items-circles/img10.png', 'images/items-circles/img11.png', 'images/items-circles/img12.png',
+            'images/items-circles/img13.png', 'images/items-circles/img14.png', 'images/items-circles/img15.png'
+        ], 
+        stim_height: 100,
+        stim_width: 100,
+        sort_area_height: 650,
+        sort_area_width: 650,
+        column_spread_factor: 0.75,
+        prompt: '<p style="font-size:20px">Please group similar phrases together. Take as long as you need.</p>',
+        scale_factor: 1.1,
+        border_color_in: "#648fff"
+    };
 
         // **CAUSALITY TASK**
         var causality_instructions = {
@@ -215,23 +215,31 @@
             cognitive: ['remember something', 'hear something', 'think about something', 'choose what to do', 'see something'],
             physical: ['reach for something', 'sit down', 'take a walk', 'kick something', 'jump up and down'],
             physiological: ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared']
+            // physiological: ['become hungry', 'get tired', 'get sick', 'experience pain', 'feel scared']
+
         };
 
 
         // Define the addIng function
         function addIng(item) {
+            // if (item === "feel hungry") return "feeling hungry";
+            // if (item.startsWith("feel")) return "feeling " + item.slice(5);
+            if (item === "become hungry") return "becoming hungry";
+            if (item === "get tired") return "getting tired";
+            if (item === "get sick") return "getting sick";
+            if (item === "experience pain") return "experiencing";
+            if (item === "feel scared") return "feeling scared";
+
             if (item === "think about something") return "thinking about something";
             if (item === "reach for something") return "reaching for something";
             if (item === "kick something") return "kicking something";
             if (item === "remember something") return "remembering something";
-            if (item === "feel hungry") return "feeling hungry";
             if (item === "hear something") return "hearing something";
             if (item === "sit down") return "sitting down";
             if (item === "see something") return "seeing something";
             if (item === "take a walk") return "taking a walk";
             if (item === "jump up and down") return "jumping up and down";
             if (item.startsWith("choose")) return "choosing what to do";
-            if (item.startsWith("feel")) return "feeling " + item.slice(5);
             return item;
         }
 

@@ -155,7 +155,7 @@ hist(df_means$mean_norm)
 ```{r}
 pair_matrix <- xtabs(mean_norm ~ itemA + itemB, data = df_pair_means)
 
-?corrplot(pair_matrix, 
+corrplot(pair_matrix, 
          method="color", 
          tl.col	= "black")
 ```
