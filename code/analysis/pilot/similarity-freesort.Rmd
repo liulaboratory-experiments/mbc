@@ -451,10 +451,6 @@ plot_rdm_theory(d_all_theories, "theor3_Physical-Ethereal", physethereal_order, 
 
 ```
 
-```{r}
-d_correlations
-```
-
 
 # Correllate theoretical with empiricals, show noise ceiling
 
@@ -488,9 +484,8 @@ d_correlations %>%
 
 ```
 
-# correlating using upper only == to double check!
+# Correlating using upper rdm only
 
--  calculation was assuming that my data has diagonals, so my correlations were off. 
 I was just correlating values from long form data and this included self correlations and thus inflated values. 
 
 ```{r}
@@ -590,6 +585,8 @@ d_correlations %>%
 ```
 
 # rough sketchpad
+- investigating why some subjects are higher than noise ceiling
+- update: chatted with shari and she said its ok with some folks are higher than noise ceiling beacuse NC is an average
 
 ```{r}
 #subject 1 corr with MBA

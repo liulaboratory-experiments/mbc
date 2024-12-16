@@ -1,0 +1,211 @@
+"itemA","itemB","MindBodyAction_itemA","MindBodyAction_itemB","PerCogOdActSpActBstimBnstim_itemA","PerCogOdActSpActBstimBnstim_itemB","PhysicalEthereal_itemA","PhysicalEthereal_itemB","theor1_Mind-Body-Action","theor2_PerCog-OdActSpAct-BodyStimBodynoStim","theor3_Physical-Ethereal"
+"hear something","see something","mind","mind","per","per","ethereal","ethereal",0,0,0
+"choose what to do","see something","mind","mind","cog","per","ethereal","ethereal",0,1,0
+"remember something","see something","mind","mind","cog","per","ethereal","ethereal",0,1,0
+"think about something","see something","mind","mind","cog","per","ethereal","ethereal",0,1,0
+"reach for something","see something","act","mind","odAct","per","phys","ethereal",1,1,1
+"sit down","see something","act","mind","SpAct","per","phys","ethereal",1,1,1
+"jump up and down","see something","act","mind","SpAct","per","phys","ethereal",1,1,1
+"kick something","see something","act","mind","odAct","per","phys","ethereal",1,1,1
+"take a walk","see something","act","mind","SpAct","per","phys","ethereal",1,1,1
+"get tired","see something","bio","mind","BnS","per","phys","ethereal",1,1,1
+"become hungry","see something","bio","mind","BnS","per","phys","ethereal",1,1,1
+"feel scared","see something","bio","mind","BS","per","phys","ethereal",1,1,1
+"experience pain","see something","bio","mind","BS","per","phys","ethereal",1,1,1
+"get sick","see something","bio","mind","BnS","per","phys","ethereal",1,1,1
+"see something","hear something","mind","mind","per","per","ethereal","ethereal",0,0,0
+"choose what to do","hear something","mind","mind","cog","per","ethereal","ethereal",0,1,0
+"remember something","hear something","mind","mind","cog","per","ethereal","ethereal",0,1,0
+"think about something","hear something","mind","mind","cog","per","ethereal","ethereal",0,1,0
+"reach for something","hear something","act","mind","odAct","per","phys","ethereal",1,1,1
+"sit down","hear something","act","mind","SpAct","per","phys","ethereal",1,1,1
+"jump up and down","hear something","act","mind","SpAct","per","phys","ethereal",1,1,1
+"kick something","hear something","act","mind","odAct","per","phys","ethereal",1,1,1
+"take a walk","hear something","act","mind","SpAct","per","phys","ethereal",1,1,1
+"get tired","hear something","bio","mind","BnS","per","phys","ethereal",1,1,1
+"become hungry","hear something","bio","mind","BnS","per","phys","ethereal",1,1,1
+"feel scared","hear something","bio","mind","BS","per","phys","ethereal",1,1,1
+"experience pain","hear something","bio","mind","BS","per","phys","ethereal",1,1,1
+"get sick","hear something","bio","mind","BnS","per","phys","ethereal",1,1,1
+"see something","choose what to do","mind","mind","per","cog","ethereal","ethereal",0,1,0
+"hear something","choose what to do","mind","mind","per","cog","ethereal","ethereal",0,1,0
+"remember something","choose what to do","mind","mind","cog","cog","ethereal","ethereal",0,0,0
+"think about something","choose what to do","mind","mind","cog","cog","ethereal","ethereal",0,0,0
+"reach for something","choose what to do","act","mind","odAct","cog","phys","ethereal",1,1,1
+"sit down","choose what to do","act","mind","SpAct","cog","phys","ethereal",1,1,1
+"jump up and down","choose what to do","act","mind","SpAct","cog","phys","ethereal",1,1,1
+"kick something","choose what to do","act","mind","odAct","cog","phys","ethereal",1,1,1
+"take a walk","choose what to do","act","mind","SpAct","cog","phys","ethereal",1,1,1
+"get tired","choose what to do","bio","mind","BnS","cog","phys","ethereal",1,1,1
+"become hungry","choose what to do","bio","mind","BnS","cog","phys","ethereal",1,1,1
+"feel scared","choose what to do","bio","mind","BS","cog","phys","ethereal",1,1,1
+"experience pain","choose what to do","bio","mind","BS","cog","phys","ethereal",1,1,1
+"get sick","choose what to do","bio","mind","BnS","cog","phys","ethereal",1,1,1
+"see something","remember something","mind","mind","per","cog","ethereal","ethereal",0,1,0
+"hear something","remember something","mind","mind","per","cog","ethereal","ethereal",0,1,0
+"choose what to do","remember something","mind","mind","cog","cog","ethereal","ethereal",0,0,0
+"think about something","remember something","mind","mind","cog","cog","ethereal","ethereal",0,0,0
+"reach for something","remember something","act","mind","odAct","cog","phys","ethereal",1,1,1
+"sit down","remember something","act","mind","SpAct","cog","phys","ethereal",1,1,1
+"jump up and down","remember something","act","mind","SpAct","cog","phys","ethereal",1,1,1
+"kick something","remember something","act","mind","odAct","cog","phys","ethereal",1,1,1
+"take a walk","remember something","act","mind","SpAct","cog","phys","ethereal",1,1,1
+"get tired","remember something","bio","mind","BnS","cog","phys","ethereal",1,1,1
+"become hungry","remember something","bio","mind","BnS","cog","phys","ethereal",1,1,1
+"feel scared","remember something","bio","mind","BS","cog","phys","ethereal",1,1,1
+"experience pain","remember something","bio","mind","BS","cog","phys","ethereal",1,1,1
+"get sick","remember something","bio","mind","BnS","cog","phys","ethereal",1,1,1
+"see something","think about something","mind","mind","per","cog","ethereal","ethereal",0,1,0
+"hear something","think about something","mind","mind","per","cog","ethereal","ethereal",0,1,0
+"choose what to do","think about something","mind","mind","cog","cog","ethereal","ethereal",0,0,0
+"remember something","think about something","mind","mind","cog","cog","ethereal","ethereal",0,0,0
+"reach for something","think about something","act","mind","odAct","cog","phys","ethereal",1,1,1
+"sit down","think about something","act","mind","SpAct","cog","phys","ethereal",1,1,1
+"jump up and down","think about something","act","mind","SpAct","cog","phys","ethereal",1,1,1
+"kick something","think about something","act","mind","odAct","cog","phys","ethereal",1,1,1
+"take a walk","think about something","act","mind","SpAct","cog","phys","ethereal",1,1,1
+"get tired","think about something","bio","mind","BnS","cog","phys","ethereal",1,1,1
+"become hungry","think about something","bio","mind","BnS","cog","phys","ethereal",1,1,1
+"feel scared","think about something","bio","mind","BS","cog","phys","ethereal",1,1,1
+"experience pain","think about something","bio","mind","BS","cog","phys","ethereal",1,1,1
+"get sick","think about something","bio","mind","BnS","cog","phys","ethereal",1,1,1
+"see something","reach for something","mind","act","per","odAct","ethereal","phys",1,1,1
+"hear something","reach for something","mind","act","per","odAct","ethereal","phys",1,1,1
+"choose what to do","reach for something","mind","act","cog","odAct","ethereal","phys",1,1,1
+"remember something","reach for something","mind","act","cog","odAct","ethereal","phys",1,1,1
+"think about something","reach for something","mind","act","cog","odAct","ethereal","phys",1,1,1
+"sit down","reach for something","act","act","SpAct","odAct","phys","phys",0,1,0
+"jump up and down","reach for something","act","act","SpAct","odAct","phys","phys",0,1,0
+"kick something","reach for something","act","act","odAct","odAct","phys","phys",0,0,0
+"take a walk","reach for something","act","act","SpAct","odAct","phys","phys",0,1,0
+"get tired","reach for something","bio","act","BnS","odAct","phys","phys",1,1,0
+"become hungry","reach for something","bio","act","BnS","odAct","phys","phys",1,1,0
+"feel scared","reach for something","bio","act","BS","odAct","phys","phys",1,1,0
+"experience pain","reach for something","bio","act","BS","odAct","phys","phys",1,1,0
+"get sick","reach for something","bio","act","BnS","odAct","phys","phys",1,1,0
+"see something","sit down","mind","act","per","SpAct","ethereal","phys",1,1,1
+"hear something","sit down","mind","act","per","SpAct","ethereal","phys",1,1,1
+"choose what to do","sit down","mind","act","cog","SpAct","ethereal","phys",1,1,1
+"remember something","sit down","mind","act","cog","SpAct","ethereal","phys",1,1,1
+"think about something","sit down","mind","act","cog","SpAct","ethereal","phys",1,1,1
+"reach for something","sit down","act","act","odAct","SpAct","phys","phys",0,1,0
+"jump up and down","sit down","act","act","SpAct","SpAct","phys","phys",0,0,0
+"kick something","sit down","act","act","odAct","SpAct","phys","phys",0,1,0
+"take a walk","sit down","act","act","SpAct","SpAct","phys","phys",0,0,0
+"get tired","sit down","bio","act","BnS","SpAct","phys","phys",1,1,0
+"become hungry","sit down","bio","act","BnS","SpAct","phys","phys",1,1,0
+"feel scared","sit down","bio","act","BS","SpAct","phys","phys",1,1,0
+"experience pain","sit down","bio","act","BS","SpAct","phys","phys",1,1,0
+"get sick","sit down","bio","act","BnS","SpAct","phys","phys",1,1,0
+"see something","jump up and down","mind","act","per","SpAct","ethereal","phys",1,1,1
+"hear something","jump up and down","mind","act","per","SpAct","ethereal","phys",1,1,1
+"choose what to do","jump up and down","mind","act","cog","SpAct","ethereal","phys",1,1,1
+"remember something","jump up and down","mind","act","cog","SpAct","ethereal","phys",1,1,1
+"think about something","jump up and down","mind","act","cog","SpAct","ethereal","phys",1,1,1
+"reach for something","jump up and down","act","act","odAct","SpAct","phys","phys",0,1,0
+"sit down","jump up and down","act","act","SpAct","SpAct","phys","phys",0,0,0
+"kick something","jump up and down","act","act","odAct","SpAct","phys","phys",0,1,0
+"take a walk","jump up and down","act","act","SpAct","SpAct","phys","phys",0,0,0
+"get tired","jump up and down","bio","act","BnS","SpAct","phys","phys",1,1,0
+"become hungry","jump up and down","bio","act","BnS","SpAct","phys","phys",1,1,0
+"feel scared","jump up and down","bio","act","BS","SpAct","phys","phys",1,1,0
+"experience pain","jump up and down","bio","act","BS","SpAct","phys","phys",1,1,0
+"get sick","jump up and down","bio","act","BnS","SpAct","phys","phys",1,1,0
+"see something","kick something","mind","act","per","odAct","ethereal","phys",1,1,1
+"hear something","kick something","mind","act","per","odAct","ethereal","phys",1,1,1
+"choose what to do","kick something","mind","act","cog","odAct","ethereal","phys",1,1,1
+"remember something","kick something","mind","act","cog","odAct","ethereal","phys",1,1,1
+"think about something","kick something","mind","act","cog","odAct","ethereal","phys",1,1,1
+"reach for something","kick something","act","act","odAct","odAct","phys","phys",0,0,0
+"sit down","kick something","act","act","SpAct","odAct","phys","phys",0,1,0
+"jump up and down","kick something","act","act","SpAct","odAct","phys","phys",0,1,0
+"take a walk","kick something","act","act","SpAct","odAct","phys","phys",0,1,0
+"get tired","kick something","bio","act","BnS","odAct","phys","phys",1,1,0
+"become hungry","kick something","bio","act","BnS","odAct","phys","phys",1,1,0
+"feel scared","kick something","bio","act","BS","odAct","phys","phys",1,1,0
+"experience pain","kick something","bio","act","BS","odAct","phys","phys",1,1,0
+"get sick","kick something","bio","act","BnS","odAct","phys","phys",1,1,0
+"see something","take a walk","mind","act","per","SpAct","ethereal","phys",1,1,1
+"hear something","take a walk","mind","act","per","SpAct","ethereal","phys",1,1,1
+"choose what to do","take a walk","mind","act","cog","SpAct","ethereal","phys",1,1,1
+"remember something","take a walk","mind","act","cog","SpAct","ethereal","phys",1,1,1
+"think about something","take a walk","mind","act","cog","SpAct","ethereal","phys",1,1,1
+"reach for something","take a walk","act","act","odAct","SpAct","phys","phys",0,1,0
+"sit down","take a walk","act","act","SpAct","SpAct","phys","phys",0,0,0
+"jump up and down","take a walk","act","act","SpAct","SpAct","phys","phys",0,0,0
+"kick something","take a walk","act","act","odAct","SpAct","phys","phys",0,1,0
+"get tired","take a walk","bio","act","BnS","SpAct","phys","phys",1,1,0
+"become hungry","take a walk","bio","act","BnS","SpAct","phys","phys",1,1,0
+"feel scared","take a walk","bio","act","BS","SpAct","phys","phys",1,1,0
+"experience pain","take a walk","bio","act","BS","SpAct","phys","phys",1,1,0
+"get sick","take a walk","bio","act","BnS","SpAct","phys","phys",1,1,0
+"see something","get tired","mind","bio","per","BnS","ethereal","phys",1,1,1
+"hear something","get tired","mind","bio","per","BnS","ethereal","phys",1,1,1
+"choose what to do","get tired","mind","bio","cog","BnS","ethereal","phys",1,1,1
+"remember something","get tired","mind","bio","cog","BnS","ethereal","phys",1,1,1
+"think about something","get tired","mind","bio","cog","BnS","ethereal","phys",1,1,1
+"reach for something","get tired","act","bio","odAct","BnS","phys","phys",1,1,0
+"sit down","get tired","act","bio","SpAct","BnS","phys","phys",1,1,0
+"jump up and down","get tired","act","bio","SpAct","BnS","phys","phys",1,1,0
+"kick something","get tired","act","bio","odAct","BnS","phys","phys",1,1,0
+"take a walk","get tired","act","bio","SpAct","BnS","phys","phys",1,1,0
+"become hungry","get tired","bio","bio","BnS","BnS","phys","phys",0,0,0
+"feel scared","get tired","bio","bio","BS","BnS","phys","phys",0,1,0
+"experience pain","get tired","bio","bio","BS","BnS","phys","phys",0,1,0
+"get sick","get tired","bio","bio","BnS","BnS","phys","phys",0,0,0
+"see something","become hungry","mind","bio","per","BnS","ethereal","phys",1,1,1
+"hear something","become hungry","mind","bio","per","BnS","ethereal","phys",1,1,1
+"choose what to do","become hungry","mind","bio","cog","BnS","ethereal","phys",1,1,1
+"remember something","become hungry","mind","bio","cog","BnS","ethereal","phys",1,1,1
+"think about something","become hungry","mind","bio","cog","BnS","ethereal","phys",1,1,1
+"reach for something","become hungry","act","bio","odAct","BnS","phys","phys",1,1,0
+"sit down","become hungry","act","bio","SpAct","BnS","phys","phys",1,1,0
+"jump up and down","become hungry","act","bio","SpAct","BnS","phys","phys",1,1,0
+"kick something","become hungry","act","bio","odAct","BnS","phys","phys",1,1,0
+"take a walk","become hungry","act","bio","SpAct","BnS","phys","phys",1,1,0
+"get tired","become hungry","bio","bio","BnS","BnS","phys","phys",0,0,0
+"feel scared","become hungry","bio","bio","BS","BnS","phys","phys",0,1,0
+"experience pain","become hungry","bio","bio","BS","BnS","phys","phys",0,1,0
+"get sick","become hungry","bio","bio","BnS","BnS","phys","phys",0,0,0
+"see something","feel scared","mind","bio","per","BS","ethereal","phys",1,1,1
+"hear something","feel scared","mind","bio","per","BS","ethereal","phys",1,1,1
+"choose what to do","feel scared","mind","bio","cog","BS","ethereal","phys",1,1,1
+"remember something","feel scared","mind","bio","cog","BS","ethereal","phys",1,1,1
+"think about something","feel scared","mind","bio","cog","BS","ethereal","phys",1,1,1
+"reach for something","feel scared","act","bio","odAct","BS","phys","phys",1,1,0
+"sit down","feel scared","act","bio","SpAct","BS","phys","phys",1,1,0
+"jump up and down","feel scared","act","bio","SpAct","BS","phys","phys",1,1,0
+"kick something","feel scared","act","bio","odAct","BS","phys","phys",1,1,0
+"take a walk","feel scared","act","bio","SpAct","BS","phys","phys",1,1,0
+"get tired","feel scared","bio","bio","BnS","BS","phys","phys",0,1,0
+"become hungry","feel scared","bio","bio","BnS","BS","phys","phys",0,1,0
+"experience pain","feel scared","bio","bio","BS","BS","phys","phys",0,0,0
+"get sick","feel scared","bio","bio","BnS","BS","phys","phys",0,1,0
+"see something","experience pain","mind","bio","per","BS","ethereal","phys",1,1,1
+"hear something","experience pain","mind","bio","per","BS","ethereal","phys",1,1,1
+"choose what to do","experience pain","mind","bio","cog","BS","ethereal","phys",1,1,1
+"remember something","experience pain","mind","bio","cog","BS","ethereal","phys",1,1,1
+"think about something","experience pain","mind","bio","cog","BS","ethereal","phys",1,1,1
+"reach for something","experience pain","act","bio","odAct","BS","phys","phys",1,1,0
+"sit down","experience pain","act","bio","SpAct","BS","phys","phys",1,1,0
+"jump up and down","experience pain","act","bio","SpAct","BS","phys","phys",1,1,0
+"kick something","experience pain","act","bio","odAct","BS","phys","phys",1,1,0
+"take a walk","experience pain","act","bio","SpAct","BS","phys","phys",1,1,0
+"get tired","experience pain","bio","bio","BnS","BS","phys","phys",0,1,0
+"become hungry","experience pain","bio","bio","BnS","BS","phys","phys",0,1,0
+"feel scared","experience pain","bio","bio","BS","BS","phys","phys",0,0,0
+"get sick","experience pain","bio","bio","BnS","BS","phys","phys",0,1,0
+"see something","get sick","mind","bio","per","BnS","ethereal","phys",1,1,1
+"hear something","get sick","mind","bio","per","BnS","ethereal","phys",1,1,1
+"choose what to do","get sick","mind","bio","cog","BnS","ethereal","phys",1,1,1
+"remember something","get sick","mind","bio","cog","BnS","ethereal","phys",1,1,1
+"think about something","get sick","mind","bio","cog","BnS","ethereal","phys",1,1,1
+"reach for something","get sick","act","bio","odAct","BnS","phys","phys",1,1,0
+"sit down","get sick","act","bio","SpAct","BnS","phys","phys",1,1,0
+"jump up and down","get sick","act","bio","SpAct","BnS","phys","phys",1,1,0
+"kick something","get sick","act","bio","odAct","BnS","phys","phys",1,1,0
+"take a walk","get sick","act","bio","SpAct","BnS","phys","phys",1,1,0
+"get tired","get sick","bio","bio","BnS","BnS","phys","phys",0,0,0
+"become hungry","get sick","bio","bio","BnS","BnS","phys","phys",0,0,0
+"feel scared","get sick","bio","bio","BS","BnS","phys","phys",0,1,0
+"experience pain","get sick","bio","bio","BS","BnS","phys","phys",0,1,0

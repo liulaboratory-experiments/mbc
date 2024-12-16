@@ -1,11 +1,21 @@
 ---
 title: "causation"
-output: html_document
+output: 
+  html_document:
+      toc: true
+      toc_float: true
+      toc_depth: 3
+      number_sections: true
 date: "2024-10-28"
 ---
 
-```{r}
-knitr::opts_chunk$set(echo = TRUE)
+# Setup
+
+## load packages
+
+```{r, setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+
 library(pacman)
 pacman::p_load(tidyverse,
                ggforce,
@@ -35,10 +45,7 @@ sessionInfo()
 
 ```
 
-# Parameters to tweak
-
-
-# todo: change items in causation to match items in freesort!!
+## read data and set variables
 
 ```{r}
 desired_order <- c("see something", "hear something", "choose what to do", #please note this shows 'experience pain!' rather than feel pain
@@ -50,38 +57,18 @@ freesort_columns <- c("subject_id", "x", "y", "item")
 # causation_columns <- c("subject_id", "itemA", "itemB", "trial_index", "original_trial_index", "response")
 causation_columns <- c("subject_id", "itemA", "itemB", "response")
 
-```
 
-# Read data
+# data paths
+directory_path <- here("code", "analysis", "pilot", "data-combined", "pilot05_121324_n50_combined_17") #data path
+rdm_outputs_path <- here("code", "analysis", "pilot")
+input_csv <- "data_pilot_12_14_combined"
+input_path <- paste0(directory_path, "/outputs/", input_csv, ".csv") 
+freesort_input_path <- paste0(directory_path, "/outputs/data_freeesort.csv")
 
-```{r}
-directory_path <- here("code", "analysis", "pilot")
-d <- read_csv(here("code", "analysis", "pilot", "data_pilot_12_11_combined.csv"))
+# read data
+directory_path <- here(input_path)
 
-```
-# Exclusions
-
-- for now, leaving undone
-- need to decide if we will exclude for failing all 3 attention checks or at least 1
-
-```{r}
-#d %>%
-  # mutate(correct = case_when(trial_id == "attention_check_1" & response == 0 ~ TRUE,
-  #                            trial_id == "attention_check_3" & response == 100 ~ TRUE,
-  #                            trial_id == "attention_check_2" & ( response > 60 & response < 80 )
-  #                            ~ TRUE,
-  #                            TRUE ~ correct)) %>% 
-  #group_by(mturk_participant_id) %>%
-  #filter(all(correct | is.na(correct))) %>% #remove 2 participants who failed at least 1 att check
-  #ungroup()
-
-```
-
-
-# Subject id names
-
-```{r}
-d <- d %>% 
+d <- read_csv(directory_path) %>% 
   rename("subject_id" = filename) %>% 
   mutate(
     subject_id = factor(subject_id), # Convert to factor to establish levels
@@ -92,7 +79,8 @@ d <- d %>%
 
 ```
 
-# Freesort: Visualize empirical euclidean distances
+
+# Freesort: Plotting empirical euclidean distances
 
 ## reshape data
 
@@ -100,15 +88,19 @@ d <- d %>%
 #get item pairs per person
 df_distances <- d %>%
   filter(trial_type == "free_sort") %>%
-  select(freesort_columns) %>% 
+  select(all_of(freesort_columns)) %>%
   select(subject_id, item) %>%
   group_by(subject_id) %>%
   summarize(pairs = list(expand.grid(itemA = item, itemB = item, stringsAsFactors = FALSE))) %>%
   unnest(pairs) %>%
   filter(itemA != itemB) %>% #remove self-pairs
-  left_join(d_freesort, by = c("subject_id", "itemA" = "item")) %>% #append itemA positions
+  left_join(d %>% 
+              filter(trial_type == "free_sort") %>% 
+              select(all_of(freesort_columns)), by = c("subject_id", "itemA" = "item")) %>% #append itemA positions
   rename(x_itemA = x, y_itemA = y) %>% 
-  left_join(d_freesort, by = c("subject_id", "itemB" = "item")) %>% #append itemB positions
+  left_join(d %>% 
+              filter(trial_type == "free_sort") %>% 
+              select(all_of(freesort_columns)), by = c("subject_id", "itemB" = "item")) %>% #append itemB positions
   rename(x_itemB = x, y_itemB = y) %>% 
   group_by(subject_id) %>% 
   mutate(euclidean_distance = sqrt((x_itemA - x_itemB)^2 + (y_itemA - y_itemB)^2),
@@ -121,9 +113,9 @@ df_distances <- d %>%
 
 ```
 
-## plot raw responses
+## plot subject-specific raw responses
 
-```{r}
+```{r, fig.width = 14, fig.height = 10}
 d %>% 
   filter(trial_type == "free_sort") %>%
   mutate(y = 500 - y) %>% #invert y axis
@@ -133,6 +125,27 @@ d %>%
   facet_wrap(~subject_id)
 
 ```
+
+## plot average raw responses
+
+```{r}
+# pdf("my_plot_average.pdf", width = 7, height = 4)  # Width and height are in inches
+d %>% 
+  filter(trial_type == "free_sort") %>%
+  mutate(y = 500 - y) %>% 
+  group_by(item) %>% 
+  mutate(mean_x = mean(x),
+            mean_y = mean(y)) %>% 
+  ungroup() %>% 
+  distinct(item, .keep_all = TRUE) %>% 
+  select(-subject_id) %>% 
+  ggplot(aes(x = mean_x, y = mean_y)) +
+  geom_point() +
+  geom_text(aes(label = item), vjust = -1) +
+  labs(title = "Average Raw Responses")
+
+```
+
 
 ## plot subject-specific euclidean rdms
 
@@ -157,164 +170,575 @@ plot_rdm <- function(data, subject, desired_order) { # Function to create RDM pl
 subject_ids <- unique(df_distances$subject_id)
 
 #generate plots
-plots <- map(subject_ids, ~plot_rdm(df_distances, .x, desired_order)) #run this entire line of code
+plots <- map(subject_ids, ~plot_rdm(df_distances, .x, desired_order)) #run this to generate plots
 
-# save plots with subject name
+# save plots with subject name as file name
+ 
+# Generate unique subject IDs and save plots
+new_names <- paste0("subj_", str_pad(seq_along(subject_ids), width = 2, pad = "0"))  # Generate new subject names
 
-# subject_ids <- unique(df_distances$subject_id)
-# new_names <- paste0("subj_", str_pad(seq_along(subject_ids), width = 2, pad = "0")) # Generate new subject names
-# for (i in seq_along(subject_ids)) { # Loop to save each plot as a separate PDF
-#   pdf(paste0(new_names[i], ".pdf"), width = 8, height = 6)  # Open a PDF device
-#   plot_rdm(df_distances, subject_ids[i], desired_order)  # Generate the plot
-#   dev.off()  # Close the device to save the file
-# }
+for (i in seq_along(subject_ids)) {  # Loop to save each plot as a separate PDF
+  # Specify the path to save the PDF in the "figures" subfolder
+  pdf(file = paste0(here(rdm_outputs_path), "/figures/freesort/", new_names[i], ".pdf"), width = 8, height = 6)  # Open a PDF device
+  plot_rdm(df_distances, subject_ids[i], desired_order)  # Generate the plot
+  dev.off()  # Close the device to save the file
+}
 
 ```
 
-# Causation
+## plot average euclidean rdm
 
 ```{r}
-# Step 1: Normalize causality judgments
-df_normalized <- d %>%
-  filter(trial_type == "causation") %>% 
-  filter(!attention_check) %>% 
-  select(causation_columns) %>%
-  mutate(
-    dissimilarity = 1 - response / 100  # Transform judgments to dissimilarity
-  ) %>%
+df_mean_distances <- df_distances %>% 
+  unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
+  group_by(item_pairs) %>% 
+  mutate(mean_emp_euclidean = mean(emp_euclidean)) %>% 
+  distinct(item_pairs, .keep_all = TRUE) %>% 
+  ungroup() %>% 
+  select(-c(item_pairs, subject_id, emp_euclidean))  %>% 
+  mutate(itemA = factor(itemA, levels = desired_order),
+         itemB = factor(itemB, levels = desired_order))
+  
+# matrixify and plot
+df_mean_distances_matrix <- df_mean_distances %>% 
+  pivot_wider(names_from = itemB, values_from = mean_emp_euclidean) %>% 
+  column_to_rownames("itemA")  
+  
+df_mean_distances_matrix <- df_mean_distances_matrix[desired_order, desired_order] #reorder matrix
+
+diag(df_mean_distances_matrix) <- 0 #set diagonals 
+
+# pdf(file = here(rdm_outputs_path, "figures/freesort/averageEuclideanRDM.pdf"), width = 8, height = 6)  
+
+corrplot(as.matrix(df_mean_distances_matrix), method = "color", is.corr = FALSE, 
+         tl.col = "black", title = "Average Euclidean RDM", mar = c(0, 0, 2, 0),
+         addgrid.col = "darkgray")
+
+```
+
+# Causal
+
+## reshape data
+
+```{r}
+df_causation <- d %>%
+    filter(trial_type == "causation") %>% 
+    filter(!attention_check) %>% 
+    select(all_of(causation_columns)) %>% 
+    mutate(causal_judgments = 1 - response / 100) %>% 
+    dplyr::select(-response) 
+
+```
+
+## plot subject-specific causal RDMs
+
+```{r}
+plot_causation_rdm <- function(data, subject, desired_order) {
+  # Filter and process data for the specific subject
+  df_matrix <- data %>%
+    filter(subject_id == subject) %>%
+    select(-subject_id) %>%
+    select(itemA, itemB, causal_judgments) %>% 
+    pivot_wider(names_from = itemB, values_from = causal_judgments) %>%
+    column_to_rownames("itemA")
+  
+  # Reorder matrix and set diagonal to zero
+  df_matrix <- df_matrix[desired_order, desired_order]
+  diag(df_matrix) <- 0
+  
+  # Plot the RDM
+  corrplot(as.matrix(df_matrix), method = "color", is.corr = FALSE,
+           tl.col = "black", title = paste("Causal RDM - ", subject),
+           mar = c(0, 0, 2, 0), addgrid.col = "darkgray")
+}
+
+subject_ids <- unique(df_causation$subject_id)
+
+#generate plots
+plots <- map(subject_ids, ~plot_causation_rdm(df_causation, .x, desired_order)) #run this to generate plots
+
+# save plots with subject name as file name
+ 
+# Generate unique subject IDs and save plots
+new_names <- paste0("subj_", str_pad(seq_along(subject_ids), width = 2, pad = "0"))  # Generate new subject names
+
+for (i in seq_along(subject_ids)) {  # Loop to save each plot as a separate PDF
+  # Specify the path to save the PDF in the "figures" subfolder
+  pdf(file = paste0(here(rdm_outputs_path), "/figures/causation/", new_names[i], ".pdf"), width = 8, height = 6)  # Open a PDF device
+  plot_causation_rdm(df_causation, subject_ids[i], desired_order)  # Generate the plot
+  dev.off()  # Close the device to save the file
+}
+
+```
+
+## plot average causal RDM
+
+```{r}
+#normalize causality judgments
+df_normalized <- df_causation %>% 
   mutate(item_pairs = str_c(itemA, itemB, sep = "-"))  %>%
   group_by(item_pairs) %>%
-  mutate(mean_dissimilarity = mean(dissimilarity, na.rm = TRUE)) %>%  # Average across participants
+  mutate(mean_dissimilarity = mean(causal_judgments, na.rm = TRUE)) %>%  # Average across participants
   ungroup() 
 
-# Step 2: Apply Min-Max Scaling to Dissimilarity Scores
+#Min-Max Scaling 
 df_normalized <- df_normalized %>%
   mutate(
     normalized_dissimilarity = (mean_dissimilarity - min(mean_dissimilarity)) /
                                 (max(mean_dissimilarity) - min(mean_dissimilarity))
   )
 
-# Step 3: Create RDM
 df_rdm <- df_normalized %>%
   distinct(item_pairs, .keep_all = TRUE) %>% 
   select(itemA, itemB, normalized_dissimilarity) %>% 
   pivot_wider(names_from = itemB, values_from = normalized_dissimilarity) %>%
   column_to_rownames("itemA")  # Convert `itemA` to row names
 
-# Ensure proper ordering of items in the matrix
-desired_order <- c("see something", "hear something", "choose what to do",
-                   "remember something", "think about something",
-                   "reach for something", "sit down", "jump up and down",
-                   "kick something", "take a walk", "feel tired",
-                   "feel hungry", "feel scared", "feel pain", "feel sick")
-
 df_rdm <- df_rdm[desired_order, desired_order]
 
-# Step 4: Plot the RDM
-corrplot(
-  as.matrix(df_rdm),
-  method = "color",
-  is.corr = FALSE,
-  tl.col = "black",
-  title = "Causality Judgments RDM",
-  mar = c(0, 0, 2, 0),
-  addgrid.col = "darkgray"
-)
+# pdf(file = here(rdm_outputs_path, "figures/causation/averageCausalRDM.pdf"), width = 8, height = 6)  
+
+corrplot(as.matrix(df_rdm), method = "color", is.corr = FALSE, tl.col = "black",
+         title = "Average Causal RDM", mar = c(0, 0, 2, 0), addgrid.col = "darkgray")
+
+```
+
+# Correlations: Empirical euclidean RDMs
+
+## read and compute correlations
+
+```{r, message = FALSE}
+d_all_theories <- read_csv(here("code/analysis/pilot/theoretical-rdm-data/d_all_theories.csv"))
+
+
+# Function to extract upper triangular part as a vector
+extract_upper_tri <- function(matrix) {
+  matrix[upper.tri(matrix)]
+}
+
+d_correlations <- df_distances %>%
+  left_join(d_all_theories, by = c("itemA", "itemB")) %>%
+  left_join(df_causation, by = c("subject_id", "itemA", "itemB")) %>% 
+  rename(`emp5_causal_judgments` = "causal_judgments") %>% 
+  group_by(subject_id) %>%
+  mutate(
+      `1_Mind-Body-Action` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_euclidean),     #empirical RDM
+                          names_from = itemB, values_from = emp_euclidean) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, `theor1_Mind-Body-Action`),   #theoretical RDM
+                          names_from = itemB, values_from = `theor1_Mind-Body-Action`) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        cor(rdm1[upper.tri(rdm1)], rdm2[upper.tri(rdm2)], method = "kendall")
+        },
+        
+      `2_PerCog-ObjDir-Stimulus` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_euclidean),     #empirical RDM
+                            names_from = itemB, values_from = emp_euclidean) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, `theor2_PerCog-OdActSpAct-BodyStimBodynoStim`),     #theoretical RDM
+                            names_from = itemB, values_from = `theor2_PerCog-OdActSpAct-BodyStimBodynoStim`) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order]     
+        rdm2 <- rdm2[desired_order, desired_order]
+        cor(rdm1[upper.tri(rdm1)], rdm2[upper.tri(rdm2)], method = "kendall")
+        },
+    
+    `3_Physical-Ethereal` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_euclidean),     #empirical RDM
+                          names_from = itemB, values_from = emp_euclidean) %>%
+        column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, `theor3_Physical-Ethereal`),    #theoretical RDM
+                          names_from = itemB, values_from = `theor3_Physical-Ethereal`) %>%
+        column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        cor(rdm1[upper.tri(rdm1)], rdm2[upper.tri(rdm2)], method = "kendall")
+        },
+    
+    `4_cosine_similarity` = {
+              rdm1 <- pivot_wider(pick(itemA, itemB, emp_euclidean),     #empirical RDM
+                          names_from = itemB, values_from = emp_euclidean) %>%
+        column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, `theor4_cosine_similarity`),     #theoretical RDM
+                          names_from = itemB, values_from = `theor4_cosine_similarity`) %>%
+        column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        cor(rdm1[upper.tri(rdm1)], rdm2[upper.tri(rdm2)], method = "kendall")
+        },
+    
+    `5_causal_judgments` = {
+              rdm1 <- pivot_wider(pick(itemA, itemB, emp_euclidean),     #empirical RDM
+                          names_from = itemB, values_from = emp_euclidean) %>%
+        column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, `emp5_causal_judgments`),     #theoretical RDM
+                          names_from = itemB, values_from = `emp5_causal_judgments`) %>%
+        column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        cor(rdm1[upper.tri(rdm1)], rdm2[upper.tri(rdm2)], method = "kendall")
+        }
+    ) %>% 
+  ungroup()
+
+
+calculate_noise_ceiling <- function(data, subjects, desired_order, metric = "kendall") {
+  # Initialize storage for correlations
+  upper_bound <- numeric(length(subjects))
+  lower_bound <- numeric(length(subjects))
+  
+  # Loop through each subject
+  for (i in seq_along(subjects)) {
+    subject <- subjects[i]
+    
+    # Subject's RDM
+    subject_rdm <- data %>%
+        filter(subject_id == subject) %>%
+        select(subject_id, itemA, itemB, emp_euclidean) %>% 
+        pivot_wider(names_from = itemB, values_from = emp_euclidean) %>%
+        column_to_rownames("itemA") %>%
+        as.matrix()
+    subject_rdm <- subject_rdm[desired_order, desired_order]
+    
+    # Grand average RDM
+    grand_avg_rdm <- data %>%
+        select(subject_id, itemA, itemB, emp_euclidean) %>% 
+        unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
+        group_by(item_pairs) %>%
+        mutate(emp_euclidean = mean(emp_euclidean)) %>%
+        ungroup() %>% 
+        distinct(item_pairs, .keep_all = TRUE) %>% 
+        select(-c(item_pairs, subject_id)) %>% 
+        pivot_wider(names_from = itemB, values_from = emp_euclidean) %>%
+        column_to_rownames("itemA") %>%
+        as.matrix()
+    grand_avg_rdm <- grand_avg_rdm[desired_order, desired_order]
+    
+    # Other subjects' average RDM
+    other_avg_rdm <- data %>%
+      select(subject_id, itemA, itemB, emp_euclidean) %>% 
+      filter(subject_id != "subj_01") %>%
+      unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
+      group_by(item_pairs) %>%
+      mutate(emp_euclidean = mean(emp_euclidean)) %>%
+      ungroup() %>% 
+      distinct(item_pairs, .keep_all = TRUE) %>% 
+      select(-c(item_pairs, subject_id)) %>% 
+      pivot_wider(names_from = itemB, values_from = emp_euclidean) %>%
+      column_to_rownames("itemA") %>%
+      as.matrix()
+    other_avg_rdm <- other_avg_rdm[desired_order, desired_order]
+    
+    # Convert to numeric vectors
+    subject_upper <- as.numeric(subject_rdm[upper.tri(subject_rdm)])
+    other_upper <- as.numeric(other_avg_rdm[upper.tri(other_avg_rdm)])
+    grand_upper <- as.numeric(grand_avg_rdm[upper.tri(grand_avg_rdm)])
+    
+    # Compute correlations
+    upper_bound[i] <- cor(subject_upper, other_upper, method = metric)
+    lower_bound[i] <- cor(subject_upper, grand_upper, method = metric)
+  }
+  
+  # Return average bounds
+  list(
+    upper_bound = mean(upper_bound, na.rm = TRUE),
+    lower_bound = mean(lower_bound, na.rm = TRUE)
+  )
+}
+
+# Compute noise ceiling for all subjects
+subjects <- unique(d_correlations$subject_id)
+noise_ceiling <- calculate_noise_ceiling(d_correlations, subjects, desired_order)
+
+```
+
+## plot correlations with noise ceiling
+
+```{r, fig.width = 9}
+# plot with noise ceiling
+d_correlations %>%
+  pivot_longer(cols = starts_with(c("1_","2_","3_","4_", "5_")),
+               names_to = "correlation_type",
+               values_to = "correlation_value") %>%
+  ggplot(aes(x = reorder(correlation_type, correlation_value, FUN = function(x) -mean(x)), y = correlation_value)) +
+  stat_summary(fun = "mean", geom = "bar", fill = "white", color = "black") +
+  geom_point(aes(color = subject_id)) +
+  geom_hline(yintercept = noise_ceiling$upper_bound, color = "blue", linetype = "dashed", linewidth = .5) +
+  geom_hline(yintercept = noise_ceiling$lower_bound, color = "red", linetype = "dashed", linewidth = .5) +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1, size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14)) +
+  labs(x = "Theoretical RDMs", y = "Correlation with euclidean RDMs",
+       title = "Correlation between theoretical and empirical RDMs",
+       subtitle = paste0("Noise Ceiling: Upper: ", round(noise_ceiling$upper_bound, 3),
+                         " | Lower: ", round(noise_ceiling$lower_bound, 3)))
 
 ```
 
 
-## Plot category means 
+# Correlations: Causal RDMS
+
+## generate causal theories
+
+```{r, echo = TRUE}
+d_theo_causal_raw <- read_csv(here("code/analysis/pilot/theoretical-rdm-data/d_theories_categories.csv"))
+
+d_theo_causal <- d_theo_causal_raw %>% 
+  select(itemA, itemB, MindBodyAction_itemA, MindBodyAction_itemB) %>% 
+  mutate(within_domain_int = case_when(
+                          #intuitive bio
+                          MindBodyAction_itemA == "bio" & MindBodyAction_itemB == "act" ~ 0, 
+                          MindBodyAction_itemA == "act" & MindBodyAction_itemB == "bio" ~ 0,
+                          MindBodyAction_itemA == "bio" & MindBodyAction_itemB == "bio" ~ 0,
+                          #intuitive psych
+                          MindBodyAction_itemA == "mind" & MindBodyAction_itemB == "act" ~ 0, 
+                          MindBodyAction_itemA == "act" & MindBodyAction_itemB == "mind" ~ 0,
+                          MindBodyAction_itemA == "mind" & MindBodyAction_itemB == "mind" ~ 0,
+                          TRUE ~ 1),
+         cross_domain_int = case_when(
+                          MindBodyAction_itemA == "bio" & MindBodyAction_itemB == "act" ~ 0, 
+                          MindBodyAction_itemA == "act" & MindBodyAction_itemB == "bio" ~ 0,
+                          MindBodyAction_itemA == "bio" & MindBodyAction_itemB == "bio" ~ 0,
+                          
+                          MindBodyAction_itemA == "mind" & MindBodyAction_itemB == "act" ~ 0, 
+                          MindBodyAction_itemA == "act" & MindBodyAction_itemB == "mind" ~ 0,
+                          MindBodyAction_itemA == "mind" & MindBodyAction_itemB == "mind" ~ 0,
+                          #cross-domain causation
+                          MindBodyAction_itemA == "mind" & MindBodyAction_itemB == "bio" ~ 0, 
+                          MindBodyAction_itemA == "bio" & MindBodyAction_itemB == "mind" ~ 0,
+                          TRUE ~ 1)) %>% 
+  select(-c("MindBodyAction_itemA", "MindBodyAction_itemB"))
+
+  
+```
+
+
+## compute correlations
 
 ```{r}
-df %>%
-  ggplot(aes(x = category_pairs, y = response, color = type)) +
-  geom_jitter(alpha = .4, size = 3, width = .1) +
-  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", width = 0.2, color = "black") +
-  geom_point(stat = "summary", fun = "mean", size = 3, shape = 23, 
-             fill = "white", color = "black") +
-  theme_bw() +
-  theme(
-    axis.text = element_text(size = 12),
-    axis.text.x = element_text(angle = 90)) +
-  labs(x = "causation type")
+d_causal_correlations <- df_distances %>%
+  left_join(d_theo_causal, by = c("itemA", "itemB")) %>%
+  left_join(df_causation, by = c("subject_id", "itemA", "itemB")) %>% 
+  # rename(causal_judgments` = "causal_judgments") %>% 
+  group_by(subject_id) %>%
+  mutate(
+      `1_emp_euclideans_upper` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = causal_judgments) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, emp_euclidean),   # Construct theoretical RDM
+                          names_from = itemB, values_from = emp_euclidean) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        
+        cor(rdm1[upper.tri(rdm1)], rdm2[upper.tri(rdm2)], method = "kendall")
+        },
+
+      `1_emp_euclideans_lower` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = causal_judgments) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, emp_euclidean),   # Construct theoretical RDM
+                          names_from = itemB, values_from = emp_euclidean) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        
+        cor(rdm1[lower.tri(rdm1)], rdm2[lower.tri(rdm2)], method = "kendall")
+
+        },
+
+      `1_emp_euclideans_both` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = causal_judgments) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, emp_euclidean),   # Construct theoretical RDM
+                          names_from = itemB, values_from = emp_euclidean) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        
+        # Flatten matrices and exclude NA values
+        vec1 <- as.vector(rdm1)
+        vec2 <- as.vector(rdm2)
+        valid_indices <- !is.na(vec1) & !is.na(vec2)  # Exclude NA values
+        
+        cor(vec1[valid_indices], vec2[valid_indices], method = "kendall")
+        },
+      
+      `2_within_domain_upper` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = causal_judgments) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, within_domain_int),   # Construct theoretical RDM
+                          names_from = itemB, values_from = within_domain_int) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        
+        cor(rdm1[upper.tri(rdm1)], rdm2[upper.tri(rdm2)], method = "kendall")
+
+        },
+      
+      `2_within_domain_lower` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = causal_judgments) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, within_domain_int),   # Construct theoretical RDM
+                          names_from = itemB, values_from = within_domain_int) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        
+        cor(rdm1[lower.tri(rdm1)], rdm2[lower.tri(rdm2)], method = "kendall")
+
+        },
+      
+      `2_within_domain_both` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = causal_judgments) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, within_domain_int),   # Construct theoretical RDM
+                          names_from = itemB, values_from = within_domain_int) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        
+        # Flatten matrices and exclude NA values
+        vec1 <- as.vector(rdm1)
+        vec2 <- as.vector(rdm2)
+        valid_indices <- !is.na(vec1) & !is.na(vec2)  # Exclude NA values
+        
+        cor(vec1[valid_indices], vec2[valid_indices], method = "kendall")
+
+        },
+      
+      `3_cross_domain_upper` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = causal_judgments) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, cross_domain_int),   # Construct theoretical RDM
+                          names_from = itemB, values_from = cross_domain_int) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        
+        cor(rdm1[upper.tri(rdm1)], rdm2[upper.tri(rdm2)], method = "kendall")
+
+        },
+      
+      `3_cross_domain_lower` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = causal_judgments) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, cross_domain_int),   # Construct theoretical RDM
+                          names_from = itemB, values_from = cross_domain_int) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        
+        cor(rdm1[lower.tri(rdm1)], rdm2[lower.tri(rdm2)], method = "kendall")
+
+        },
+      
+      `3_cross_domain_both` = {
+        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = causal_judgments) %>%
+                column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm2 <- pivot_wider(pick(itemA, itemB, cross_domain_int),   # Construct theoretical RDM
+                          names_from = itemB, values_from = cross_domain_int) %>%
+               column_to_rownames("itemA") %>% as.matrix()
+        
+        rdm1 <- rdm1[desired_order, desired_order] 
+        rdm2 <- rdm2[desired_order, desired_order]
+        
+                # Flatten matrices and exclude NA values
+        vec1 <- as.vector(rdm1)
+        vec2 <- as.vector(rdm2)
+        valid_indices <- !is.na(vec1) & !is.na(vec2)  # Exclude NA values
+        
+        cor(vec1[valid_indices], vec2[valid_indices], method = "kendall")
+
+        }) %>% 
+  ungroup()
+
 
 ```
 
-## Plot domain averages
+## plot correlations with empirical causal rdms
 
-```{r}
-df %>%
-  ggplot(aes(x = type, y = response)) +
-  geom_jitter(alpha = .4, size = 3, color = "skyblue", width = .1) +
-  stat_summary(fun.data = mean_cl_normal, geom = "errorbar",width = 0.2) +
-  geom_point(stat = "summary", fun = "mean", size = 3, shape = 23, fill = "white") +
-  theme_bw() +
-  theme(axis.text = element_text(size = 12)) +
-  labs(x = "causation type") 
+key
 
-```
+1. _upper: the upper tri of the causal rdm (since causal isn't symmetric, doing correlations for each causal tri separately. always using upper tri for empirical euclidean rdms since those are symmetric) 
+2. _lower: lower tri  
+3. _both: remove NAs, flatten into a vector, then compute correlations between the entire theoretical rdm and the causal rdms (NB: both is not avg of upper and lower)  
+4. within_domain_: a classical causal rdm involving intuitive theories within domains. mind causes act (and vice versa), bio causes act (and vice versa), mind causes mind, and bio causes bio.  
+5. cross_domain_: classical causal rdm per point 4 PLUS causal relation between bio and mind (bio cause mind and vice versa) 
 
-## Some descriptive stats
+```{r, fig.width = 12}
+# plot with noise ceiling
+d_causal_correlations %>%
+  pivot_longer(cols = starts_with(c("1_", "2_", "3_")),
+               names_to = "correlation_type",
+               values_to = "correlation_value") %>%
+  mutate(category = case_when(str_starts(correlation_type, "1_") ~ "empirical euclidean",
+                              str_starts(correlation_type, "2_") ~ "with_dom int theory",
+                              str_starts(correlation_type, "3_") ~ "cross_dom int theory")) %>% 
+  ggplot(aes(x = reorder(correlation_type, correlation_value, FUN = function(x) -mean(x)), y = correlation_value, fill = category)) +
+  stat_summary(fun = "mean", geom = "bar", color = "black") +
+  # stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.5) +
+  geom_point(aes(color = subject_id)) +
+  geom_hline(yintercept = noise_ceiling$upper_bound, color = "blue", linetype = "dashed", linewidth = .5) +
+  geom_hline(yintercept = noise_ceiling$lower_bound, color = "red", linetype = "dashed", linewidth = .5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14)) +
+  labs(x = "Theoretical RDMs", y = "Correlation with causal RDMs",
+       title = "Correlation between theoretical and empirical RDMs",
+       subtitle = paste0("Noise Ceiling: Upper: ", round(noise_ceiling$upper_bound, 3),
+                         " | Lower: ", round(noise_ceiling$lower_bound, 3)))
 
-```{r}
-# df %>% 
-#   count(item_pairs) 
-# 
-# df %>% 
-#   count(category_pairs)
-# 
-# df %>% 
-#   count(type)
-# 
-# df %>%
-#   mutate(item_pairs = str_c(itemA, itemB, sep = "-"))  %>% 
-#   count(item_pairs) %>% 
-#   summarize(avg_item_mean = mean(n))
-# 
-# df %>% 
-#   mutate(item_pairs = str_c(itemA, itemB, sep = "-")) %>% 
-#   distinct(item_pairs) %>% 
-#   count() #number of unique items
-#   
-# #selecting three items to inspect ratings
-# df %>%
-#   mutate(item_pairs = str_c(itemA, itemB, sep = "-")) %>% 
-#   group_by(item_pairs) %>% 
-#   summarize(mean = mean(response)) %>% 
-#   arrange(desc(mean)) %>% 
-#   slice(3, 135, 191)
-# 
-# df %>%
-#   mutate(item_pairs = str_c(itemA, itemB, sep = "-")) %>% 
-#   filter(itemA == "see something") %>% 
-#   filter(item_pairs %in% c("see something-reach for something", "see something-feel tired")) %>% 
-#   # group_by(item_pairs) %>% 
-#   ggplot(aes(x = item_pairs, y = response)) +
-#   geom_bar(stat = "identity") +
-#   theme_bw() +
-#   theme(axis.text = element_text(size = 14),
-#         axis.title = element_text(size = 14))
-#   summarize(mean = mean(response)) %>% 
-#   arrange(desc(mean)) 
-#   
-# df %>%
-#   mutate(item_pairs = str_c(itemA, itemB, sep = "-")) %>% 
-#   filter(itemA == "reach for something") %>% 
-#   filter(item_pairs %in% c("reach for something-see something")) %>% 
-#   group_by(item_pairs) %>%
-#   summarize(mean = mean(response)) %>% 
-#   ggplot(aes(x = item_pairs, y = mean)) +
-#   geom_bar(stat = "identity") +
-#   theme_bw() +
-#   theme(axis.text = element_text(size = 14),
-#         axis.title = element_text(size = 14)) +
-#   scale_y_continuous(limits = c(0, 100)) 
 
 ```
 
 
+still to do: causal rdms where everything can cause everything except for certain conditions..  
 
-
-
+- There are limits to what can cause perception (seeing or hearing something) - at least directly. For instance, mental and bodily events can’t literally cause you to see something. But moving one’s body around can.    
+- Certain physiological events limit what the body can do - e.g. feeling sick and hungry tends to not lead to high-intensity actions like jumping, kicking, walking. Energy flows downhill.  
+- Certain actions constrain what next actions are possible, e.g. resting actions like sitting down tend not to cause high energy actions.  
+- ??? Perceptual events (seeing or hearing) cannot directly cause physiological states like being tired, being in pain - but cognitive events can.   
 

@@ -16,15 +16,18 @@ library(jsonlite)
 # Read data
 
 ```{r}
-directory_path <- here("code", "analysis", "pilot", "data-combined")
+directory_path <- here("code", "analysis", "pilot", "data-combined", "pilot05_121324_n50_combined_17")
 file_paths <- list.files(path = directory_path, pattern = "^2024-", full.names = TRUE)
 d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x))) %>% 
     filter(!str_detect(filename, "XX-XX-XX")) 
 ```
 
-# PARSING
+```{r}
 
-# freesort data
+names(d)
+```
+
+# parameters
 
 ```{r}
 items <- c("choose what to do", "reach for something", "feel scared",  #items in exact order of img1.png to img15.png
@@ -33,6 +36,20 @@ items <- c("choose what to do", "reach for something", "feel scared",  #items in
            "remember something", "jump up and down", "kick something", 
            "take a walk", "sit down")
 
+#exports
+rdm_outputs_path <- here("code", "analysis", "pilot")
+freesort_output_path <- paste0(directory_path, "/outputs/data_freeesort.csv")
+final_output_csv <- "data_pilot_12_14_combined"
+final_output_path <- paste0(directory_path, "/outputs/", final_output_csv, ".csv") 
+
+```
+
+
+# PARSING
+
+# freesort data
+
+```{r}
 # Process the final_locations column
 data_freesort <- d %>%
   filter(trial_type == "free-sort") %>% # Filter for free-sort trials
@@ -47,6 +64,8 @@ data_freesort <- d %>%
   mutate(trial_type = "free_sort") %>% # Add a new column for trial type
   relocate(trial_type, .after = filename) %>% # Place `trial_type` column next to `filename`
   rename(original_trial_index = trial_index)
+
+write.csv(data_freesort, file = freesort_output_path, row.names = F)
 
 ```
 
@@ -112,7 +131,6 @@ Merging the two, adding condition order columns
 # good!
 
 ```{r}
-
 # Combine trial types to compare their starting original_trial_index
 trial_order_info <- bind_rows(
   data_causation %>% distinct(filename, trial_type, original_trial_index),
@@ -158,42 +176,235 @@ data_combined <- bind_rows(
   data_freesort
 )
 
-data_pilot_12_11_combined <- data_combined
+assign(final_output_csv, data_combined)
 
-write.csv(data_pilot_12_11_combined, "data_pilot_12_11_combined.csv", row.names = F)
+# write.csv(data_combined, final_output_path, row.names = F)
 
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## Generate theoretical RDM data 
 
 ```{r}
+d_theories_categories <- expand.grid(itemA = desired_order, itemB = desired_order) %>% #expand grid
+  filter(itemA != itemB) %>%  # Remove self-pairs
+  
+  #theory 1: (3 groups) mind, body, action
+  mutate(MindBodyAction_itemA = case_when(itemA == "hear something" ~ "mind", #labels for first item of pair
+                               itemA == "choose what to do" ~ "mind",
+                               itemA == "remember something" ~ "mind",
+                               itemA == "think about something" ~ "mind",
+                               itemA == "see something" ~ "mind",
+                               itemA == "reach for something" ~ "act",
+                               itemA == "sit down" ~ "act", 
+                               itemA == "jump up and down" ~ "act",
+                               itemA == "kick something" ~ "act",
+                               itemA == "take a walk" ~ "act",
+                               itemA == "get tired" ~ "bio", 
+                               itemA == "become hungry" ~ "bio",
+                               itemA == "feel scared"~ "bio",
+                               itemA == "experience pain"~ "bio",
+                               itemA == "get sick"~ "bio"),
+         MindBodyAction_itemB = case_when(itemB == "hear something" ~ "mind", #labels for second item of pair
+                               itemB == "choose what to do" ~ "mind",
+                               itemB == "remember something" ~ "mind",
+                               itemB == "think about something" ~ "mind",
+                               itemB == "see something" ~ "mind",
+                               itemB == "reach for something" ~ "act",
+                               itemB == "sit down" ~ "act", 
+                               itemB == "jump up and down" ~ "act",
+                               itemB == "kick something" ~ "act",
+                               itemB == "take a walk" ~ "act",
+                               itemB == "get tired" ~ "bio", 
+                               itemB == "become hungry" ~ "bio",
+                               itemB == "feel scared"~ "bio",
+                               itemB == "experience pain"~ "bio",
+                               itemB == "get sick"~ "bio")) %>% 
+  
+  #theory 2: (6 groups) perceptual, cognition, object directed, non-object directed, bodily tied to simulation, bodily not tied to stimulation
+   mutate(PerCogOdActSpActBstimBnstim_itemA = case_when(itemA == "hear something" ~ "per",
+                               itemA == "see something" ~ "per",
+                               itemA == "choose what to do" ~ "cog",
+                               itemA == "remember something" ~ "cog",
+                               itemA == "think about something" ~ "cog",
+                               itemA == "reach for something" ~ "odAct",
+                               itemA == "sit down" ~ "SpAct", 
+                               itemA == "jump up and down" ~ "SpAct",
+                               itemA == "kick something" ~ "odAct",
+                               itemA == "take a walk" ~ "SpAct",
+                               itemA == "get tired" ~ "BnS", 
+                               itemA == "become hungry" ~ "BnS",
+                               itemA == "feel scared"~ "BS",
+                               itemA == "experience pain"~ "BS",
+                               itemA == "get sick"~ "BnS",),
+         PerCogOdActSpActBstimBnstim_itemB = case_when(itemB == "hear something" ~ "per",
+                               itemB == "see something" ~ "per",
+                               itemB == "choose what to do" ~ "cog",
+                               itemB == "remember something" ~ "cog",
+                               itemB == "think about something" ~ "cog",
+                               itemB == "reach for something" ~ "odAct",
+                               itemB == "sit down" ~ "SpAct", 
+                               itemB == "jump up and down" ~ "SpAct",
+                               itemB == "kick something" ~ "odAct",
+                               itemB == "take a walk" ~ "SpAct",
+                               itemB == "get tired" ~ "BnS", 
+                               itemB == "become hungry" ~ "BnS",
+                               itemB == "feel scared"~ "BS",
+                               itemB == "experience pain"~ "BS",
+                               itemB == "get sick"~ "BnS")) %>% 
 
+      #theory 3: (2 groups) physical and non-physical events:
+      mutate(PhysicalEthereal_itemA = case_when(itemA == "hear something" ~ "ethereal",
+                               itemA == "see something" ~ "ethereal",
+                               itemA == "choose what to do" ~ "ethereal",
+                               itemA == "remember something" ~ "ethereal",
+                               itemA == "think about something" ~ "ethereal",
+                               itemA == "reach for something" ~ "phys",
+                               itemA == "sit down" ~ "phys", 
+                               itemA == "jump up and down" ~ "phys",
+                               itemA == "kick something" ~ "phys",
+                               itemA == "take a walk" ~ "phys",
+                               itemA == "get tired" ~ "phys", 
+                               itemA == "become hungry" ~ "phys",
+                               itemA == "feel scared"~ "phys",
+                               itemA == "experience pain"~ "phys",
+                               itemA == "get sick"~ "phys"),
+             PhysicalEthereal_itemB = case_when(itemB == "hear something" ~ "ethereal",
+                               itemB == "see something" ~ "ethereal",
+                               itemB == "choose what to do" ~ "ethereal",
+                               itemB == "remember something" ~ "ethereal",
+                               itemB == "think about something" ~ "ethereal",
+                               itemB == "reach for something" ~ "phys",
+                               itemB == "sit down" ~ "phys", 
+                               itemB == "jump up and down" ~ "phys",
+                               itemB == "kick something" ~ "phys",
+                               itemB == "take a walk" ~ "phys",
+                               itemB == "get tired" ~ "phys", 
+                              itemB == "become hungry" ~ "phys",
+                               itemB == "feel scared"~ "phys",
+                               itemB == "experience pain"~ "phys",
+                               itemB == "get sick"~ "phys")) %>% 
+  
+  #scoring the items
+  mutate("theor1_Mind-Body-Action" = ifelse(MindBodyAction_itemA == MindBodyAction_itemB, 0, 1),
+         "theor2_PerCog-OdActSpAct-BodyStimBodynoStim" = ifelse(PerCogOdActSpActBstimBnstim_itemA == PerCogOdActSpActBstimBnstim_itemB, 0, 1),
+         "theor3_Physical-Ethereal" = ifelse(PhysicalEthereal_itemA == PhysicalEthereal_itemB, 0, 1)) 
+  
+d_theories <- d_theories_categories %>% 
+  select(-c("MindBodyAction_itemA", "MindBodyAction_itemB", 
+            "PerCogOdActSpActBstimBnstim_itemA","PerCogOdActSpActBstimBnstim_itemB", 
+            "PhysicalEthereal_itemA", "PhysicalEthereal_itemB"))
 
+write.csv(d_theories_categories, here("code/analysis/pilot/theoretical-rdm-data/d_theories_categories.csv"), row.names = F)
 
 ```
 
 
+## Compute cosine similarities from USE embeddings
 
 ```{r}
+#load USE embeddings
+embedding_df <- readRDS(here("code/analysis/pilot/embeddings/item_embeddings.rds")) #read embeddings
+
+here()
+# Step 3: Merge embeddings back into the long data frame
+# Add embeddings for itemA and itemB
+d_theories_with_embeddings <- d_theories %>%
+  left_join(embedding_df, by = c("itemA" = "item")) %>%
+  rename(embeddingA = embedding) %>%
+  left_join(embedding_df, by = c("itemB" = "item")) %>%
+  rename(embeddingB = embedding)
+
+# Compute cosine similarity for each row
+d_all_theories <- d_theories_with_embeddings %>%
+  rowwise() %>% 
+  mutate(cosine_similarity = sum(unlist(embeddingA) * unlist(embeddingB)) /
+                 (sqrt(sum(unlist(embeddingA)^2)) * sqrt(sum(unlist(embeddingB)^2)))) %>%
+  ungroup() %>% 
+  rowwise() %>% 
+  mutate(cosine_similarity = 1 - cosine_similarity) %>% #turning cosine similarity to a disimilarity measure. For some reason high cosine similarity means disimilar
+  ungroup() %>% 
+  select(-c("embeddingA", "embeddingB")) %>% 
+  rename("theor4_cosine_similarity" = cosine_similarity) %>% 
+  ungroup() 
+
+write.csv(d_all_theories, here("code/analysis/pilot/theoretical-rdm-data/d_all_theories.csv"), row.names = F)
 
 ```
 
+# plot theoretical RDMS
 
+```{r}
+plot_rdm_theory <- function(data, column_name, desired_order, plot_title) {
+  # Prepare data and reorder
+  df_matrix <- data %>%
+    mutate(
+      itemA = factor(itemA, levels = desired_order),
+      itemB = factor(itemB, levels = desired_order)
+    ) %>%
+    select(itemA, itemB, all_of(column_name)) %>%
+    pivot_wider(names_from = itemB, values_from = all_of(column_name)) %>%
+    column_to_rownames("itemA")
+  
+  # Reorder rows and columns
+  df_matrix <- df_matrix[desired_order, desired_order]
+  diag(df_matrix) <- 0 # Set diagonal to 0
+  
+  # Plot RDM
+  corrplot(
+    as.matrix(df_matrix), method = "color", is.corr = FALSE,
+    tl.col = "black", title = plot_title,
+    mar = c(0, 0, 2, 0), addgrid.col = "darkgray"
+  )
+}
+
+# Define desired orders
+mba_order <- c("see something", "hear something", "choose what to do", 
+               "remember something", "think about something", "reach for something", 
+               "sit down", "jump up and down", "kick something", "take a walk", 
+               "get tired", "become hungry", "feel scared", "experience pain", "get sick")
+
+perccog_order <- c("see something", "hear something", "choose what to do", 
+                   "remember something", "think about something", "reach for something", 
+                   "kick something", "sit down", "jump up and down",  "take a walk", 
+                   "get tired", "become hungry", "get sick", "feel scared", "experience pain")
+
+physethereal_order <- c("see something", "hear something", "choose what to do", 
+                        "remember something", "think about something", "reach for something", 
+                        "kick something", "sit down", "jump up and down",  "take a walk", 
+                        "get tired", "become hungry", "get sick", "feel scared", "experience pain")
+
+# Plot RDMs for each theory
+plot_rdm_theory(d_all_theories, "theor4_cosine_similarity", mba_order, "1. Cosine Distance - RDM")
+plot_rdm_theory(d_all_theories, "theor1_Mind-Body-Action", mba_order, "2. Mind, Body & Action - RDM")
+plot_rdm_theory(d_all_theories, "theor2_PerCog-OdActSpAct-BodyStimBodynoStim", perccog_order, "3. Perception, Cognitive et al. - RDM")
+plot_rdm_theory(d_all_theories, "theor3_Physical-Ethereal", physethereal_order, "4. Physical & Ethereal - RDM")
+
+
+# save them
+output_folder <- paste0(here(rdm_outputs_path), "/figures/theoretical-rdms/")
+
+theories <- list(
+  list(column_name = "theor4_cosine_similarity", order = mba_order, title = "1. Cosine Distance - RDM"),
+  list(column_name = "theor1_Mind-Body-Action", order = mba_order, title = "2. Mind, Body & Action - RDM"),
+  list(column_name = "theor2_PerCog-OdActSpAct-BodyStimBodynoStim", order = perccog_order, title = "3. Perception, Cognitive et al. - RDM"),
+  list(column_name = "theor3_Physical-Ethereal", order = physethereal_order, title = "4. Physical & Ethereal - RDM")
+)
+
+for (i in seq_along(theories)) {
+  theory <- theories[[i]]
+  output_file <- paste0(output_folder, "theory_", i, ".pdf")
+  pdf(file = output_file, width = 8, height = 6)   # Open the PDF device
+  plot_rdm_theory(
+    data = d_all_theories,
+    column_name = theory$column_name,
+    desired_order = theory$order,
+    plot_title = theory$title
+  )
+  dev.off() # Close the PDF device
+}
+
+```
 
 
 Demographics
