@@ -1,211 +1,211 @@
 "itemA","itemB","theor1_Mind-Body-Action","theor2_PerCog-OdActSpAct-BodyStimBodynoStim","theor3_Physical-Ethereal","theor4_cosine_similarity"
-"hear something","see something",0,0,0,0.369422388284752
-"choose what to do","see something",0,1,0,0.824187542944647
-"remember something","see something",0,1,0,0.481908799944817
-"think about something","see something",0,1,0,0.400345182538222
-"reach for something","see something",1,1,1,0.619132434854343
-"sit down","see something",1,1,1,0.746096956158509
-"jump up and down","see something",1,1,1,0.844574073656539
-"kick something","see something",1,1,1,0.64047018812539
-"take a walk","see something",1,1,1,0.639967236018981
-"get tired","see something",1,1,1,0.821511340354244
-"become hungry","see something",1,1,1,0.839794827571685
-"feel scared","see something",1,1,1,0.905703965919117
-"experience pain","see something",1,1,1,0.893520233795809
-"get sick","see something",1,1,1,0.818378393935165
-"see something","hear something",0,0,0,0.369422388284752
-"choose what to do","hear something",0,1,0,0.788283859993267
-"remember something","hear something",0,1,0,0.560947927377685
-"think about something","hear something",0,1,0,0.559104644433068
-"reach for something","hear something",1,1,1,0.598564309178024
-"sit down","hear something",1,1,1,0.728773964904261
-"jump up and down","hear something",1,1,1,0.795394332869579
-"kick something","hear something",1,1,1,0.56138961704214
-"take a walk","hear something",1,1,1,0.71578105510058
-"get tired","hear something",1,1,1,0.758686156131916
-"become hungry","hear something",1,1,1,0.857211182293294
-"feel scared","hear something",1,1,1,0.911454126774709
-"experience pain","hear something",1,1,1,0.936809040920023
-"get sick","hear something",1,1,1,0.819741651150714
-"see something","choose what to do",0,1,0,0.824187542944647
-"hear something","choose what to do",0,1,0,0.788283859993267
-"remember something","choose what to do",0,0,0,0.918905725672108
-"think about something","choose what to do",0,0,0,0.779403009069732
-"reach for something","choose what to do",1,1,1,0.735338210560418
-"sit down","choose what to do",1,1,1,0.661469977942715
-"jump up and down","choose what to do",1,1,1,0.752555786512119
-"kick something","choose what to do",1,1,1,0.753449038208815
-"take a walk","choose what to do",1,1,1,0.711072835294096
-"get tired","choose what to do",1,1,1,0.770173608742866
-"become hungry","choose what to do",1,1,1,0.716555359402752
-"feel scared","choose what to do",1,1,1,0.894563793146552
-"experience pain","choose what to do",1,1,1,0.878285279874794
-"get sick","choose what to do",1,1,1,0.714226688788555
-"see something","remember something",0,1,0,0.481908799944817
-"hear something","remember something",0,1,0,0.560947927377685
-"choose what to do","remember something",0,0,0,0.918905725672108
-"think about something","remember something",0,0,0,0.39539284021903
-"reach for something","remember something",1,1,1,0.647983519016974
-"sit down","remember something",1,1,1,0.861643156181676
-"jump up and down","remember something",1,1,1,0.819800528984205
-"kick something","remember something",1,1,1,0.668035570365864
-"take a walk","remember something",1,1,1,0.719266623700321
-"get tired","remember something",1,1,1,0.843469316454805
-"become hungry","remember something",1,1,1,0.885207342540627
-"feel scared","remember something",1,1,1,0.810500318556254
-"experience pain","remember something",1,1,1,0.932893877312724
-"get sick","remember something",1,1,1,0.863626849823564
-"see something","think about something",0,1,0,0.400345182538222
-"hear something","think about something",0,1,0,0.559104644433068
-"choose what to do","think about something",0,0,0,0.779403009069732
-"remember something","think about something",0,0,0,0.39539284021903
-"reach for something","think about something",1,1,1,0.624681553783411
-"sit down","think about something",1,1,1,0.770106230631946
-"jump up and down","think about something",1,1,1,0.780524548430411
-"kick something","think about something",1,1,1,0.675498846225521
-"take a walk","think about something",1,1,1,0.63682713223895
-"get tired","think about something",1,1,1,0.771712901424083
-"become hungry","think about something",1,1,1,0.747398016793494
-"feel scared","think about something",1,1,1,0.817633572659824
-"experience pain","think about something",1,1,1,0.964361644738518
-"get sick","think about something",1,1,1,0.855237941560395
-"see something","reach for something",1,1,1,0.619132434854343
-"hear something","reach for something",1,1,1,0.598564309178024
-"choose what to do","reach for something",1,1,1,0.735338210560418
-"remember something","reach for something",1,1,1,0.647983519016974
-"think about something","reach for something",1,1,1,0.624681553783411
-"sit down","reach for something",0,1,0,0.626955642077555
-"jump up and down","reach for something",0,1,0,0.632346560921702
-"kick something","reach for something",0,0,0,0.480547588906972
-"take a walk","reach for something",0,1,0,0.627281868208188
-"get tired","reach for something",1,1,0,0.760810662045043
-"become hungry","reach for something",1,1,0,0.661319045734074
-"feel scared","reach for something",1,1,0,0.858671009638572
-"experience pain","reach for something",1,1,0,0.991288224885723
-"get sick","reach for something",1,1,0,0.73712083667071
-"see something","sit down",1,1,1,0.746096956158509
-"hear something","sit down",1,1,1,0.728773964904261
-"choose what to do","sit down",1,1,1,0.661469977942715
-"remember something","sit down",1,1,1,0.861643156181676
-"think about something","sit down",1,1,1,0.770106230631946
-"reach for something","sit down",0,1,0,0.626955642077555
-"jump up and down","sit down",0,0,0,0.450810948938826
-"kick something","sit down",0,1,0,0.571201016605616
-"take a walk","sit down",0,0,0,0.41188232596706
-"get tired","sit down",1,1,0,0.492691091002605
-"become hungry","sit down",1,1,0,0.572191613762943
-"feel scared","sit down",1,1,0,0.673026720342981
-"experience pain","sit down",1,1,0,0.794568190402348
-"get sick","sit down",1,1,0,0.525626028175823
-"see something","jump up and down",1,1,1,0.844574073656539
-"hear something","jump up and down",1,1,1,0.795394332869579
-"choose what to do","jump up and down",1,1,1,0.752555786512119
-"remember something","jump up and down",1,1,1,0.819800528984205
-"think about something","jump up and down",1,1,1,0.780524548430411
-"reach for something","jump up and down",0,1,0,0.632346560921702
-"sit down","jump up and down",0,0,0,0.450810948938826
-"kick something","jump up and down",0,1,0,0.623865612168841
-"take a walk","jump up and down",0,0,0,0.548814348923129
-"get tired","jump up and down",1,1,0,0.648850943413802
-"become hungry","jump up and down",1,1,0,0.656319041996991
-"feel scared","jump up and down",1,1,0,0.791432712599302
-"experience pain","jump up and down",1,1,0,0.883451627798792
-"get sick","jump up and down",1,1,0,0.6251476357058
-"see something","kick something",1,1,1,0.64047018812539
-"hear something","kick something",1,1,1,0.56138961704214
-"choose what to do","kick something",1,1,1,0.753449038208815
-"remember something","kick something",1,1,1,0.668035570365864
-"think about something","kick something",1,1,1,0.675498846225521
-"reach for something","kick something",0,0,0,0.480547588906972
-"sit down","kick something",0,1,0,0.571201016605616
-"jump up and down","kick something",0,1,0,0.623865612168841
-"take a walk","kick something",0,1,0,0.588094912039552
-"get tired","kick something",1,1,0,0.623506851962267
-"become hungry","kick something",1,1,0,0.685023666708091
-"feel scared","kick something",1,1,0,0.742323642047514
-"experience pain","kick something",1,1,0,0.895520972726819
-"get sick","kick something",1,1,0,0.7008816873471
-"see something","take a walk",1,1,1,0.639967236018981
-"hear something","take a walk",1,1,1,0.71578105510058
-"choose what to do","take a walk",1,1,1,0.711072835294096
-"remember something","take a walk",1,1,1,0.719266623700321
-"think about something","take a walk",1,1,1,0.63682713223895
-"reach for something","take a walk",0,1,0,0.627281868208188
-"sit down","take a walk",0,0,0,0.41188232596706
-"jump up and down","take a walk",0,0,0,0.548814348923129
-"kick something","take a walk",0,1,0,0.588094912039552
-"get tired","take a walk",1,1,0,0.512896934292202
-"become hungry","take a walk",1,1,0,0.621397948011098
-"feel scared","take a walk",1,1,0,0.767855650085964
-"experience pain","take a walk",1,1,0,0.859388647088254
-"get sick","take a walk",1,1,0,0.534642378621546
-"see something","get tired",1,1,1,0.821511340354244
-"hear something","get tired",1,1,1,0.758686156131916
-"choose what to do","get tired",1,1,1,0.770173608742866
-"remember something","get tired",1,1,1,0.843469316454805
-"think about something","get tired",1,1,1,0.771712901424083
-"reach for something","get tired",1,1,0,0.760810662045043
-"sit down","get tired",1,1,0,0.492691091002605
-"jump up and down","get tired",1,1,0,0.648850943413802
-"kick something","get tired",1,1,0,0.623506851962267
-"take a walk","get tired",1,1,0,0.512896934292202
-"become hungry","get tired",0,0,0,0.60641499068694
-"feel scared","get tired",0,1,0,0.635009138881326
-"experience pain","get tired",0,1,0,0.814402483908805
-"get sick","get tired",0,0,0,0.4638918419385
-"see something","become hungry",1,1,1,0.839794827571685
-"hear something","become hungry",1,1,1,0.857211182293294
-"choose what to do","become hungry",1,1,1,0.716555359402752
-"remember something","become hungry",1,1,1,0.885207342540627
-"think about something","become hungry",1,1,1,0.747398016793494
-"reach for something","become hungry",1,1,0,0.661319045734074
-"sit down","become hungry",1,1,0,0.572191613762943
-"jump up and down","become hungry",1,1,0,0.656319041996991
-"kick something","become hungry",1,1,0,0.685023666708091
-"take a walk","become hungry",1,1,0,0.621397948011098
-"get tired","become hungry",0,0,0,0.60641499068694
-"feel scared","become hungry",0,1,0,0.611431308668921
-"experience pain","become hungry",0,1,0,0.79464293576112
-"get sick","become hungry",0,0,0,0.631024658665151
-"see something","feel scared",1,1,1,0.905703965919117
-"hear something","feel scared",1,1,1,0.911454126774709
-"choose what to do","feel scared",1,1,1,0.894563793146552
-"remember something","feel scared",1,1,1,0.810500318556254
-"think about something","feel scared",1,1,1,0.817633572659824
-"reach for something","feel scared",1,1,0,0.858671009638572
-"sit down","feel scared",1,1,0,0.673026720342981
-"jump up and down","feel scared",1,1,0,0.791432712599302
-"kick something","feel scared",1,1,0,0.742323642047514
-"take a walk","feel scared",1,1,0,0.767855650085964
-"get tired","feel scared",0,1,0,0.635009138881326
-"become hungry","feel scared",0,1,0,0.611431308668921
-"experience pain","feel scared",0,0,0,0.629385365566582
-"get sick","feel scared",0,1,0,0.631028819476328
-"see something","experience pain",1,1,1,0.893520233795809
-"hear something","experience pain",1,1,1,0.936809040920023
-"choose what to do","experience pain",1,1,1,0.878285279874794
-"remember something","experience pain",1,1,1,0.932893877312724
-"think about something","experience pain",1,1,1,0.964361644738518
-"reach for something","experience pain",1,1,0,0.991288224885723
-"sit down","experience pain",1,1,0,0.794568190402348
-"jump up and down","experience pain",1,1,0,0.883451627798792
-"kick something","experience pain",1,1,0,0.895520972726819
-"take a walk","experience pain",1,1,0,0.859388647088254
-"get tired","experience pain",0,1,0,0.814402483908805
-"become hungry","experience pain",0,1,0,0.79464293576112
-"feel scared","experience pain",0,0,0,0.629385365566582
-"get sick","experience pain",0,1,0,0.771509416900026
-"see something","get sick",1,1,1,0.818378393935165
-"hear something","get sick",1,1,1,0.819741651150714
-"choose what to do","get sick",1,1,1,0.714226688788555
-"remember something","get sick",1,1,1,0.863626849823564
-"think about something","get sick",1,1,1,0.855237941560395
-"reach for something","get sick",1,1,0,0.73712083667071
-"sit down","get sick",1,1,0,0.525626028175823
-"jump up and down","get sick",1,1,0,0.6251476357058
-"kick something","get sick",1,1,0,0.7008816873471
-"take a walk","get sick",1,1,0,0.534642378621546
-"get tired","get sick",0,0,0,0.4638918419385
-"become hungry","get sick",0,0,0,0.631024658665151
-"feel scared","get sick",0,1,0,0.631028819476328
-"experience pain","get sick",0,1,0,0.771509416900026
+"hear something","see something",0,0,0,0.184711194142376
+"choose what to do","see something",0,1,0,0.412093771472324
+"remember something","see something",0,1,0,0.240954399972408
+"think about something","see something",0,1,0,0.200172591269111
+"reach for something","see something",1,1,1,0.309566217427171
+"sit down","see something",1,1,1,0.373048478079255
+"jump up and down","see something",1,1,1,0.42228703682827
+"kick something","see something",1,1,1,0.320235094062695
+"take a walk","see something",1,1,1,0.319983618009491
+"get tired","see something",1,1,1,0.410755670177122
+"become hungry","see something",1,1,1,0.419897413785843
+"feel scared","see something",1,1,1,0.452851982959558
+"experience pain","see something",1,1,1,0.446760116897904
+"get sick","see something",1,1,1,0.409189196967582
+"see something","hear something",0,0,0,0.184711194142376
+"choose what to do","hear something",0,1,0,0.394141929996633
+"remember something","hear something",0,1,0,0.280473963688843
+"think about something","hear something",0,1,0,0.279552322216534
+"reach for something","hear something",1,1,1,0.299282154589012
+"sit down","hear something",1,1,1,0.36438698245213
+"jump up and down","hear something",1,1,1,0.39769716643479
+"kick something","hear something",1,1,1,0.28069480852107
+"take a walk","hear something",1,1,1,0.35789052755029
+"get tired","hear something",1,1,1,0.379343078065958
+"become hungry","hear something",1,1,1,0.428605591146647
+"feel scared","hear something",1,1,1,0.455727063387354
+"experience pain","hear something",1,1,1,0.468404520460012
+"get sick","hear something",1,1,1,0.409870825575357
+"see something","choose what to do",0,1,0,0.412093771472324
+"hear something","choose what to do",0,1,0,0.394141929996633
+"remember something","choose what to do",0,0,0,0.459452862836054
+"think about something","choose what to do",0,0,0,0.389701504534866
+"reach for something","choose what to do",1,1,1,0.367669105280209
+"sit down","choose what to do",1,1,1,0.330734988971358
+"jump up and down","choose what to do",1,1,1,0.37627789325606
+"kick something","choose what to do",1,1,1,0.376724519104407
+"take a walk","choose what to do",1,1,1,0.355536417647048
+"get tired","choose what to do",1,1,1,0.385086804371433
+"become hungry","choose what to do",1,1,1,0.358277679701376
+"feel scared","choose what to do",1,1,1,0.447281896573276
+"experience pain","choose what to do",1,1,1,0.439142639937397
+"get sick","choose what to do",1,1,1,0.357113344394277
+"see something","remember something",0,1,0,0.240954399972408
+"hear something","remember something",0,1,0,0.280473963688843
+"choose what to do","remember something",0,0,0,0.459452862836054
+"think about something","remember something",0,0,0,0.197696420109515
+"reach for something","remember something",1,1,1,0.323991759508487
+"sit down","remember something",1,1,1,0.430821578090838
+"jump up and down","remember something",1,1,1,0.409900264492103
+"kick something","remember something",1,1,1,0.334017785182932
+"take a walk","remember something",1,1,1,0.359633311850161
+"get tired","remember something",1,1,1,0.421734658227402
+"become hungry","remember something",1,1,1,0.442603671270314
+"feel scared","remember something",1,1,1,0.405250159278127
+"experience pain","remember something",1,1,1,0.466446938656362
+"get sick","remember something",1,1,1,0.431813424911782
+"see something","think about something",0,1,0,0.200172591269111
+"hear something","think about something",0,1,0,0.279552322216534
+"choose what to do","think about something",0,0,0,0.389701504534866
+"remember something","think about something",0,0,0,0.197696420109515
+"reach for something","think about something",1,1,1,0.312340776891706
+"sit down","think about something",1,1,1,0.385053115315973
+"jump up and down","think about something",1,1,1,0.390262274215205
+"kick something","think about something",1,1,1,0.337749423112761
+"take a walk","think about something",1,1,1,0.318413566119475
+"get tired","think about something",1,1,1,0.385856450712041
+"become hungry","think about something",1,1,1,0.373699008396747
+"feel scared","think about something",1,1,1,0.408816786329912
+"experience pain","think about something",1,1,1,0.482180822369259
+"get sick","think about something",1,1,1,0.427618970780197
+"see something","reach for something",1,1,1,0.309566217427171
+"hear something","reach for something",1,1,1,0.299282154589012
+"choose what to do","reach for something",1,1,1,0.367669105280209
+"remember something","reach for something",1,1,1,0.323991759508487
+"think about something","reach for something",1,1,1,0.312340776891706
+"sit down","reach for something",0,1,0,0.313477821038777
+"jump up and down","reach for something",0,1,0,0.316173280460851
+"kick something","reach for something",0,0,0,0.240273794453486
+"take a walk","reach for something",0,1,0,0.313640934104094
+"get tired","reach for something",1,1,0,0.380405331022521
+"become hungry","reach for something",1,1,0,0.330659522867037
+"feel scared","reach for something",1,1,0,0.429335504819286
+"experience pain","reach for something",1,1,0,0.495644112442861
+"get sick","reach for something",1,1,0,0.368560418335355
+"see something","sit down",1,1,1,0.373048478079255
+"hear something","sit down",1,1,1,0.36438698245213
+"choose what to do","sit down",1,1,1,0.330734988971358
+"remember something","sit down",1,1,1,0.430821578090838
+"think about something","sit down",1,1,1,0.385053115315973
+"reach for something","sit down",0,1,0,0.313477821038777
+"jump up and down","sit down",0,0,0,0.225405474469413
+"kick something","sit down",0,1,0,0.285600508302808
+"take a walk","sit down",0,0,0,0.20594116298353
+"get tired","sit down",1,1,0,0.246345545501302
+"become hungry","sit down",1,1,0,0.286095806881472
+"feel scared","sit down",1,1,0,0.336513360171491
+"experience pain","sit down",1,1,0,0.397284095201174
+"get sick","sit down",1,1,0,0.262813014087912
+"see something","jump up and down",1,1,1,0.42228703682827
+"hear something","jump up and down",1,1,1,0.39769716643479
+"choose what to do","jump up and down",1,1,1,0.37627789325606
+"remember something","jump up and down",1,1,1,0.409900264492103
+"think about something","jump up and down",1,1,1,0.390262274215205
+"reach for something","jump up and down",0,1,0,0.316173280460851
+"sit down","jump up and down",0,0,0,0.225405474469413
+"kick something","jump up and down",0,1,0,0.311932806084421
+"take a walk","jump up and down",0,0,0,0.274407174461565
+"get tired","jump up and down",1,1,0,0.324425471706901
+"become hungry","jump up and down",1,1,0,0.328159520998496
+"feel scared","jump up and down",1,1,0,0.395716356299651
+"experience pain","jump up and down",1,1,0,0.441725813899396
+"get sick","jump up and down",1,1,0,0.3125738178529
+"see something","kick something",1,1,1,0.320235094062695
+"hear something","kick something",1,1,1,0.28069480852107
+"choose what to do","kick something",1,1,1,0.376724519104407
+"remember something","kick something",1,1,1,0.334017785182932
+"think about something","kick something",1,1,1,0.337749423112761
+"reach for something","kick something",0,0,0,0.240273794453486
+"sit down","kick something",0,1,0,0.285600508302808
+"jump up and down","kick something",0,1,0,0.311932806084421
+"take a walk","kick something",0,1,0,0.294047456019776
+"get tired","kick something",1,1,0,0.311753425981134
+"become hungry","kick something",1,1,0,0.342511833354046
+"feel scared","kick something",1,1,0,0.371161821023757
+"experience pain","kick something",1,1,0,0.447760486363409
+"get sick","kick something",1,1,0,0.35044084367355
+"see something","take a walk",1,1,1,0.319983618009491
+"hear something","take a walk",1,1,1,0.35789052755029
+"choose what to do","take a walk",1,1,1,0.355536417647048
+"remember something","take a walk",1,1,1,0.359633311850161
+"think about something","take a walk",1,1,1,0.318413566119475
+"reach for something","take a walk",0,1,0,0.313640934104094
+"sit down","take a walk",0,0,0,0.20594116298353
+"jump up and down","take a walk",0,0,0,0.274407174461565
+"kick something","take a walk",0,1,0,0.294047456019776
+"get tired","take a walk",1,1,0,0.256448467146101
+"become hungry","take a walk",1,1,0,0.310698974005549
+"feel scared","take a walk",1,1,0,0.383927825042982
+"experience pain","take a walk",1,1,0,0.429694323544127
+"get sick","take a walk",1,1,0,0.267321189310773
+"see something","get tired",1,1,1,0.410755670177122
+"hear something","get tired",1,1,1,0.379343078065958
+"choose what to do","get tired",1,1,1,0.385086804371433
+"remember something","get tired",1,1,1,0.421734658227402
+"think about something","get tired",1,1,1,0.385856450712041
+"reach for something","get tired",1,1,0,0.380405331022521
+"sit down","get tired",1,1,0,0.246345545501302
+"jump up and down","get tired",1,1,0,0.324425471706901
+"kick something","get tired",1,1,0,0.311753425981134
+"take a walk","get tired",1,1,0,0.256448467146101
+"become hungry","get tired",0,0,0,0.30320749534347
+"feel scared","get tired",0,1,0,0.317504569440663
+"experience pain","get tired",0,1,0,0.407201241954402
+"get sick","get tired",0,0,0,0.23194592096925
+"see something","become hungry",1,1,1,0.419897413785843
+"hear something","become hungry",1,1,1,0.428605591146647
+"choose what to do","become hungry",1,1,1,0.358277679701376
+"remember something","become hungry",1,1,1,0.442603671270314
+"think about something","become hungry",1,1,1,0.373699008396747
+"reach for something","become hungry",1,1,0,0.330659522867037
+"sit down","become hungry",1,1,0,0.286095806881472
+"jump up and down","become hungry",1,1,0,0.328159520998496
+"kick something","become hungry",1,1,0,0.342511833354046
+"take a walk","become hungry",1,1,0,0.310698974005549
+"get tired","become hungry",0,0,0,0.30320749534347
+"feel scared","become hungry",0,1,0,0.305715654334461
+"experience pain","become hungry",0,1,0,0.39732146788056
+"get sick","become hungry",0,0,0,0.315512329332576
+"see something","feel scared",1,1,1,0.452851982959558
+"hear something","feel scared",1,1,1,0.455727063387354
+"choose what to do","feel scared",1,1,1,0.447281896573276
+"remember something","feel scared",1,1,1,0.405250159278127
+"think about something","feel scared",1,1,1,0.408816786329912
+"reach for something","feel scared",1,1,0,0.429335504819286
+"sit down","feel scared",1,1,0,0.336513360171491
+"jump up and down","feel scared",1,1,0,0.395716356299651
+"kick something","feel scared",1,1,0,0.371161821023757
+"take a walk","feel scared",1,1,0,0.383927825042982
+"get tired","feel scared",0,1,0,0.317504569440663
+"become hungry","feel scared",0,1,0,0.305715654334461
+"experience pain","feel scared",0,0,0,0.314692682783291
+"get sick","feel scared",0,1,0,0.315514409738164
+"see something","experience pain",1,1,1,0.446760116897904
+"hear something","experience pain",1,1,1,0.468404520460012
+"choose what to do","experience pain",1,1,1,0.439142639937397
+"remember something","experience pain",1,1,1,0.466446938656362
+"think about something","experience pain",1,1,1,0.482180822369259
+"reach for something","experience pain",1,1,0,0.495644112442861
+"sit down","experience pain",1,1,0,0.397284095201174
+"jump up and down","experience pain",1,1,0,0.441725813899396
+"kick something","experience pain",1,1,0,0.447760486363409
+"take a walk","experience pain",1,1,0,0.429694323544127
+"get tired","experience pain",0,1,0,0.407201241954402
+"become hungry","experience pain",0,1,0,0.39732146788056
+"feel scared","experience pain",0,0,0,0.314692682783291
+"get sick","experience pain",0,1,0,0.385754708450013
+"see something","get sick",1,1,1,0.409189196967582
+"hear something","get sick",1,1,1,0.409870825575357
+"choose what to do","get sick",1,1,1,0.357113344394277
+"remember something","get sick",1,1,1,0.431813424911782
+"think about something","get sick",1,1,1,0.427618970780197
+"reach for something","get sick",1,1,0,0.368560418335355
+"sit down","get sick",1,1,0,0.262813014087912
+"jump up and down","get sick",1,1,0,0.3125738178529
+"kick something","get sick",1,1,0,0.35044084367355
+"take a walk","get sick",1,1,0,0.267321189310773
+"get tired","get sick",0,0,0,0.23194592096925
+"become hungry","get sick",0,0,0,0.315512329332576
+"feel scared","get sick",0,1,0,0.315514409738164
+"experience pain","get sick",0,1,0,0.385754708450013

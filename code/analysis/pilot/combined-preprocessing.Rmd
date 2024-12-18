@@ -22,11 +22,6 @@ d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x))) %>%
     filter(!str_detect(filename, "XX-XX-XX")) 
 ```
 
-```{r}
-
-names(d)
-```
-
 # parameters
 
 ```{r}
@@ -178,7 +173,7 @@ data_combined <- bind_rows(
 
 assign(final_output_csv, data_combined)
 
-# write.csv(data_combined, final_output_path, row.names = F)
+write.csv(data_combined, final_output_path, row.names = F)
 
 ```
 
@@ -306,7 +301,6 @@ write.csv(d_theories_categories, here("code/analysis/pilot/theoretical-rdm-data/
 #load USE embeddings
 embedding_df <- readRDS(here("code/analysis/pilot/embeddings/item_embeddings.rds")) #read embeddings
 
-here()
 # Step 3: Merge embeddings back into the long data frame
 # Add embeddings for itemA and itemB
 d_theories_with_embeddings <- d_theories %>%
@@ -322,11 +316,15 @@ d_all_theories <- d_theories_with_embeddings %>%
                  (sqrt(sum(unlist(embeddingA)^2)) * sqrt(sum(unlist(embeddingB)^2)))) %>%
   ungroup() %>% 
   rowwise() %>% 
-  mutate(cosine_similarity = 1 - cosine_similarity) %>% #turning cosine similarity to a disimilarity measure. For some reason high cosine similarity means disimilar
+  mutate(cosine_similarity = (1 - cosine_similarity) / 2) %>% #turning cosine similarity to a disimilarity measure. For some reason high cosine similarity means disimilar
   ungroup() %>% 
   select(-c("embeddingA", "embeddingB")) %>% 
   rename("theor4_cosine_similarity" = cosine_similarity) %>% 
   ungroup() 
+
+# d_all_theories %>% 
+#   arrange(theor4_cosine_similarity)
+  
 
 write.csv(d_all_theories, here("code/analysis/pilot/theoretical-rdm-data/d_all_theories.csv"), row.names = F)
 

@@ -79,6 +79,15 @@ d <- read_csv(directory_path) %>%
 
 ```
 
+# check N
+
+```{r}
+d %>% 
+  distinct(subject_id) %>% 
+  count()
+
+```
+
 
 # Freesort: Plotting empirical euclidean distances
 
@@ -170,7 +179,7 @@ plot_rdm <- function(data, subject, desired_order) { # Function to create RDM pl
 subject_ids <- unique(df_distances$subject_id)
 
 #generate plots
-plots <- map(subject_ids, ~plot_rdm(df_distances, .x, desired_order)) #run this to generate plots
+# plots <- map(subject_ids, ~plot_rdm(df_distances, .x, desired_order)) #run this to generate plots
 
 # save plots with subject name as file name
  
@@ -208,7 +217,7 @@ df_mean_distances_matrix <- df_mean_distances_matrix[desired_order, desired_orde
 
 diag(df_mean_distances_matrix) <- 0 #set diagonals 
 
-# pdf(file = here(rdm_outputs_path, "figures/freesort/averageEuclideanRDM.pdf"), width = 8, height = 6)  
+# pdf(file = here(rdm_outputs_path, "figures/freesort/averageEuclideanRDM.pdf"), width = 8, height = 6)
 
 corrplot(as.matrix(df_mean_distances_matrix), method = "color", is.corr = FALSE, 
          tl.col = "black", title = "Average Euclidean RDM", mar = c(0, 0, 2, 0),
@@ -255,7 +264,7 @@ plot_causation_rdm <- function(data, subject, desired_order) {
 subject_ids <- unique(df_causation$subject_id)
 
 #generate plots
-plots <- map(subject_ids, ~plot_causation_rdm(df_causation, .x, desired_order)) #run this to generate plots
+# plots <- map(subject_ids, ~plot_causation_rdm(df_causation, .x, desired_order)) #run this to generate plots
 
 # save plots with subject name as file name
  
@@ -525,7 +534,6 @@ d_theo_causal <- d_theo_causal_raw %>%
 
   
 ```
-
 
 ## compute correlations
 
