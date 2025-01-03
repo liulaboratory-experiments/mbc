@@ -43,6 +43,7 @@ conflicts_prefer(plotly::layout)
 theme_set(theme_bw())
 sessionInfo()
 
+here()
 ```
 
 ## read data and set variables
@@ -61,6 +62,7 @@ causation_columns <- c("subject_id", "itemA", "itemB", "response")
 # data paths
 directory_path <- here("code", "analysis", "pilot", "data-combined", "pilot05_121324_n50_combined_17") #data path
 rdm_outputs_path <- here("code", "analysis", "pilot")
+dfs_outputs_path <- here("code", "analysis", "pilot", "analysis-snapshots")
 input_csv <- "data_pilot_12_14_combined"
 input_path <- paste0(directory_path, "/outputs/", input_csv, ".csv") 
 freesort_input_path <- paste0(directory_path, "/outputs/data_freeesort.csv")
@@ -234,7 +236,7 @@ df_causation <- d %>%
     filter(trial_type == "causation") %>% 
     filter(!attention_check) %>% 
     select(all_of(causation_columns)) %>% 
-    mutate(causal_judgments = 1 - response / 100) %>% 
+    mutate(emp_causal_judgments = 1 - response / 100) %>% 
     dplyr::select(-response) 
 
 ```
@@ -247,8 +249,8 @@ plot_causation_rdm <- function(data, subject, desired_order) {
   df_matrix <- data %>%
     filter(subject_id == subject) %>%
     select(-subject_id) %>%
-    select(itemA, itemB, causal_judgments) %>% 
-    pivot_wider(names_from = itemB, values_from = causal_judgments) %>%
+    select(itemA, itemB, emp_causal_judgments) %>% 
+    pivot_wider(names_from = itemB, values_from = emp_causal_judgments) %>%
     column_to_rownames("itemA")
   
   # Reorder matrix and set diagonal to zero
@@ -287,7 +289,7 @@ for (i in seq_along(subject_ids)) {  # Loop to save each plot as a separate PDF
 df_normalized <- df_causation %>% 
   mutate(item_pairs = str_c(itemA, itemB, sep = "-"))  %>%
   group_by(item_pairs) %>%
-  mutate(mean_dissimilarity = mean(causal_judgments, na.rm = TRUE)) %>%  # Average across participants
+  mutate(mean_dissimilarity = mean(emp_causal_judgments, na.rm = TRUE)) %>%  # Average across participants
   ungroup() 
 
 #Min-Max Scaling 
@@ -328,7 +330,7 @@ extract_upper_tri <- function(matrix) {
 d_correlations <- df_distances %>%
   left_join(d_all_theories, by = c("itemA", "itemB")) %>%
   left_join(df_causation, by = c("subject_id", "itemA", "itemB")) %>% 
-  rename(`emp5_causal_judgments` = "causal_judgments") %>% 
+  # rename(`emp_causal_judgments` = "causal_judgments") %>% 
   group_by(subject_id) %>%
   mutate(
       `1_Mind-Body-Action` = {
@@ -392,8 +394,8 @@ d_correlations <- df_distances %>%
                           names_from = itemB, values_from = emp_euclidean) %>%
         column_to_rownames("itemA") %>% as.matrix()
         
-        rdm2 <- pivot_wider(pick(itemA, itemB, `emp5_causal_judgments`),     #theoretical RDM
-                          names_from = itemB, values_from = `emp5_causal_judgments`) %>%
+        rdm2 <- pivot_wider(pick(itemA, itemB, `emp_causal_judgments`),     #theoretical RDM
+                          names_from = itemB, values_from = `emp_causal_judgments`) %>%
         column_to_rownames("itemA") %>% as.matrix()
         
         rdm1 <- rdm1[desired_order, desired_order] 
@@ -401,7 +403,8 @@ d_correlations <- df_distances %>%
         cor(rdm1[upper.tri(rdm1)], rdm2[upper.tri(rdm2)], method = "kendall")
         }
     ) %>% 
-  ungroup()
+  ungroup() %>% 
+  relocate(emp_causal_judgments, .after = "emp_euclidean")
 
 
 calculate_noise_ceiling <- function(data, subjects, desired_order, metric = "kendall") {
@@ -472,6 +475,9 @@ calculate_noise_ceiling <- function(data, subjects, desired_order, metric = "ken
 subjects <- unique(d_correlations$subject_id)
 noise_ceiling <- calculate_noise_ceiling(d_correlations, subjects, desired_order)
 
+#saving d_correlations
+write.csv(d_correlations, file = paste0(dfs_outputs_path, "/d_correlations.csv"), row.names = F)
+
 ```
 
 ## plot correlations with noise ceiling
@@ -497,6 +503,121 @@ d_correlations %>%
                          " | Lower: ", round(noise_ceiling$lower_bound, 3)))
 
 ```
+
+
+# Visualizing causal judgment distribution
+
+d_correlations structure:
+1. subject_id (char) = subject id
+2. itemA (char) = first item
+3. itemB (char) = second item
+4. emp_euclidean (num) = empirical euclidean ratings as a disimilarity;
+                        (formula: euclidean_distance = sqrt((x_itemA - x_itemB)^2 + (y_itemA - y_itemB)^2), #get euclidean distance
+                                  emp_euclidean = ((euclidean_distance - min(euclidean_distance)) / #normalize it
+                                                  (max(euclidean_distance) - min(euclidean_distance))))
+5. emp_causal_judgments (num) = empirical causal ratings as a disimilarity (converted);
+                                (formula: 1 - response / 100)
+6. theor1_Mind-Body-Action (num) = theoretical rdm 1
+7. theor2_PerCog-OdActSpAct-BodyStimBodynoStim (num) = theoretical rdm  2
+8. theor3_Physical-Ethereal (num) = theoretical rdm 3
+9. theor4_cosine_similarity (num) = theoretical rdm 4
+10. 1_Mind-Body-Action (num) = correlation between theoretical rdm 1 and emp_euclidean
+11. 2_PerCog-ObjDir-Stimulus (num) = correlation between theoretical rdm 2 and empirical_euclidean
+12. 3_Physical-Ethereal (num) = correlation between theoretical rdm 3 and empirical_euclidean
+13. 4_cosine_similarity (num) = correlation between theoretical rdm 4 and empirical_euclidean
+14. 5_causal_judgments (num) = correlation between theoretical rdm 1 and emp_causal_judgments
+
+```{r}
+# ok so question, do we want to get the mean, and then get the minimum, or get the minimum and then get the mean? Ugh maybe both?
+# once we get the mean there is no range so no min or max, no? Actually there is. Each item is paired with each other item. So there's a range of meanss. You can get the max or min mean!!
+
+
+#actually i should group by itemB and get mean for those!! REDOING. Delete above code when done here..tried, someting was off
+
+##fuck i need to first get the pair means and then get the itemB means (a mean of means!)
+d_correlations_short <- d_correlations %>% #get pair means
+  select(subject_id, itemA, itemB, emp_euclidean, emp_causal_judgments) %>% 
+  unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
+  group_by(item_pairs) %>%
+  summarize(mean_causal_dissimilarity = mean(emp_causal_judgments, na.rm = TRUE),
+         mean_emp_euclidean = mean(emp_euclidean, na.rm = TRUE)) %>% #make sure these did not flip!!
+  ungroup() %>% 
+  separate(item_pairs, c("itemA", "itemB"), sep = "_")
+
+d_corr_means <- d_correlations_short %>% # get itemB means
+  # filter(itemB == "choose what to do")
+  group_by(itemB) %>%
+  mutate(mean_itemB_causal_dissimilarity = mean(mean_causal_dissimilarity, na.rm = TRUE),
+         mean_itemB_emp_euclidean = mean(mean_emp_euclidean, na.rm = TRUE)) %>% #ok, gets all the means
+  ungroup() 
+
+d_corr_means_causal_mins <- d_corr_means %>% 
+  group_by(itemB) %>% 
+  slice_min(mean_causal_dissimilarity) %>% #get min causal score. should we slice off the corresponding euclidean score? No but maybe lets rename columns accordingly
+  ungroup()
+
+d_corr_means_emp_mins <- d_corr_means %>% 
+  group_by(itemB) %>% 
+  slice_min(mean_emp_euclidean) %>% 
+  ungroup()
+
+#this is it!
+d_intervention_items <- d_corr_means_causal_mins %>% 
+  rename("causal_itemA" = itemA,
+         "mean_causal_dissimilarity_causalAitemB" = mean_causal_dissimilarity,
+         "mean_emp_euclidean_causalAitemB" = mean_emp_euclidean) %>%
+  left_join(d_corr_means_emp_mins %>% 
+              select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean) %>% 
+              rename("similarity_itemA" = itemA,
+                     "mean_causal_dissimilarity_simAitemB" = mean_causal_dissimilarity,
+                     "mean_emp_euclidean_simAitemB" = mean_emp_euclidean),
+            by = "itemB") %>% 
+  relocate("similarity_itemA", .before = "itemB") %>% 
+  rename("mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity,
+         "mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity)
+ 
+write.csv(d_intervention_items, file = paste0(dfs_outputs_path, "/d_intervention_items.csv"), row.names = F)
+
+
+##==========second to last items
+d_corr_means_causal_penultimate_mins <- d_corr_means %>% 
+  group_by(itemB) %>% 
+  slice(n() - 1) %>%              # Select the second-to-last item
+  ungroup()
+
+d_corr_means_emp_penultimate_mins <- d_corr_means %>% 
+  group_by(itemB) %>% 
+  arrange(mean_emp_euclidean) %>%  # Arrange by the column to ensure proper ordering
+  slice(n() - 1) %>%              # Select the second-to-last item
+  ungroup()
+
+d_intervention_penultimate_items <- d_corr_means_causal_penultimate_mins %>% 
+  rename("causal_itemA" = itemA,
+         "mean_causal_dissimilarity_causalAitemB" = mean_causal_dissimilarity,
+         "mean_emp_euclidean_causalAitemB" = mean_emp_euclidean) %>%
+  left_join(d_corr_means_emp_penultimate_mins %>% 
+              select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean) %>% 
+              rename("similarity_itemA" = itemA,
+                     "mean_causal_dissimilarity_simAitemB" = mean_causal_dissimilarity,
+                     "mean_emp_euclidean_simAitemB" = mean_emp_euclidean),
+            by = "itemB") %>% 
+  relocate("similarity_itemA", .before = "itemB") %>% 
+  rename("mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity,
+         "mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity)
+ 
+write.csv(d_intervention_penultimate_items, file = paste0(dfs_outputs_path, "/d_intervention_penultimate_items.csv"), row.names = F)
+
+
+d_corr_means %>% 
+  filter(itemB == "become hungry")
+
+```
+
+interpretation of intervention columns
+mean_itemB_.. : mean of mean itemB scores with all other items
+mean_causal_ and mean_emp_ : contains the mean pair scores between itemB and itemA, in this case only shows the lowest itemAs matched with itemB causals, and the corresponding euclideans..
+
+
 
 
 # Correlations: Causal RDMS
@@ -545,8 +666,8 @@ d_causal_correlations <- df_distances %>%
   group_by(subject_id) %>%
   mutate(
       `1_emp_euclideans_upper` = {
-        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
-                          names_from = itemB, values_from = causal_judgments) %>%
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = emp_causal_judgments) %>%
                 column_to_rownames("itemA") %>% as.matrix()
         
         rdm2 <- pivot_wider(pick(itemA, itemB, emp_euclidean),   # Construct theoretical RDM
@@ -560,8 +681,8 @@ d_causal_correlations <- df_distances %>%
         },
 
       `1_emp_euclideans_lower` = {
-        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
-                          names_from = itemB, values_from = causal_judgments) %>%
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = emp_causal_judgments) %>%
                 column_to_rownames("itemA") %>% as.matrix()
         
         rdm2 <- pivot_wider(pick(itemA, itemB, emp_euclidean),   # Construct theoretical RDM
@@ -576,8 +697,8 @@ d_causal_correlations <- df_distances %>%
         },
 
       `1_emp_euclideans_both` = {
-        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
-                          names_from = itemB, values_from = causal_judgments) %>%
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = emp_causal_judgments) %>%
                 column_to_rownames("itemA") %>% as.matrix()
         
         rdm2 <- pivot_wider(pick(itemA, itemB, emp_euclidean),   # Construct theoretical RDM
@@ -596,8 +717,8 @@ d_causal_correlations <- df_distances %>%
         },
       
       `2_within_domain_upper` = {
-        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
-                          names_from = itemB, values_from = causal_judgments) %>%
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = emp_causal_judgments) %>%
                 column_to_rownames("itemA") %>% as.matrix()
         
         rdm2 <- pivot_wider(pick(itemA, itemB, within_domain_int),   # Construct theoretical RDM
@@ -612,8 +733,8 @@ d_causal_correlations <- df_distances %>%
         },
       
       `2_within_domain_lower` = {
-        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
-                          names_from = itemB, values_from = causal_judgments) %>%
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = emp_causal_judgments) %>%
                 column_to_rownames("itemA") %>% as.matrix()
         
         rdm2 <- pivot_wider(pick(itemA, itemB, within_domain_int),   # Construct theoretical RDM
@@ -628,8 +749,8 @@ d_causal_correlations <- df_distances %>%
         },
       
       `2_within_domain_both` = {
-        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
-                          names_from = itemB, values_from = causal_judgments) %>%
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = emp_causal_judgments) %>%
                 column_to_rownames("itemA") %>% as.matrix()
         
         rdm2 <- pivot_wider(pick(itemA, itemB, within_domain_int),   # Construct theoretical RDM
@@ -649,8 +770,8 @@ d_causal_correlations <- df_distances %>%
         },
       
       `3_cross_domain_upper` = {
-        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
-                          names_from = itemB, values_from = causal_judgments) %>%
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = emp_causal_judgments) %>%
                 column_to_rownames("itemA") %>% as.matrix()
         
         rdm2 <- pivot_wider(pick(itemA, itemB, cross_domain_int),   # Construct theoretical RDM
@@ -665,8 +786,8 @@ d_causal_correlations <- df_distances %>%
         },
       
       `3_cross_domain_lower` = {
-        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
-                          names_from = itemB, values_from = causal_judgments) %>%
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = emp_causal_judgments) %>%
                 column_to_rownames("itemA") %>% as.matrix()
         
         rdm2 <- pivot_wider(pick(itemA, itemB, cross_domain_int),   # Construct theoretical RDM
@@ -681,8 +802,8 @@ d_causal_correlations <- df_distances %>%
         },
       
       `3_cross_domain_both` = {
-        rdm1 <- pivot_wider(pick(itemA, itemB, causal_judgments),     #empirical RDM
-                          names_from = itemB, values_from = causal_judgments) %>%
+        rdm1 <- pivot_wider(pick(itemA, itemB, emp_causal_judgments),     #empirical RDM
+                          names_from = itemB, values_from = emp_causal_judgments) %>%
                 column_to_rownames("itemA") %>% as.matrix()
         
         rdm2 <- pivot_wider(pick(itemA, itemB, cross_domain_int),   # Construct theoretical RDM

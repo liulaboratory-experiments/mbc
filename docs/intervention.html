@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/jspsych"></script>
+    <script src="jspsych/dist/plugin-preload.js"></script>
+    <script src="jspsych/dist/plugin-instructions.js"></script>
+    <script src="jspsych/dist/plugin-html-button-response.js"></script>
+    <link href="https://unpkg.com/jspsych/css/jspsych.css" rel="stylesheet" type="text/css">
+  </head>
+  <body></body>
+  <script>
+    var jsPsych = initJsPsych({
+      on_finish: function() {
+        jsPsych.data.displayData();
+      }
+    });
+
+    // Preload step
+    var preload = {
+      type: jsPsychPreload,
+      auto_preload: true
+    };
+
+    var instructions = {
+      type: jsPsychInstructions,
+      pages: [
+        '<div style="font-size: 22px; text-align: center;">' +
+        '<br>Welcome! <br>In this game you will be asked to imagine what you would do ' +
+        'in different scenarios. <br>Your task is to select the action you think would ' +
+        'most likely bring about the given outcome. <br>' +
+        'When you’re ready, click "Next" to start.</div>'
+      ],
+      show_clickable_nav: true
+    };
+
+    // Define the item lists
+    var causal_itemA = [
+      "take a walk", "think about something", "get sick", "hear something",
+      "experience pain", "jump up and down", "take a walk", "see something",
+      "feel scared", "see something", "think about something", "take a walk",
+      "get tired", "think about something", "remember something"
+    ];
+    var similarity_itemA = [
+      "get tired", "remember something", "think about something", "experience pain",
+      "see something", "become hungry", "see something", "take a walk",
+      "jump up and down", "jump up and down", "kick something",
+      "hear something", "jump up and down", "jump up and down", "get sick"
+    ];
+    var itemB = [
+      "become hungry", "choose what to do", "experience pain", "feel scared",
+      "get sick", "get tired", "hear something", "jump up and down",
+      "kick something", "reach for something", "remember something",
+      "see something", "sit down", "take a walk", "think about something"
+    ];
+
+    // Create an array to store all trials
+    var trials = [];
+
+    // Loop through the items and create a trial for each
+    for (var i = 0; i < itemB.length; i++) {
+      trials.push({
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `<p style="font-size: 25px;">Which of these actions would you do to make someone <strong>${itemB[i]}</strong>?</p>`,
+        choices: [
+          `<p style="font-size: 20px;">I would make them <strong>${causal_itemA[i]}</strong></p>`,
+          `<p style="font-size: 20px;">I would make them <strong>${similarity_itemA[i]}</strong></p>`
+        ],
+        button_layout: "flex"
+      });
+    }
+
+    // Define the timeline
+    const timeline = [
+      preload, 
+      instructions,
+      ...trials
+    ];
+
+    // Run the experiment
+    jsPsych.run(timeline);
+  </script>
+</html>

@@ -1,0 +1,16 @@
+causal_itemA,similarity_itemA,itemB,mean_causal_dissimilarity_causalAitemB,mean_emp_euclidean_causalAitemB,mean_mean_itemB_causal_dissimilarity,mean_itemB_emp_euclidean,mean_causal_dissimilarity_simAitemB,mean_emp_euclidean_simAitemB
+take a walk,get tired,become hungry,0.1848,0.596913624,0.467657143,0.518710936,0.4224,0.293235113
+think about something,remember something,choose what to do,0.1304,0.347509272,0.284471429,0.471949623,0.1472,0.34381321
+get sick,get sick,experience pain,0.0814,0.238378851,0.321471429,0.51798309,0.0814,0.238378851
+hear something,experience pain,feel scared,0.1102,0.480924597,0.356642857,0.521494581,0.1302,0.308265955
+experience pain,experience pain,get sick,0.23,0.238378851,0.5114,0.527372512,0.23,0.238378851
+jump up and down,become hungry,get tired,0.1068,0.556268895,0.358285714,0.505211682,0.3376,0.293235113
+take a walk,see something,hear something,0.2706,0.611037866,0.487371429,0.500410707,0.4146,0.203152377
+see something,take a walk,jump up and down,0.3148,0.605894884,0.519071429,0.514477128,0.649,0.266495804
+feel scared,jump up and down,kick something,0.3398,0.583447784,0.513142857,0.516898694,0.5876,0.273284753
+see something,jump up and down,reach for something,0.1866,0.440230314,0.3641,0.502447173,0.5596,0.394141409
+think about something,think about something,remember something,0.0904,0.133836951,0.331657143,0.523078306,0.0904,0.133836951
+take a walk,hear something,see something,0.2418,0.624295988,0.449857143,0.519324573,0.4394,0.203152377
+get tired,jump up and down,sit down,0.097,0.459063384,0.3406,0.518456952,0.555,0.353817517
+think about something,jump up and down,take a walk,0.2588,0.635317252,0.5014,0.526998862,0.6872,0.266495804
+remember something,remember something,think about something,0.079,0.133836951,0.255771429,0.527436485,0.079,0.133836951
