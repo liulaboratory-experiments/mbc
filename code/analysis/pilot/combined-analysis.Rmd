@@ -43,7 +43,6 @@ conflicts_prefer(plotly::layout)
 theme_set(theme_bw())
 sessionInfo()
 
-here()
 ```
 
 ## read data and set variables
@@ -58,19 +57,19 @@ freesort_columns <- c("subject_id", "x", "y", "item")
 # causation_columns <- c("subject_id", "itemA", "itemB", "trial_index", "original_trial_index", "response")
 causation_columns <- c("subject_id", "itemA", "itemB", "response")
 
+# paths
+base_path <- here("code", "analysis", "pilot")
+data_original_path <- paste0(base_path, "/data-combined/pilot05_121324_n50_combined_17")
+snapshots_input_path <- paste0(base_path, "/snapshots_preprocessing_analysis") #was dfs_outputs_path <- paste0(base_path, "/analysis-snapshots")
+snapshots_output_path <- paste0(base_path, "/snapshots_final_analysis")
 
-# data paths
-directory_path <- here("code", "analysis", "pilot", "data-combined", "pilot05_121324_n50_combined_17") #data path
-rdm_outputs_path <- here("code", "analysis", "pilot")
-dfs_outputs_path <- here("code", "analysis", "pilot", "analysis-snapshots")
-input_csv <- "data_pilot_12_14_combined"
-input_path <- paste0(directory_path, "/outputs/", input_csv, ".csv") 
-freesort_input_path <- paste0(directory_path, "/outputs/data_freeesort.csv")
+data_combined_path <- paste0(snapshots_input_path, "/pilot_121424_combined.csv")
+theories_all_input_path <- paste0(snapshots_input_path, "/pilot_121424_theories_all.csv") #RENAMED FROM d_all_theories
+theories_input_path <- paste0(snapshots_input_path, "/pilot_121424_theories.csv") #RENAMED FROM d_theories_Cctegories
+correlations_output_path <- paste0(snapshots_output_path, "/correlations.csv")
 
 # read data
-directory_path <- here(input_path)
-
-d <- read_csv(directory_path) %>% 
+d <- read_csv(data_combined_path) %>% 
   rename("subject_id" = filename) %>% 
   mutate(
     subject_id = factor(subject_id), # Convert to factor to establish levels
@@ -78,6 +77,7 @@ d <- read_csv(directory_path) %>%
     subject_id = sprintf("subj_%02d", subject_index) # Create the new sequential ID
   ) %>%
   select(-subject_index) # Remove the temporary index column if no longer needed
+
 
 ```
 
@@ -157,7 +157,6 @@ d %>%
 
 ```
 
-
 ## plot subject-specific euclidean rdms
 
 ```{r}
@@ -190,40 +189,55 @@ new_names <- paste0("subj_", str_pad(seq_along(subject_ids), width = 2, pad = "0
 
 for (i in seq_along(subject_ids)) {  # Loop to save each plot as a separate PDF
   # Specify the path to save the PDF in the "figures" subfolder
-  pdf(file = paste0(here(rdm_outputs_path), "/figures/freesort/", new_names[i], ".pdf"), width = 8, height = 6)  # Open a PDF device
+  pdf(file = paste0(base_path, "/figures/freesort/", new_names[i], ".pdf"), width = 8, height = 6)  # Open a PDF device
   plot_rdm(df_distances, subject_ids[i], desired_order)  # Generate the plot
   dev.off()  # Close the device to save the file
 }
 
 ```
 
-## plot average euclidean rdm
+## plot average euclidean rdm -- actually altered code here trying to get Order rdm correlations
 
 ```{r}
-df_mean_distances <- df_distances %>% 
+
+d_order <- d_correlations %>% 
   unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
-  group_by(item_pairs) %>% 
-  mutate(mean_emp_euclidean = mean(emp_euclidean)) %>% 
-  distinct(item_pairs, .keep_all = TRUE) %>% 
-  ungroup() %>% 
-  select(-c(item_pairs, subject_id, emp_euclidean))  %>% 
-  mutate(itemA = factor(itemA, levels = desired_order),
-         itemB = factor(itemB, levels = desired_order))
-  
-# matrixify and plot
-df_mean_distances_matrix <- df_mean_distances %>% 
-  pivot_wider(names_from = itemB, values_from = mean_emp_euclidean) %>% 
-  column_to_rownames("itemA")  
-  
-df_mean_distances_matrix <- df_mean_distances_matrix[desired_order, desired_order] #reorder matrix
+  left_join(d %>% 
+              select(subject_id, itemA, itemB, trial_type, trial_type_order) %>% 
+              unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
+              select(-c(itemA, itemB)),
+            by = c("subject_id", "item_pairs")) %>% 
+  select(subject_id, itemA, itemB, emp_euclidean, emp_causal_judgments, trial_type, trial_type_order)
 
-diag(df_mean_distances_matrix) <- 0 #set diagonals 
 
-# pdf(file = here(rdm_outputs_path, "figures/freesort/averageEuclideanRDM.pdf"), width = 8, height = 6)
+df_causation_first <- d_order %>%
+  filter(trial_type_order == "first")
 
-corrplot(as.matrix(df_mean_distances_matrix), method = "color", is.corr = FALSE, 
-         tl.col = "black", title = "Average Euclidean RDM", mar = c(0, 0, 2, 0),
-         addgrid.col = "darkgray")
+df_causation_second <- d_order %>%
+  filter(trial_type_order == "second")
+
+```
+
+
+```{r}
+#===================================================================================
+
+# Normalize causality judgments for causation-first group
+df_rdm_causation_first <- df_causation_first %>%
+  # mutate(item_pairs = str_c(itemA, itemB, sep = "-")) %>%
+  # group_by(item_pairs) %>%
+  # mutate(mean_dissimilarity = mean(emp_causal_judgments, na.rm = TRUE)) %>%
+  # ungroup() %>%
+  # mutate(normalized_dissimilarity = (mean_dissimilarity - min(mean_dissimilarity)) /
+  #                                   (max(mean_dissimilarity) - min(mean_dissimilarity))) %>%
+  # distinct(item_pairs, .keep_all = TRUE) %>%
+  # select(itemA, itemB, normalized_dissimilarity) %>%
+  pivot_wider(names_from = itemB, values_from = normalized_dissimilarity) %>%
+  column_to_rownames("itemA")
+
+df_rdm_causation_first <- df_rdm_causation_first[desired_order, desired_order]  # Reorder matri
+
+
 
 ```
 
@@ -275,7 +289,7 @@ new_names <- paste0("subj_", str_pad(seq_along(subject_ids), width = 2, pad = "0
 
 for (i in seq_along(subject_ids)) {  # Loop to save each plot as a separate PDF
   # Specify the path to save the PDF in the "figures" subfolder
-  pdf(file = paste0(here(rdm_outputs_path), "/figures/causation/", new_names[i], ".pdf"), width = 8, height = 6)  # Open a PDF device
+  pdf(file = paste0(base_path, "/figures/causation/", new_names[i], ".pdf"), width = 8, height = 6)  # Open a PDF device
   plot_causation_rdm(df_causation, subject_ids[i], desired_order)  # Generate the plot
   dev.off()  # Close the device to save the file
 }
@@ -289,7 +303,7 @@ for (i in seq_along(subject_ids)) {  # Loop to save each plot as a separate PDF
 df_normalized <- df_causation %>% 
   mutate(item_pairs = str_c(itemA, itemB, sep = "-"))  %>%
   group_by(item_pairs) %>%
-  mutate(mean_dissimilarity = mean(emp_causal_judgments, na.rm = TRUE)) %>%  # Average across participants
+  mutate(mean_dissimilarity = mean(emp_causal_judgments, na.rm = TRUE)) %>%  #average across participants
   ungroup() 
 
 #Min-Max Scaling 
@@ -303,7 +317,7 @@ df_rdm <- df_normalized %>%
   distinct(item_pairs, .keep_all = TRUE) %>% 
   select(itemA, itemB, normalized_dissimilarity) %>% 
   pivot_wider(names_from = itemB, values_from = normalized_dissimilarity) %>%
-  column_to_rownames("itemA")  # Convert `itemA` to row names
+  column_to_rownames("itemA")  #cnvert `itemA` to row names
 
 df_rdm <- df_rdm[desired_order, desired_order]
 
@@ -314,13 +328,32 @@ corrplot(as.matrix(df_rdm), method = "color", is.corr = FALSE, tl.col = "black",
 
 ```
 
-# Correlations: Empirical euclidean RDMs
+# Correlations between Empirical euclidean RDMs and theories
 
 ## read and compute correlations
 
-```{r, message = FALSE}
-d_all_theories <- read_csv(here("code/analysis/pilot/theoretical-rdm-data/d_all_theories.csv"))
+d_correlations structure:
+1. subject_id (char) = subject id
+2. itemA (char) = first item
+3. itemB (char) = second item
+4. emp_euclidean (num) = empirical euclidean ratings as a disimilarity;
+                        (formula: euclidean_distance = sqrt((x_itemA - x_itemB)^2 + (y_itemA - y_itemB)^2), #get euclidean distance
+                                  emp_euclidean = ((euclidean_distance - min(euclidean_distance)) / #normalize it
+                                                  (max(euclidean_distance) - min(euclidean_distance))))
+5. emp_causal_judgments (num) = empirical causal ratings as a disimilarity (converted);
+                                (formula: 1 - response / 100)
+6. theor1_Mind-Body-Action (num) = theoretical rdm 1
+7. theor2_PerCog-OdActSpAct-BodyStimBodynoStim (num) = theoretical rdm  2
+8. theor3_Physical-Ethereal (num) = theoretical rdm 3
+9. theor4_cosine_similarity (num) = theoretical rdm 4
+10. 1_Mind-Body-Action (num) = correlation between theoretical rdm 1 and emp_euclidean
+11. 2_PerCog-ObjDir-Stimulus (num) = correlation between theoretical rdm 2 and empirical_euclidean
+12. 3_Physical-Ethereal (num) = correlation between theoretical rdm 3 and empirical_euclidean
+13. 4_cosine_similarity (num) = correlation between theoretical rdm 4 and empirical_euclidean
+14. 5_causal_judgments (num) = correlation between theoretical rdm 1 and emp_causal_judgments
 
+```{r, message = FALSE}
+d_all_theories <- read_csv(theories_all_input_path)
 
 # Function to extract upper triangular part as a vector
 extract_upper_tri <- function(matrix) {
@@ -476,7 +509,7 @@ subjects <- unique(d_correlations$subject_id)
 noise_ceiling <- calculate_noise_ceiling(d_correlations, subjects, desired_order)
 
 #saving d_correlations
-write.csv(d_correlations, file = paste0(dfs_outputs_path, "/d_correlations.csv"), row.names = F)
+write.csv(d_correlations, file = correlations_output_path, row.names = F)
 
 ```
 
@@ -505,36 +538,21 @@ d_correlations %>%
 ```
 
 
-# Visualizing causal judgment distribution
+# Visualizing causal and similarity judgment distribution
 
-d_correlations structure:
-1. subject_id (char) = subject id
-2. itemA (char) = first item
-3. itemB (char) = second item
-4. emp_euclidean (num) = empirical euclidean ratings as a disimilarity;
-                        (formula: euclidean_distance = sqrt((x_itemA - x_itemB)^2 + (y_itemA - y_itemB)^2), #get euclidean distance
-                                  emp_euclidean = ((euclidean_distance - min(euclidean_distance)) / #normalize it
-                                                  (max(euclidean_distance) - min(euclidean_distance))))
-5. emp_causal_judgments (num) = empirical causal ratings as a disimilarity (converted);
-                                (formula: 1 - response / 100)
-6. theor1_Mind-Body-Action (num) = theoretical rdm 1
-7. theor2_PerCog-OdActSpAct-BodyStimBodynoStim (num) = theoretical rdm  2
-8. theor3_Physical-Ethereal (num) = theoretical rdm 3
-9. theor4_cosine_similarity (num) = theoretical rdm 4
-10. 1_Mind-Body-Action (num) = correlation between theoretical rdm 1 and emp_euclidean
-11. 2_PerCog-ObjDir-Stimulus (num) = correlation between theoretical rdm 2 and empirical_euclidean
-12. 3_Physical-Ethereal (num) = correlation between theoretical rdm 3 and empirical_euclidean
-13. 4_cosine_similarity (num) = correlation between theoretical rdm 4 and empirical_euclidean
-14. 5_causal_judgments (num) = correlation between theoretical rdm 1 and emp_causal_judgments
+## grab closest items in causal and similarity space
 
 ```{r}
+#scrap notes
 # ok so question, do we want to get the mean, and then get the minimum, or get the minimum and then get the mean? Ugh maybe both?
-# once we get the mean there is no range so no min or max, no? Actually there is. Each item is paired with each other item. So there's a range of meanss. You can get the max or min mean!!
+# once we get the mean there is no range so no min or max, no? Actually there is. Each item is paired with each other item. So there's a range of means. You can get the max or min mean
 
+d_correlations <- read_csv(correlations_output_path)
 
 #actually i should group by itemB and get mean for those!! REDOING. Delete above code when done here..tried, someting was off
 
-##fuck i need to first get the pair means and then get the itemB means (a mean of means!)
+##fff i need to first get the pair means and then get the itemB means (a mean of means!)
+
 d_correlations_short <- d_correlations %>% #get pair means
   select(subject_id, itemA, itemB, emp_euclidean, emp_causal_judgments) %>% 
   unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
@@ -564,68 +582,513 @@ d_corr_means_emp_mins <- d_corr_means %>%
 #this is it!
 d_intervention_items <- d_corr_means_causal_mins %>% 
   rename("causal_itemA" = itemA,
-         "mean_causal_dissimilarity_causalAitemB" = mean_causal_dissimilarity,
-         "mean_emp_euclidean_causalAitemB" = mean_emp_euclidean) %>%
+         "min_causal_dissimilarity_causalAitemB" = mean_causal_dissimilarity,
+         "corr_emp_euclidean_causalAitemB" = mean_emp_euclidean) %>%
   left_join(d_corr_means_emp_mins %>% 
               select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean) %>% 
               rename("similarity_itemA" = itemA,
-                     "mean_causal_dissimilarity_simAitemB" = mean_causal_dissimilarity,
-                     "mean_emp_euclidean_simAitemB" = mean_emp_euclidean),
+                     "corr_causal_dissimilarity_simAitemB" = mean_causal_dissimilarity,
+                     "min_emp_euclidean_simAitemB" = mean_emp_euclidean),
             by = "itemB") %>% 
   relocate("similarity_itemA", .before = "itemB") %>% 
   rename("mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity,
          "mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity)
- 
-write.csv(d_intervention_items, file = paste0(dfs_outputs_path, "/d_intervention_items.csv"), row.names = F)
 
+#scrap: d_intervention columns meaning
+#mean_itemB_.. : mean of mean itemB scores with all other items
+#mean_causal_ and mean_emp_ : contains the mean pair scores between itemB and itemA, in this case only shows the lowest itemAs #matched with itemB causals, and the corresponding euclideans..
+
+# the least confusing version of this dataframe: sjust show most causal and most similar
+d_intervention_items_simple <- d_intervention_items %>% 
+  select(causal_itemA, similarity_itemA, itemB, min_causal_dissimilarity_causalAitemB, min_emp_euclidean_simAitemB) 
+ 
+write.csv(d_intervention_items, file = paste0(snapshots_output_path, "/intervention_items.csv"), row.names = F)
 
 ##==========second to last items
 d_corr_means_causal_penultimate_mins <- d_corr_means %>% 
   group_by(itemB) %>% 
-  slice(n() - 1) %>%              # Select the second-to-last item
+  slice(n() - 1) %>% #select the second-to-last item
   ungroup()
 
 d_corr_means_emp_penultimate_mins <- d_corr_means %>% 
   group_by(itemB) %>% 
-  arrange(mean_emp_euclidean) %>%  # Arrange by the column to ensure proper ordering
-  slice(n() - 1) %>%              # Select the second-to-last item
+  arrange(mean_emp_euclidean) %>%  #arange by the column to ensure proper ordering
+  slice(n() - 1) %>%              #select the second-to-last item
   ungroup()
 
 d_intervention_penultimate_items <- d_corr_means_causal_penultimate_mins %>% 
   rename("causal_itemA" = itemA,
-         "mean_causal_dissimilarity_causalAitemB" = mean_causal_dissimilarity,
-         "mean_emp_euclidean_causalAitemB" = mean_emp_euclidean) %>%
+         "min_causal_dissimilarity_causalAitemB" = mean_causal_dissimilarity,
+         "corr_emp_euclidean_causalAitemB" = mean_emp_euclidean) %>%
   left_join(d_corr_means_emp_penultimate_mins %>% 
               select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean) %>% 
               rename("similarity_itemA" = itemA,
-                     "mean_causal_dissimilarity_simAitemB" = mean_causal_dissimilarity,
-                     "mean_emp_euclidean_simAitemB" = mean_emp_euclidean),
+                     "corr_causal_dissimilarity_simAitemB" = mean_causal_dissimilarity,
+                     "min_emp_euclidean_simAitemB" = mean_emp_euclidean),
             by = "itemB") %>% 
   relocate("similarity_itemA", .before = "itemB") %>% 
   rename("mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity,
          "mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity)
  
-write.csv(d_intervention_penultimate_items, file = paste0(dfs_outputs_path, "/d_intervention_penultimate_items.csv"), row.names = F)
-
-
-d_corr_means %>% 
-  filter(itemB == "become hungry")
+write.csv(d_intervention_penultimate_items, file = paste0(snapshots_output_path, "/intervention_penultimate_items.csv"), row.names = F)
 
 ```
 
-interpretation of intervention columns
-mean_itemB_.. : mean of mean itemB scores with all other items
-mean_causal_ and mean_emp_ : contains the mean pair scores between itemB and itemA, in this case only shows the lowest itemAs matched with itemB causals, and the corresponding euclideans..
+## grabbing most distant in causal & similarity space (i.e max value items) 
+
+```{r}
+d_corr_means_causal_maxs <- d_corr_means %>% 
+  group_by(itemB) %>% 
+  slice_max(mean_causal_dissimilarity) %>% #get min causal score. should we slice off the corresponding euclidean score? No but maybe lets rename columns accordingly
+  ungroup()
+
+d_corr_means_emp_maxs <- d_corr_means %>% 
+  group_by(itemB) %>% 
+  slice_max(mean_emp_euclidean) %>% 
+  ungroup()
+
+#this is it!
+d_intervention_items_max <- d_corr_means_causal_maxs %>% 
+  rename("causal_itemA" = itemA,
+         "max_causal_dissimilarity_causalAitemB" = mean_causal_dissimilarity,
+         "corr_emp_euclidean_causalAitemB" = mean_emp_euclidean) %>%
+  left_join(d_corr_means_emp_maxs %>% 
+              select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean) %>% 
+              rename("similarity_itemA" = itemA,
+                     "corr_causal_dissimilarity_simAitemB" = mean_causal_dissimilarity,
+                     "max_emp_euclidean_simAitemB" = mean_emp_euclidean),
+            by = "itemB") %>% 
+  relocate("similarity_itemA", .before = "itemB") %>% 
+  rename("mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity,
+         "mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity)
+
+
+causal_max <- d_intervention_items_max %>% 
+  select(causal_itemA, itemB, max_causal_dissimilarity_causalAitemB) %>% 
+  rename("mean_causal_dissimilarity" = max_causal_dissimilarity_causalAitemB,#the minimum values, that is
+         "itemA" = causal_itemA) %>% 
+  pivot_longer(cols = mean_causal_dissimilarity, names_to = "mean_type", values_to = "values")
+
+euclidean_max <- d_intervention_items_max %>% 
+  select(similarity_itemA, itemB, max_emp_euclidean_simAitemB) %>% 
+  rename("mean_emp_euclidean" = max_emp_euclidean_simAitemB, #the minimum values, that is
+         "itemA" = similarity_itemA) %>% 
+  pivot_longer(cols = mean_emp_euclidean, names_to = "mean_type", values_to = "values")
+
+d_corr_means_labels_max <- bind_rows(euclidean_max, causal_max)
+
+```
+
+## grabbing item A labels for the plot
+
+```{r}
+d_intervention_items %>% 
+  select(causal_itemA, similarity_itemA, itemB, min_causal_dissimilarity_causalAitemB, min_emp_euclidean_simAitemB) 
+
+causal <- d_intervention_items %>% 
+  select(causal_itemA, itemB, min_causal_dissimilarity_causalAitemB) %>% 
+  rename("mean_causal_dissimilarity" = min_causal_dissimilarity_causalAitemB,#the minimum values, that is
+         "itemA" = causal_itemA) %>% 
+  pivot_longer(cols = mean_causal_dissimilarity, names_to = "mean_type", values_to = "values")
+
+euclidean <- d_intervention_items %>% 
+  select(similarity_itemA, itemB, min_emp_euclidean_simAitemB) %>% 
+  rename("mean_emp_euclidean" = min_emp_euclidean_simAitemB, #the minimum values, that is
+         "itemA" = similarity_itemA) %>% 
+  pivot_longer(cols = mean_emp_euclidean, names_to = "mean_type", values_to = "values")
+
+d_corr_means_labels <- bind_rows(euclidean, causal)
+  
+```
+
+## plotting with labels 
+
+```{r, fig.width = 12}
+# Pivot the main dataframe for plotting
+d_corr_means_long <- d_corr_means %>%
+  pivot_longer(
+    cols = c("mean_causal_dissimilarity", "mean_emp_euclidean"),
+    names_to = "mean_type",
+    values_to = "values"
+  ) %>% 
+  select(-c(mean_itemB_causal_dissimilarity, mean_itemB_emp_euclidean))
+
+
+# Create the boxplot with labeled points
+ggplot(d_corr_means_long, aes(x = itemB, y = values)) +
+  geom_boxplot() +
+  geom_point(aes(color = itemA)) +
+  geom_text(
+    data = d_corr_means_labels,
+    aes(label = itemA, x = itemB, y = values),
+    vjust = -0.5,
+    color = "red",
+    size = 2.5
+  ) +
+    geom_text(
+    data = d_corr_means_labels_max,
+    aes(label = itemA, x = itemB, y = values),
+    vjust = 1.5, # Adjust to avoid overlap with the first set of labels
+    color = "blue",
+    size = 2.5
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none") +
+  facet_wrap(~mean_type)
+
+```
+
+## labelling all items
+
+```{r, fig.width = 12, fig.height = 10}
+d_corr_means_long
+
+
+p_all <- ggplot(d_corr_means_domain_long, aes(x = itemB, y = values)) +
+  geom_boxplot() +
+  geom_point(
+    aes(color = domain_itemA)) + # Points colored by domain
+  geom_text(
+    aes(label = itemA, x = itemB, y = values, color = domain_itemA),
+    vjust = -0.5,
+    size = 2.5
+  ) +
+  scale_color_manual(values = domain_itemA_colors) + # Custom point colors
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(d_corr_means_domain_long$itemB)])
+  ) +
+  facet_wrap(~mean_type)
+
+# Save the plot as a PDF
+ggsave(
+  filename = "my_plot_all.pdf", # Specify the file name
+  plot = p_all,           # Your ggplot object
+  device = "pdf",           # Save as a PDF
+  #path = "path/to/directory", # Optional: specify a directory
+  width = 12,                # Width of the PDF in inches
+  height = 8,               # Height of the PDF in inches
+  units = "in"              # Units for width and height
+)
+
+```
+
+## labelling winneers from each domain
+
+NB:: something's upp in this and next chunk...
+
+```{r}
+d_corr_means_domain
+
+d_corr_means_causal_mins_domain <- d_corr_means_domain %>% 
+  group_by(itemB, domain_itemA) %>% 
+  slice_min(mean_causal_dissimilarity) %>% #get min causal score. should we slice off the corresponding euclidean score? No but maybe lets rename columns accordingly
+  ungroup()
+
+d_corr_means_emp_mins_domain <- d_corr_means_domain %>% 
+  group_by(itemB, domain_itemA) %>% 
+  slice_min(mean_emp_euclidean) %>% 
+  ungroup()
+
+d_intervention_items_domain <- d_corr_means_causal_mins_domain %>% 
+  rename("causal_itemA" = itemA,
+         "min_causal_dissimilarity_causalAitemB" = mean_causal_dissimilarity,
+         "corr_emp_euclidean_causalAitemB" = mean_emp_euclidean) %>%
+  left_join(d_corr_means_emp_mins_domain %>% 
+              select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean) %>% 
+              rename("similarity_itemA" = itemA,
+                     "corr_causal_dissimilarity_simAitemB" = mean_causal_dissimilarity,
+                     "min_emp_euclidean_simAitemB" = mean_emp_euclidean),
+            by = "itemB") %>% 
+  relocate("similarity_itemA", .before = "itemB") %>% 
+  rename("mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity,
+         "mean_mean_itemB_causal_dissimilarity" = mean_itemB_causal_dissimilarity)
+
+causal <- d_intervention_items_domain %>% 
+  select(causal_itemA, itemB, min_causal_dissimilarity_causalAitemB) %>% 
+  rename("mean_causal_dissimilarity" = min_causal_dissimilarity_causalAitemB,#the minimum values, that is
+         "itemA" = causal_itemA) %>% 
+  pivot_longer(cols = mean_causal_dissimilarity, names_to = "mean_type", values_to = "values")
+
+euclidean <- d_intervention_items_domain %>% 
+  select(similarity_itemA, itemB, min_emp_euclidean_simAitemB) %>% 
+  rename("mean_emp_euclidean" = min_emp_euclidean_simAitemB, #the minimum values, that is
+         "itemA" = similarity_itemA) %>% 
+  pivot_longer(cols = mean_emp_euclidean, names_to = "mean_type", values_to = "values")
+
+d_corr_means_domain_labels <- bind_rows(euclidean, causal)
+
+```
+
+## plotting, coloring by domain
+
+NB:: something's up with this and previous chunk
+
+```{r, fig.width = 12}
+
+d_corr_means_domain <- d_corr_means %>% 
+  mutate(domain_itemA = case_when(itemA == "hear something" ~ "mind", #labels for first item of pair
+                             itemA == "choose what to do" ~ "mind",
+                             itemA == "remember something" ~ "mind",
+                             itemA == "think about something" ~ "mind",
+                             itemA == "see something" ~ "mind",
+                             itemA == "reach for something" ~ "action",
+                             itemA == "sit down" ~ "action", 
+                             itemA == "jump up and down" ~ "action",
+                             itemA == "kick something" ~ "action",
+                             itemA == "take a walk" ~ "action",
+                             itemA == "get tired" ~ "bio", 
+                             itemA == "become hungry" ~ "bio",
+                             itemA == "feel scared"~ "bio",
+                             itemA == "experience pain"~ "bio",
+                             itemA == "get sick"~ "bio"),
+         domain_itemB = case_when(itemB == "hear something" ~ "mind", 
+                               itemB == "choose what to do" ~ "mind",
+                               itemB == "remember something" ~ "mind",
+                               itemB == "think about something" ~ "mind",
+                               itemB == "see something" ~ "mind",
+                               itemB == "reach for something" ~ "action",
+                               itemB == "sit down" ~ "action", 
+                               itemB == "jump up and down" ~ "action",
+                               itemB == "kick something" ~ "action",
+                               itemB == "take a walk" ~ "action",
+                               itemB == "get tired" ~ "bio", 
+                               itemB == "become hungry" ~ "bio",
+                               itemB == "feel scared"~ "bio",
+                               itemB == "experience pain"~ "bio",
+                               itemB == "get sick"~ "bio")) %>% 
+  relocate(domain_itemA, .after = "itemB") %>% 
+  relocate(domain_itemB, .after = "domain_itemA") %>% 
+  mutate(itemB = factor(itemB, levels = desired_order))
+
+
+# Pivot the main dataframe for plotting
+d_corr_means_domain_long <- d_corr_means_domain %>%
+  pivot_longer(
+    cols = c("mean_causal_dissimilarity", "mean_emp_euclidean"),
+    names_to = "mean_type",
+    values_to = "values"
+  ) %>% 
+  select(-c(mean_itemB_causal_dissimilarity, mean_itemB_emp_euclidean))
+
+
+#colors
+itemB_colors <- d_corr_means_domain_long %>%
+  distinct(itemB, domain_itemB) %>%
+  mutate(color = case_when(
+    domain_itemB == "bio" ~ "green",
+    domain_itemB == "mind" ~ "blue",
+    domain_itemB == "action" ~ "red"
+  )) %>%
+  pull(color, name = itemB)
+
+# Define custom colors for domain_itemA (points)
+domain_itemA_colors <- c(
+  "bio" = "green",
+  "mind" = "blue",
+  "action" = "red"
+)
+
+p_3 <- ggplot(d_corr_means_domain_long, aes(x = itemB, y = values)) +
+  geom_boxplot() +
+  geom_point(aes(color = domain_itemA)) + # Points colored by domain
+  geom_text(
+    data = d_corr_means_domain_labels,
+    aes(label = itemA, x = itemB, y = values),
+    vjust = -0.5,
+    color = "black",
+    size = 2.5,
+    angle = 45
+  ) +
+  geom_text(
+    data = d_corr_means_labels_max,
+    aes(label = itemA, x = itemB, y = values),
+    vjust = 1.5,
+    color = "black",
+    size = 2.5,
+    angle = 45
+  ) +
+  scale_color_manual(values = domain_itemA_colors) + # Custom point colors
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(d_corr_means_domain_long$itemB)])
+  ) +
+  facet_wrap(~mean_type)
+
+# Save the plot as a PDF
+ggsave(
+  filename = "my_plot_3.pdf", # Specify the file name
+  plot = p_3,           # Your ggplot object
+  device = "pdf",           # Save as a PDF
+  #path = "path/to/directory", # Optional: specify a directory
+  width = 12,                # Width of the PDF in inches
+  height = 6,               # Height of the PDF in inches
+  units = "in"              # Units for width and height
+)
+
+dput(head(d_corr_means_domain))
+
+```
+
+# Order effects
+
+## summary stats
+
+```{r}
+#checking distribution (looks equal, good)
+d %>% 
+  distinct(subject_id, trial_type, .keep_all = T) %>% 
+  count(trial_type, trial_type_order)
+
+#get order data
+d_order <- d_correlations %>% 
+  unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
+  left_join(d %>% 
+              select(subject_id, itemA, itemB, trial_type, trial_type_order) %>% 
+              unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
+              select(-c(itemA, itemB)),
+            by = c("subject_id", "item_pairs")) %>% 
+  select(subject_id, itemA, itemB, emp_euclidean, emp_causal_judgments, trial_type, trial_type_order) %>% 
+  mutate(domain_itemA = case_when(itemA == "hear something" ~ "mind", #labels for first item of pair
+                             itemA == "choose what to do" ~ "mind",
+                             itemA == "remember something" ~ "mind",
+                             itemA == "think about something" ~ "mind",
+                             itemA == "see something" ~ "mind",
+                             itemA == "reach for something" ~ "action",
+                             itemA == "sit down" ~ "action", 
+                             itemA == "jump up and down" ~ "action",
+                             itemA == "kick something" ~ "action",
+                             itemA == "take a walk" ~ "action",
+                             itemA == "get tired" ~ "bio", 
+                             itemA == "become hungry" ~ "bio",
+                             itemA == "feel scared"~ "bio",
+                             itemA == "experience pain"~ "bio",
+                             itemA == "get sick"~ "bio"),
+         domain_itemB = case_when(itemB == "hear something" ~ "mind", 
+                               itemB == "choose what to do" ~ "mind",
+                               itemB == "remember something" ~ "mind",
+                               itemB == "think about something" ~ "mind",
+                               itemB == "see something" ~ "mind",
+                               itemB == "reach for something" ~ "action",
+                               itemB == "sit down" ~ "action", 
+                               itemB == "jump up and down" ~ "action",
+                               itemB == "kick something" ~ "action",
+                               itemB == "take a walk" ~ "action",
+                               itemB == "get tired" ~ "bio", 
+                               itemB == "become hungry" ~ "bio",
+                               itemB == "feel scared"~ "bio",
+                               itemB == "experience pain"~ "bio",
+                               itemB == "get sick"~ "bio"))
+
+# Summary statistics
+d_order_summary <- d_order %>%
+  group_by(trial_type, trial_type_order) %>%
+  summarize(
+    mean_emp_euclidean = mean(emp_euclidean, na.rm = TRUE),
+    sd_emp_euclidean = sd(emp_euclidean, na.rm = TRUE),
+    mean_emp_causal = mean(emp_causal_judgments, na.rm = TRUE),
+    sd_emp_causal = sd(emp_causal_judgments, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+print(d_order_summary)
+
+```
+
+## figures
+
+```{r}
+d_order_long <- d_order %>%
+  pivot_longer(
+    cols = c(emp_euclidean, emp_causal_judgments),
+    names_to = "dv",
+    values_to = "values"
+  )
+
+d_order_long %>%
+  ggplot(aes(x = dv, y = values, color = trial_type_order, group = trial_type_order)) + 
+  stat_summary(
+    fun = "mean", 
+    geom = "point",
+    shape = 21, 
+    size = 3, 
+    position = position_dodge(width = 0.5) 
+  ) +
+  stat_summary(
+    fun.data = mean_se, 
+    geom = "errorbar",
+    position = position_dodge(width = 0.5),
+    width = 0.2 # Width of the error bars
+  ) +
+  # geom_point(
+  #   position = position_jitter(width = 0.2, height = 0), # Add jitter to avoid overlap
+  #   alpha = 0.01, # Transparency for raw data points
+  #   size = 1.5 # Adjust point size
+  # ) +
+  ylim(0, max(d_order_long$values) + 0.1)  
+
+#bar
+d_order_long %>%
+  ggplot(aes(x = dv, y = values, fill = trial_type_order)) +
+  stat_summary(
+    fun = "mean", # Compute the mean
+    geom = "bar",
+    position = position_dodge(),
+    width = 0.7
+  ) +
+  stat_summary(
+    fun.data = mean_se, # Compute mean and standard error
+    geom = "errorbar",
+    position = position_dodge(width = 0.7),
+    width = 0.2 # Width of the error bars
+  ) 
+
+library(lme4)
+conflicts_prefer(lme4::lmer)
+model <- lmer(values ~ dv * trial_type_order + (1 | subject_id), data = d_order_long)
+summary(model)
+
+```
+
+## order with rdms
 
 
 
+```{r}
+#normalize causality judgments
+df_normalized <- df_causation %>% 
+  mutate(item_pairs = str_c(itemA, itemB, sep = "-"))  %>%
+  group_by(item_pairs) %>%
+  mutate(mean_dissimilarity = mean(emp_causal_judgments, na.rm = TRUE)) %>%  #average across participants
+  ungroup() 
 
-# Correlations: Causal RDMS
+#Min-Max Scaling 
+df_normalized <- df_normalized %>%
+  mutate(
+    normalized_dissimilarity = (mean_dissimilarity - min(mean_dissimilarity)) /
+                                (max(mean_dissimilarity) - min(mean_dissimilarity))
+  )
+
+df_rdm <- df_normalized %>%
+  distinct(item_pairs, .keep_all = TRUE) %>% 
+  select(itemA, itemB, normalized_dissimilarity) %>% 
+  pivot_wider(names_from = itemB, values_from = normalized_dissimilarity) %>%
+  column_to_rownames("itemA")  #cnvert `itemA` to row names
+
+df_rdm <- df_rdm[desired_order, desired_order]
+
+# pdf(file = here(rdm_outputs_path, "figures/causation/averageCausalRDM.pdf"), width = 8, height = 6)  
+
+corrplot(as.matrix(df_rdm), method = "color", is.corr = FALSE, tl.col = "black",
+         title = "Average Causal RDM", mar = c(0, 0, 2, 0), addgrid.col = "darkgray")
+```
+
+
+# Correlations: Causal RDMS vs theories
 
 ## generate causal theories
 
 ```{r, echo = TRUE}
-d_theo_causal_raw <- read_csv(here("code/analysis/pilot/theoretical-rdm-data/d_theories_categories.csv"))
+d_theo_causal_raw <- read_csv(theories_input_path) 
+
 
 d_theo_causal <- d_theo_causal_raw %>% 
   select(itemA, itemB, MindBodyAction_itemA, MindBodyAction_itemB) %>% 

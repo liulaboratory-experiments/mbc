@@ -1,6 +1,6 @@
-"causal_itemA","similarity_itemA","itemB","mean_causal_dissimilarity_causalAitemB","mean_emp_euclidean_causalAitemB","mean_mean_itemB_causal_dissimilarity","mean_itemB_emp_euclidean","mean_causal_dissimilarity_simAitemB","mean_emp_euclidean_simAitemB"
+"causal_itemA","similarity_itemA","itemB","min_causal_dissimilarity_causalAitemB","corr_emp_euclidean_causalAitemB","mean_mean_itemB_causal_dissimilarity","mean_itemB_emp_euclidean","corr_causal_dissimilarity_simAitemB","min_emp_euclidean_simAitemB"
 "take a walk","take a walk","become hungry",0.1848,0.596913624105401,0.467657142857143,0.518710935796445,0.1848,0.596913624105401
-"take a walk","get sick","choose what to do",0.3732,0.43514335592781,0.284471428571429,0.47194962295925,0.2798,0.536885960582449
+"take a walk","get sick","choose what to do",0.3732,0.435143355927811,0.284471428571429,0.47194962295925,0.2798,0.536885960582449
 "take a walk","think about something","experience pain",0.2758,0.610350694956424,0.321471428571429,0.517983089951248,0.387,0.628453786693097
 "take a walk","take a walk","feel scared",0.426,0.60876818685834,0.356642857142857,0.521494581423142,0.426,0.60876818685834
 "take a walk","see something","get sick",0.5486,0.63727874924135,0.5114,0.527372512292948,0.3904,0.656520014300325

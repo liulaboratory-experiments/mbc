@@ -4,6 +4,26 @@ output: html_document
 date: "2024-10-28"
 ---
 
+This script does the following
+1. Takes original data
+2. Separates out freesort data and saves the csv (data_freesort)
+   (does not save out causation data.. hmm why?)
+3. Separates out combined (i.e. freesort + causation) data and saves the csv (data_pilot_12_14_combined)
+4. Generates theoretical RDM data and saves (d_theories_categories)
+5. Adds cosine embeddings and saves (d_all_theories) Q: why not just save 5 and do not save 4? what's diff btn 4 and 5?
+6. Plots RDMs and saves them into /figures/
+
+Changes made on 1/7/25
+1. Moving data_freesort.csv and data_pilot_...csv over to ---> /snapshots_pre-processing_../
+2. Moving theoretical rdm data from /code/analysis/pilot/theoretical-rdm-data/ ---> /snapshots_pre-processing_../
+4. Rename final_output_csv to combined_output_csv?
+5. Rename data_freesort to data_pilot_..._freesort
+
+Study description
+- Pilot ran on 12/13/24 on Connect CloudResearch, 50 participants
+- Subject selection criteria: 95% approval rate, minimum 10 previous submissions, and fluent in English
+- demographics: Age range
+
 ```{r}
 knitr::opts_chunk$set(echo = TRUE)
 library(pacman)
@@ -16,10 +36,13 @@ library(jsonlite)
 # Read data
 
 ```{r}
-directory_path <- here("code", "analysis", "pilot", "data-combined", "pilot05_121324_n50_combined_17")
-file_paths <- list.files(path = directory_path, pattern = "^2024-", full.names = TRUE)
+base_path <- here("code", "analysis", "pilot")
+data_path <- paste0(base_path, "/data-combined/pilot05_121324_n50_combined_17")
+
+file_paths <- list.files(path = data_path, pattern = "^2024-", full.names = TRUE)
 d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x))) %>% 
     filter(!str_detect(filename, "XX-XX-XX")) 
+
 ```
 
 # parameters
@@ -32,10 +55,19 @@ items <- c("choose what to do", "reach for something", "feel scared",  #items in
            "take a walk", "sit down")
 
 #exports
-rdm_outputs_path <- here("code", "analysis", "pilot")
-freesort_output_path <- paste0(directory_path, "/outputs/data_freeesort.csv")
-final_output_csv <- "data_pilot_12_14_combined"
-final_output_path <- paste0(directory_path, "/outputs/", final_output_csv, ".csv") 
+rdm_figures_outputs_path <- paste0(base_path, "/figures/theoretical-rdms/")
+
+#freesort_output_path <- paste0(data_path, "/outputs/data_freeesort.csv")
+#combined_output_csv <- "data_pilot_12_14_combined"
+#combined_output_path <- paste0(data_path, "/outputs/", combined_output_csv, ".csv") 
+
+combined_output_csv <- "pilot_121424_combined"
+snapshots_path <- paste0(base_path, "/snapshots_preprocessing_analysis")
+
+freesort_output_path <- paste0(snapshots_path, "/pilot_121424_freeesort.csv")
+combined_output_path <- paste0(snapshots_path, "/", combined_output_csv, ".csv") 
+theories_output_path <- paste0(snapshots_path, "/pilot_121424_theories.csv") #RENAMED FROM d_theories_categories
+theories_all_output_path <- paste0(snapshots_path, "/pilot_121424_theories_all.csv") #RENAMED FROM d_all_theories
 
 ```
 
@@ -120,6 +152,51 @@ data_causation <- response_data %>%
 
 ```
 
+# Exclusions
+
+- For causation we have 4 attention checks at pages 4, 8, 10 and 13. No attn checks for freesort 
+- We are excluding subjects who fail at least 2 of them 
+- Other posible criteria: time taken to complete study. (a subject took 13 minutes, which is maybe too short, i took ~20)
+
+```{r}
+data_causation <- data_causation %>%
+  mutate(attention_check_id = case_when(
+    attention_check == TRUE & trial_index == 4  ~ 1, 
+    attention_check == TRUE & trial_index == 8  ~ 2, 
+    attention_check == TRUE & trial_index == 10 ~ 3, 
+    attention_check == TRUE & trial_index == 13 ~ 4, 
+    TRUE ~ NA_integer_ #non-attention check rows
+  )) %>%
+  mutate(correct_response = case_when(
+    attention_check == TRUE & trial_index == 4  ~ 0, #"Move slider all the way to left"
+    attention_check == TRUE & trial_index == 8  ~ 75,  #"Move slider to 'Maybe yes'"
+    attention_check == TRUE & trial_index == 10 ~ 100, #"Move slider all the way to right"
+    attention_check == TRUE & trial_index == 13 ~ 0,   #"Move slider to 'Definitely not'"
+    TRUE ~ correct_response # Retain existing values for non-attention check rows
+  )) %>%
+  mutate(correct = case_when(
+    attention_check == TRUE & trial_index == 4  & response >= 0 & response <= 5   ~ TRUE, 
+    attention_check == TRUE & trial_index == 8  & response >= 70 & response <= 80 ~ TRUE, 
+    attention_check == TRUE & trial_index == 10 & response >= 0 & response <= 5 ~ TRUE, #3 and 4 are switched for some reason
+    attention_check == TRUE & trial_index == 13 & response >= 95 & response <= 100   ~ TRUE,
+    attention_check == TRUE ~ FALSE, #outside acceptable range
+    TRUE ~ NA #non-attn check rows
+  ))
+
+excluded_participants <- data_causation %>%
+  filter(attention_check == TRUE) %>% 
+  group_by(filename) %>% 
+  summarize(
+    num_incorrect = sum(correct == FALSE, na.rm = TRUE), 
+    .groups = "drop"
+  ) %>%
+  filter(num_incorrect >= 2) %>% #identify participants with x or more incorrect (4 subjects had 1 incorrect attn check)
+  pull(filename) 
+
+data_causation <- data_causation %>%
+  filter(!filename %in% excluded_participants)
+
+```
 
 Merging the two, adding condition order columns
 
@@ -161,7 +238,6 @@ data_freesort <- data_freesort %>%
 
 ```
 
-
 # Merge both data frames
 
 ```{r}
@@ -171,12 +247,11 @@ data_combined <- bind_rows(
   data_freesort
 )
 
-assign(final_output_csv, data_combined)
+assign(combined_output_csv, data_combined)
 
-write.csv(data_combined, final_output_path, row.names = F)
+write.csv(data_combined, combined_output_path, row.names = F)
 
 ```
-
 
 ## Generate theoretical RDM data 
 
@@ -284,22 +359,21 @@ d_theories_categories <- expand.grid(itemA = desired_order, itemB = desired_orde
   mutate("theor1_Mind-Body-Action" = ifelse(MindBodyAction_itemA == MindBodyAction_itemB, 0, 1),
          "theor2_PerCog-OdActSpAct-BodyStimBodynoStim" = ifelse(PerCogOdActSpActBstimBnstim_itemA == PerCogOdActSpActBstimBnstim_itemB, 0, 1),
          "theor3_Physical-Ethereal" = ifelse(PhysicalEthereal_itemA == PhysicalEthereal_itemB, 0, 1)) 
-  
-d_theories <- d_theories_categories %>% 
-  select(-c("MindBodyAction_itemA", "MindBodyAction_itemB", 
-            "PerCogOdActSpActBstimBnstim_itemA","PerCogOdActSpActBstimBnstim_itemB", 
-            "PhysicalEthereal_itemA", "PhysicalEthereal_itemB"))
 
-write.csv(d_theories_categories, here("code/analysis/pilot/theoretical-rdm-data/d_theories_categories.csv"), row.names = F)
+write.csv(d_theories_categories, theories_output_path, row.names = F)
 
 ```
-
 
 ## Compute cosine similarities from USE embeddings
 
 ```{r}
 #load USE embeddings
 embedding_df <- readRDS(here("code/analysis/pilot/embeddings/item_embeddings.rds")) #read embeddings
+
+d_theories <- d_theories_categories %>% 
+  select(-c("MindBodyAction_itemA", "MindBodyAction_itemB", 
+            "PerCogOdActSpActBstimBnstim_itemA","PerCogOdActSpActBstimBnstim_itemB", 
+            "PhysicalEthereal_itemA", "PhysicalEthereal_itemB"))
 
 # Step 3: Merge embeddings back into the long data frame
 # Add embeddings for itemA and itemB
@@ -325,8 +399,7 @@ d_all_theories <- d_theories_with_embeddings %>%
 # d_all_theories %>% 
 #   arrange(theor4_cosine_similarity)
   
-
-write.csv(d_all_theories, here("code/analysis/pilot/theoretical-rdm-data/d_all_theories.csv"), row.names = F)
+write.csv(d_all_theories, theories_all_output_path, row.names = F)
 
 ```
 
@@ -380,7 +453,7 @@ plot_rdm_theory(d_all_theories, "theor3_Physical-Ethereal", physethereal_order, 
 
 
 # save them
-output_folder <- paste0(here(rdm_outputs_path), "/figures/theoretical-rdms/")
+#output_folder <- paste0(here(rdm_outputs_path), "/figures/theoretical-rdms/") -> delete this
 
 theories <- list(
   list(column_name = "theor4_cosine_similarity", order = mba_order, title = "1. Cosine Distance - RDM"),
@@ -391,7 +464,7 @@ theories <- list(
 
 for (i in seq_along(theories)) {
   theory <- theories[[i]]
-  output_file <- paste0(output_folder, "theory_", i, ".pdf")
+  output_file <- paste0(rdm_figures_outputs_path, "theory_", i, ".pdf")
   pdf(file = output_file, width = 8, height = 6)   # Open the PDF device
   plot_rdm_theory(
     data = d_all_theories,
@@ -404,44 +477,33 @@ for (i in seq_along(theories)) {
 
 ```
 
-
 Demographics
 
 ```{r}
-
 # demographics
 df_demographics <- d %>% 
   filter(trial_id == "demographics_survey") %>% 
   select("mturk_participant_id", "trial_id", "filename", 
          "feedback", "age", "ethnicity", "gender", "race") 
 
+summary(df_demographics$age)
+table(df_demographics$gender)
+table(df_demographics$ethnicity)
+table(df_demographics$race)
+
 ```
 
-SCRAP
 
-# Exclusions
 
-- for now, leaving undone
-- need to decide if we will exclude for failing all 3 attention checks or at least 1
+
+Scrap on attention check
 
 ```{r}
-d %>%
-  relocate(mturk_participant_id, .before = "trial_id") %>% 
-  mutate(correct = case_when(trial_id == "attention_check_1" & response == 0 ~ TRUE,
-                             trial_id == "attention_check_3" & response == 100 ~ TRUE,
-                             trial_id == "attention_check_2" & ( response > 60 & response < 80 )
-                             ~ TRUE,
-                             TRUE ~ correct)) %>%
-  filter(trial_id %in% c("attention_check_1", "attention_check_2", "attention_check_3")) %>% 
-  filter(correct == FALSE)
-  filter(mturk_participant_id == "pilot_2w19ksqx74") %>%
-  filter(trial_id %in% c("attention_check_1", "attention_check_2", "attention_check_3")) %>% 
-    
-  group_by(mturk_participant_id) %>%
-    count(correct)
-  filter(all(correct | is.na(correct))) %>% #remove 2 participants who failed at least 1 att check
-  ungroup()
+d %>% 
+  distinct(trial_id)
+  filter(trial_id )
 
 ```
+
 
 

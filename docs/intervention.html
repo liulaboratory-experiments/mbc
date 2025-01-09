@@ -35,39 +35,50 @@
 
     // Define the item lists
     var causal_itemA = [
-      "take a walk", "think about something", "get sick", "hear something",
-      "experience pain", "jump up and down", "take a walk", "see something",
-      "feel scared", "see something", "think about something", "take a walk",
-      "get tired", "think about something", "remember something"
+      "take a walk", "take a walk", "feel scared", "feel scared", "feel scared",
+      "see something", "get tired", "see something", "feel scared", "think about something",
+      "jump up and down", "take a walk", "hear something", "kick something", "jump up and down"
     ];
     var similarity_itemA = [
-      "get tired", "remember something", "think about something", "experience pain",
-      "see something", "become hungry", "see something", "take a walk",
-      "jump up and down", "jump up and down", "kick something",
-      "hear something", "jump up and down", "jump up and down", "get sick"
+      "hear something", "see something", "remember something", "think about something", "remember something",
+      "jump up and down", "jump up and down", "take a walk", "jump up and down", "jump up and down",
+      "become hungry", "get tired", "experience pain", "get sick", "experience pain"
     ];
     var itemB = [
-      "become hungry", "choose what to do", "experience pain", "feel scared",
-      "get sick", "get tired", "hear something", "jump up and down",
-      "kick something", "reach for something", "remember something",
-      "see something", "sit down", "take a walk", "think about something"
+      "see something", "hear something", "choose what to do", "remember something", "think about something", 
+      "reach for something", "sit down", "jump up and down", "kick something", "take a walk",
+      "get tired", "become hungry", "feel scared", "experience pain", "get sick"
     ];
 
-    // Create an array to store all trials
-    var trials = [];
-
-    // Loop through the items and create a trial for each
+    // Combine items into a single array of objects
+    var combined_items = [];
     for (var i = 0; i < itemB.length; i++) {
-      trials.push({
-        type: jsPsychHtmlButtonResponse,
-        stimulus: `<p style="font-size: 25px;">Which of these actions would you do to make someone <strong>${itemB[i]}</strong>?</p>`,
-        choices: [
-          `<p style="font-size: 20px;">I would make them <strong>${causal_itemA[i]}</strong></p>`,
-          `<p style="font-size: 20px;">I would make them <strong>${similarity_itemA[i]}</strong></p>`
-        ],
-        button_layout: "flex"
+      combined_items.push({
+        itemB: itemB[i],
+        causal_itemA: causal_itemA[i],
+        similarity_itemA: similarity_itemA[i]
       });
     }
+
+    // Shuffle the combined array
+    combined_items = jsPsych.randomization.shuffle(combined_items);
+
+    // Create trials based on the shuffled combined array
+    var trials = combined_items.map(function(item) {
+      // Define the choices and shuffle them
+      var choices = [
+        `<p style="font-size: 20px;">I would make them <strong>${item.causal_itemA}</strong></p>`,
+        `<p style="font-size: 20px;">I would make them <strong>${item.similarity_itemA}</strong></p>`
+      ];
+      choices = jsPsych.randomization.shuffle(choices);
+
+      return {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `<p style="font-size: 25px;">Which of these actions would you do to make someone <strong>${item.itemB}</strong>?</p>`,
+        choices: choices,
+        button_layout: "flex"
+      };
+    });
 
     // Define the timeline
     const timeline = [
