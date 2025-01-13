@@ -373,7 +373,7 @@ similarity_trials = insertAttentionCheck(similarity_trials, attention_check_tria
 var task_assignment = Math.random() < 0.5 ? "intervention" : "similarity";
 
 // Define the timeline based on the assigned task
-var timeline = [preload, debrief_intervention, consent];
+var timeline = [preload, consent];
 
 if (task_assignment === "intervention") {
   timeline.push(instructions_intervention, ...intervention_trials, debrief_intervention, feedback_demographics);
