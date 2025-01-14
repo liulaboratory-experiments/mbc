@@ -85,6 +85,7 @@
     // Shuffle the combined array
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
+    // Intervention study trials
   var intervention_trials = combined_items.map(function(item) {
   var choices = [
     `<p style="font-size: 20px;">I would make them <strong>${item.causal_itemA}</strong></p>`,
@@ -102,6 +103,9 @@
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similarity_itemA: item.similarity_itemA
+    },
+    on_finish: function(data) {
+      data.selected_choice = choices[data.response]; // Capture the specific choice text
     }
   };
 });
@@ -124,6 +128,9 @@
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similarity_itemA: item.similarity_itemA
+    },
+    on_finish: function(data) {
+      data.selected_choice = choices[data.response]; // Capture the specific choice text
     }
   };
 });
@@ -139,6 +146,9 @@ var attention_check_trial_intervention = {
   data: {
     condition: "attention_check",
     correct_response: "choose what to do"
+  },
+  on_finish: function(data) {
+    data.selected_choice = data.response === 0 ? "I would make them choose what to do" : "I would make them sit down";
   }
 };
 
@@ -153,6 +163,9 @@ var attention_check_trial_similarity = {
   data: {
     condition: "attention_check",
     correct_response: "choose what to do"
+  },
+  on_finish: function(data) {
+    data.selected_choice = data.response === 0 ? "The ability to choose what to do" : "The ability to sit down";
   }
 };
 

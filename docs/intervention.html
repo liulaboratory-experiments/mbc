@@ -41,7 +41,7 @@
         //-------------------------------------------------------------------------------------------------------------------------------------
         //experiment variables
         const mturk_pilot_mode = false
-        const data_collection = false
+        const data_collection = true
 
             // capture info from mturk/connect, except in test mode
         if(mturk_pilot_mode) { 
@@ -173,55 +173,61 @@
     // Shuffle the combined array
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
-  // intervention study trials
+    // Intervention study trials
     var intervention_trials = combined_items.map(function(item) {
-      var choices = [
-        `<p style="font-size: 20px;">I would make them <strong>${item.causal_itemA}</strong></p>`,
-        `<p style="font-size: 20px;">I would make them <strong>${item.similarity_itemA}</strong></p>`
-      ];
-      choices = jsPsych.randomization.shuffle(choices);
+  var choices = [
+    `<p style="font-size: 20px;">I would make them <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 20px;">I would make them <strong>${item.similarity_itemA}</strong></p>`
+  ];
+  choices = jsPsych.randomization.shuffle(choices);
 
-      return {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: `<p style="font-size: 25px;">Suppose you wanted to make someone <strong>${item.itemB}. <br>Which of these two actions would you do to achieve this outcome?</strong>?</p>`,
-        choices: choices,
-        button_layout: "flex",
-        data: {
-          condition: "intervention",
-          itemB: item.itemB,
-          causal_itemA: item.causal_itemA,
-          similarity_itemA: item.similarity_itemA
-        }
-      };
-    });
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<p style="font-size: 25px;">Which of these actions would you do to make someone <strong>${item.itemB}</strong>?</p>`,
+    choices: choices,
+    button_layout: "flex",
+    data: {
+      condition: "intervention",
+      itemB: item.itemB,
+      causal_itemA: item.causal_itemA,
+      similarity_itemA: item.similarity_itemA
+    },
+    on_finish: function(data) {
+      data.selected_choice = choices[data.response]; // Capture the specific choice text
+    }
+  };
+});
 
   // Similarity study trials
   var similarity_trials = combined_items.map(function(item) {
-    var choices = [
-      `<p style="font-size: 20px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
-      `<p style="font-size: 20px;">The ability to <strong>${item.similarity_itemA}</strong></p>`
-    ];
-    choices = jsPsych.randomization.shuffle(choices);
+  var choices = [
+    `<p style="font-size: 20px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 20px;">The ability to <strong>${item.similarity_itemA}</strong></p>`
+  ];
+  choices = jsPsych.randomization.shuffle(choices);
 
-    return {
-      type: jsPsychHtmlButtonResponse,
-      stimulus: `<p style="font-size: 25px;">Suppose someone told you about a creature that could <strong>${item.itemB}</strong>. <br>Which of these two other abilities do you think the creature would also have?</p>`,
-      choices: choices,
-      button_layout: "flex",
-      data: {
-        condition: "similarity",
-        itemB: item.itemB,
-        causal_itemA: item.causal_itemA,
-        similarity_itemA: item.similarity_itemA
-      }
-    };
-  });
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<p style="font-size: 25px;">Suppose someone told you about a creature that could <strong>${item.itemB}</strong>. <br>Which of these two other abilities do you think the creature would also have?</p>`,
+    choices: choices,
+    button_layout: "flex",
+    data: {
+      condition: "similarity",
+      itemB: item.itemB,
+      causal_itemA: item.causal_itemA,
+      similarity_itemA: item.similarity_itemA
+    },
+    on_finish: function(data) {
+      data.selected_choice = choices[data.response]; // Capture the specific choice text
+    }
+  };
+});
 
 
   // Attention check trials
   var attention_check_trial_intervention = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "I would make them <strong>choose what to do</strong>".</p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "I would make them <strong>"choose what to do"</strong>"</p>`,
   choices: [
     `<p style="font-size: 20px;">I would make them <strong>choose what to do</strong></p>`,
     `<p style="font-size: 20px;">I would make them <strong>sit down</strong></p>`
@@ -229,7 +235,10 @@
   button_layout: "flex",
   data: {
     condition: "attention_check",
-    correct_response: 0 
+    correct_response: "choose what to do"
+  },
+  on_finish: function(data) {
+    data.selected_choice = data.response === 0 ? "I would make them choose what to do" : "I would make them sit down";
   }
 };
 
@@ -244,6 +253,9 @@ var attention_check_trial_similarity = {
   data: {
     condition: "attention_check",
     correct_response: "choose what to do"
+  },
+  on_finish: function(data) {
+    data.selected_choice = data.response === 0 ? "The ability to choose what to do" : "The ability to sit down";
   }
 };
 
@@ -394,7 +406,12 @@ if (task_assignment === "intervention") {
   timeline.push(instructions_similarity, ...similarity_trials, debrief_similarity, feedback_demographics);
 }
 
-    // Run the experiment
-    jsPsych.run(timeline);
+if (data_collection) {
+      timeline.push(save_data); 
+}
+
+// Run the experiment
+jsPsych.run(timeline);
+
   </script>
 </html>
