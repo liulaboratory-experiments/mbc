@@ -183,7 +183,7 @@
 
       return {
         type: jsPsychHtmlButtonResponse,
-        stimulus: `<p style="font-size: 25px;">Which of these actions would you do to make someone <strong>${item.itemB}</strong>?</p>`,
+        stimulus: `<p style="font-size: 25px;">Suppose you wanted to make someone <strong>${item.itemB}. <br>Which of these two actions would you do to achieve this outcome?</strong>?</p>`,
         choices: choices,
         button_layout: "flex",
         data: {
@@ -219,7 +219,7 @@
 
 
   // Attention check trials
-  var attention_check_trial = {
+  var attention_check_trial_intervention = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `<p style="font-size: 25px;">For this question, please select "I would make them <strong>choose what to do</strong>".</p>`,
   choices: [
@@ -233,6 +233,21 @@
   }
 };
 
+var attention_check_trial_similarity = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "The ability to <strong>choose what to do</strong>"</p>`,
+  choices: [
+    `<p style="font-size: 20px;">The ability to <strong>choose what to do</strong></p>`,
+    `<p style="font-size: 20px;">The ability to <strong>sit down</strong></p>`
+  ],
+  button_layout: "flex",
+  data: {
+    condition: "attention_check",
+    correct_response: "choose what to do"
+  }
+};
+
+
 function insertAttentionCheck(trials, attentionCheck) {
   var randomIndex = Math.floor(Math.random() * trials.length);
   trials.splice(randomIndex, 0, attentionCheck);
@@ -240,12 +255,10 @@ function insertAttentionCheck(trials, attentionCheck) {
 }
 
 // Insert attention check into intervention trials
-intervention_trials = insertAttentionCheck(intervention_trials, attention_check_trial);
+intervention_trials = insertAttentionCheck(intervention_trials, attention_check_trial_intervention);
 
 // Insert attention check into similarity trials
-similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial);
-
-
+similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
 
 
   var debrief_intervention = {

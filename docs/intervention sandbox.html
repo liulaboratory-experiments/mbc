@@ -128,12 +128,26 @@
   };
 });
 
-var attention_check_trial = {
+var attention_check_trial_intervention = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>I would make them "choose what to do"</strong>.</p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "I would make them <strong>"choose what to do"</strong>"</p>`,
   choices: [
     `<p style="font-size: 20px;">I would make them <strong>choose what to do</strong></p>`,
     `<p style="font-size: 20px;">I would make them <strong>sit down</strong></p>`
+  ],
+  button_layout: "flex",
+  data: {
+    condition: "attention_check",
+    correct_response: "choose what to do"
+  }
+};
+
+var attention_check_trial_similarity = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "The ability to <strong>choose what to do</strong>"</p>`,
+  choices: [
+    `<p style="font-size: 20px;">The ability to <strong>choose what to do</strong></p>`,
+    `<p style="font-size: 20px;">The ability to <strong>sit down</strong></p>`
   ],
   button_layout: "flex",
   data: {
@@ -149,10 +163,10 @@ function insertAttentionCheck(trials, attentionCheck) {
 }
 
 // Insert attention check into intervention trials
-intervention_trials = insertAttentionCheck(intervention_trials, attention_check_trial);
+intervention_trials = insertAttentionCheck(intervention_trials, attention_check_trial_intervention);
 
 // Insert attention check into similarity trials
-similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial);
+similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
 
         // Random assignment to a task
 var task_assignment = Math.random() < 0.5 ? "intervention" : "similarity";
