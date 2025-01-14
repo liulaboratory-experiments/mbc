@@ -60,7 +60,13 @@
             mturk_project_id: project_id
         })
 
-        const filename = `${participant_id}.csv`; //this needs to be assigned after running the ifelse statement
+        // Get the current date and time
+        const now = new Date();
+        const dateString = now.toISOString().slice(0, 10); // Format as YYYY-MM-DD
+        const timeString = now.toTimeString().slice(0, 8).replace(/:/g, '-'); // Format as HH-MM-SS
+
+        // Create the filename with the current date and time
+        const filename = `${dateString}_${timeString}_${participant_id}.csv`;
         //---------------------------------------------------------------------------------------------------------------------------------------
 
 
