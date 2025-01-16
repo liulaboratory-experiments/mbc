@@ -1,5 +1,5 @@
 ---
-title: "causation"
+title: "study 2"
 output: html_document
 date: "2024-10-28"
 ---
