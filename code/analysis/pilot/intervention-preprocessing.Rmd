@@ -4,488 +4,550 @@ output: html_document
 date: "2024-10-28"
 ---
 
-This script does the following
+# ReadMe
 
+This is the analysis for study 2 of the MBC project, alias the intervention study.  
+The study had N = 100, two between subjects conditions: Intervention and Similarity, and 15 trials per condition.
+The question: are subjects in the Intervention condition more likely to select the causal item, and subjects in the Similarity condition likely to select the similar item.
+
+# Set options
 
 ```{r}
 knitr::opts_chunk$set(echo = TRUE)
 library(pacman)
-pacman::p_load(tidyverse, here)
+pacman::p_load(tidyverse, lme4, here)
 sessionInfo()
 
 ```
 
 # Read data
 
-```{r}
+```{r, warnings = FALSE}
 base_path <- here("code", "analysis", "pilot")
-data_path <- paste0(base_path, "/data-combined/pilot05_121324_n50_combined_17")
+data_path <- paste0(base_path, "/data-intervention/pilot06_11425_n100-intervention-100")
+snapshots_input_path <- paste0(base_path, "/snapshots_study1_final_analysis")
 
-file_paths <- list.files(path = data_path, pattern = "^2024-", full.names = TRUE)
-d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x))) %>% 
-    filter(!str_detect(filename, "XX-XX-XX")) 
+desired_order <- c("see something", "hear something", "choose what to do", 
+                   "remember something", "think about something", "reach for something", 
+                   "sit down", "jump up and down", "kick something", "take a walk", 
+                   "get tired", "become hungry", "feel scared", "experience pain", "get sick")
 
-```
-
-# parameters
-
-```{r}
-items <- c("choose what to do", "reach for something", "feel scared",  #items in exact order of img1.png to img15.png
-           "experience pain", "get sick", "get tired", "become hungry", 
-           "see something", "think about something", "hear something", 
-           "remember something", "jump up and down", "kick something", 
-           "take a walk", "sit down")
-
-#exports
-rdm_figures_outputs_path <- paste0(base_path, "/figures/theoretical-rdms/")
-
-#freesort_output_path <- paste0(data_path, "/outputs/data_freeesort.csv")
-#combined_output_csv <- "data_pilot_12_14_combined"
-#combined_output_path <- paste0(data_path, "/outputs/", combined_output_csv, ".csv") 
-
-combined_output_csv <- "pilot_121424_combined"
-snapshots_path <- paste0(base_path, "/snapshots_preprocessing_analysis")
-
-freesort_output_path <- paste0(snapshots_path, "/pilot_121424_freeesort.csv")
-combined_output_path <- paste0(snapshots_path, "/", combined_output_csv, ".csv") 
-theories_output_path <- paste0(snapshots_path, "/pilot_121424_theories.csv") #RENAMED FROM d_theories_categories
-theories_all_output_path <- paste0(snapshots_path, "/pilot_121424_theories_all.csv") #RENAMED FROM d_all_theories
+file_paths <- list.files(path = data_path, pattern = "^2025-", full.names = TRUE)
+d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x)))
 
 ```
 
-
-# PARSING
-
-# freesort data
+# Wrangle data
 
 ```{r}
-# Process the final_locations column
-data_freesort <- d %>%
-  filter(trial_type == "free-sort") %>% # Filter for free-sort trials
-  select(filename, trial_index, final_locations) %>% # Select relevant columns
-  mutate(parsed_location = map(final_locations, ~ fromJSON(.))) %>% # Parse JSON
-  unnest(parsed_location) %>% # Unnest the list column
-  mutate(
-    img_number = as.numeric(str_extract(src, "\\d+")), # Extract image numbers from `src`
-    item = items[img_number] # Map image numbers to item labels
-  ) %>%
-  select(-c("final_locations", "src", "img_number")) %>% # Drop unnecessary columns
-  mutate(trial_type = "free_sort") %>% # Add a new column for trial type
-  relocate(trial_type, .after = filename) %>% # Place `trial_type` column next to `filename`
-  rename(original_trial_index = trial_index)
+ subjects_to_exclude <- d %>%
+  filter(condition == "attention_check") %>% 
+  rowwise() %>% 
+  mutate(correct_attn_check = case_when(
+    grepl(correct_response_attn, selected_choice) ~ "yes",
+    TRUE ~ "no"
+  )) %>% 
+  filter(correct_attn_check == "no") %>% 
+  pull(filename)
 
-write.csv(data_freesort, file = freesort_output_path, row.names = F)
-
-```
-
-# causation data
-
-```{r}
-response_data <- d %>%
-  filter(trial_type == "survey-slider") %>% 
-  select(filename, trial_index, response) %>%
-  mutate(response = map(response, ~ tryCatch(
-    fromJSON(.) %>%
-      enframe(name = "question_id", value = "response"),
-    error = function(e) tibble(question_id = character(), response = character())
-  ))) %>%
-  unnest(response) %>% # Unnest the response JSON
-  mutate(
-    response = unlist(response), # Unlist response values
-    response = as.numeric(response), # Convert to numeric
-    question_index = str_remove(question_id, "Q") # Remove "Q" prefix
-  ) %>%
-  select(filename, trial_index, question_index, response) # Include trial_indexs
-
-metadata_data <- d %>%
-  select(filename, trial_index, `0`:`14`, `15`) %>% # Include trial_index
-  pivot_longer(
-    cols = -c(filename, trial_index),  # Exclude filename and trial_index from long format
-    names_to = "question_index",       # Convert column names to indices
-    values_to = "metadata"             # Column for metadata JSON
-  ) %>% 
-  mutate(
-    parsed_metadata = map(metadata, ~ {
-      if (is.na(.x)) {
-        tibble() # Handle NA metadata
-      } else {
-        fromJSON(.x, simplifyVector = FALSE) %>%
-          map(~ if (is.null(.)) NA else .) %>%  # Replace NULL with NA
-          as_tibble()
-      }
-    })
-  ) %>% 
-  unnest(parsed_metadata) %>%    # Unnest the parsed metadata columns
-  select(-metadata)             # Drop the original metadata column for clarity
-
-# Merge the response_data and metadata_data into data_causation
-data_causation <- response_data %>%
-  inner_join(metadata_data, by = c("filename", "trial_index", "question_index")) %>% 
-  mutate(trial_type = "causation") %>% 
-  relocate(trial_type, .after = filename) %>% # Place `trial_type` column next to `filename`
-  rename(original_trial_index = trial_index, 
-         original_question_index = question_index) %>% 
-  group_by(filename, trial_type) %>%
-  mutate(trial_index = dense_rank(original_trial_index),
-         question_index = row_number()) %>%
-  ungroup() %>% 
-  relocate(c("trial_index", "question_index"), .after = "trial_type") %>% 
-  relocate(c("original_trial_index", "original_question_index"), .after = "correct_response")
-
-```
-
-# Exclusions
-
-- For causation we have 4 attention checks at pages 4, 8, 10 and 13. No attn checks for freesort 
-- We are excluding subjects who fail at least 2 of them 
-- Other posible criteria: time taken to complete study. (a subject took 13 minutes, which is maybe too short, i took ~20)
-
-```{r}
-data_causation <- data_causation %>%
-  mutate(attention_check_id = case_when(
-    attention_check == TRUE & trial_index == 4  ~ 1, 
-    attention_check == TRUE & trial_index == 8  ~ 2, 
-    attention_check == TRUE & trial_index == 10 ~ 3, 
-    attention_check == TRUE & trial_index == 13 ~ 4, 
-    TRUE ~ NA_integer_ #non-attention check rows
-  )) %>%
-  mutate(correct_response = case_when(
-    attention_check == TRUE & trial_index == 4  ~ 0, #"Move slider all the way to left"
-    attention_check == TRUE & trial_index == 8  ~ 75,  #"Move slider to 'Maybe yes'"
-    attention_check == TRUE & trial_index == 10 ~ 100, #"Move slider all the way to right"
-    attention_check == TRUE & trial_index == 13 ~ 0,   #"Move slider to 'Definitely not'"
-    TRUE ~ correct_response # Retain existing values for non-attention check rows
-  )) %>%
-  mutate(correct = case_when(
-    attention_check == TRUE & trial_index == 4  & response >= 0 & response <= 5   ~ TRUE, 
-    attention_check == TRUE & trial_index == 8  & response >= 70 & response <= 80 ~ TRUE, 
-    attention_check == TRUE & trial_index == 10 & response >= 0 & response <= 5 ~ TRUE, #3 and 4 are switched for some reason
-    attention_check == TRUE & trial_index == 13 & response >= 95 & response <= 100   ~ TRUE,
-    attention_check == TRUE ~ FALSE, #outside acceptable range
-    TRUE ~ NA #non-attn check rows
-  ))
-
-excluded_participants <- data_causation %>%
-  filter(attention_check == TRUE) %>% 
-  group_by(filename) %>% 
-  summarize(
-    num_incorrect = sum(correct == FALSE, na.rm = TRUE), 
-    .groups = "drop"
-  ) %>%
-  filter(num_incorrect >= 2) %>% #identify participants with x or more incorrect (4 subjects had 1 incorrect attn check)
-  pull(filename) 
-
-data_causation <- data_causation %>%
-  filter(!filename %in% excluded_participants)
-
-```
-
-Merging the two, adding condition order columns
-
-# good!
-
-```{r}
-# Combine trial types to compare their starting original_trial_index
-trial_order_info <- bind_rows(
-  data_causation %>% distinct(filename, trial_type, original_trial_index),
-  data_freesort %>% distinct(filename, trial_type, original_trial_index)
-) %>%
+dat <- d %>% 
+  filter(!filename %in% subjects_to_exclude) %>% #exclude 1 subject who failed attn check
+  filter(condition %in% c("intervention", "similarity")) %>%
   group_by(filename) %>%
+  mutate(subject_id = paste0("subj_", cur_group_id())) %>%
+  ungroup() %>% 
+  rowwise() %>%
+  mutate(response = case_when(
+    grepl(causal_itemA, selected_choice) ~ "causal",
+    grepl(similarity_itemA, selected_choice) ~ "similarity",
+    TRUE ~ "other"
+  )) %>% 
+  ungroup() %>% 
+  select(subject_id, condition, itemB, causal_itemA, similarity_itemA, response) %>% 
+  mutate(causal_itemA = factor(causal_itemA, levels = desired_order),
+         similarity_itemA = factor(similarity_itemA, levels = desired_order),
+         itemB = factor(itemB, levels = desired_order)) %>% 
+  mutate(domain_itemB = case_when(itemB == "hear something" ~ "mind", #labels for first item of pair
+                                 itemB == "choose what to do" ~ "mind",
+                                 itemB == "remember something" ~ "mind",
+                                 itemB == "think about something" ~ "mind",
+                                 itemB == "see something" ~ "mind",
+                                 itemB == "reach for something" ~ "action",
+                                 itemB == "sit down" ~ "action", 
+                                 itemB == "jump up and down" ~ "action",
+                                 itemB == "kick something" ~ "action",
+                                 itemB == "take a walk" ~ "action",
+                                 itemB == "get tired" ~ "bio", 
+                                 itemB == "become hungry" ~ "bio",
+                                 itemB == "feel scared"~ "bio",
+                                 itemB == "experience pain"~ "bio",
+                                 itemB == "get sick"~ "bio"),
+         domain_causalitemA = case_when(causal_itemA == "hear something" ~ "mind", 
+                                 causal_itemA == "choose what to do" ~ "mind",
+                                 causal_itemA == "remember something" ~ "mind",
+                                 causal_itemA == "think about something" ~ "mind",
+                                 causal_itemA == "see something" ~ "mind",
+                                 causal_itemA == "reach for something" ~ "action",
+                                 causal_itemA == "sit down" ~ "action", 
+                                 causal_itemA == "jump up and down" ~ "action",
+                                 causal_itemA == "kick something" ~ "action",
+                                 causal_itemA == "take a walk" ~ "action",
+                                 causal_itemA == "get tired" ~ "bio", 
+                                 causal_itemA == "become hungry" ~ "bio",
+                                 causal_itemA == "feel scared"~ "bio",
+                                 causal_itemA == "experience pain"~ "bio",
+                                 causal_itemA == "get sick"~ "bio"),
+          domain_similarityitemA = case_when(similarity_itemA == "hear something" ~ "mind", 
+                                 similarity_itemA == "choose what to do" ~ "mind",
+                                 similarity_itemA == "remember something" ~ "mind",
+                                 similarity_itemA == "think about something" ~ "mind",
+                                 similarity_itemA == "see something" ~ "mind",
+                                 similarity_itemA == "reach for something" ~ "action",
+                                 similarity_itemA == "sit down" ~ "action", 
+                                 similarity_itemA == "jump up and down" ~ "action",
+                                 similarity_itemA == "kick something" ~ "action",
+                                 similarity_itemA == "take a walk" ~ "action",
+                                 similarity_itemA == "get tired" ~ "bio", 
+                                 similarity_itemA == "become hungry" ~ "bio",
+                                 similarity_itemA == "feel scared"~ "bio",
+                                 similarity_itemA == "experience pain"~ "bio",
+                                 similarity_itemA == "get sick"~ "bio"))
+
+
+```
+
+# Plot
+
+## overall barplot
+
+```{r}
+dat_summarized <- dat %>% 
+  group_by(condition) %>%
+  mutate(total = n()) %>% 
+  group_by(condition, response) %>%
   summarize(
-    trial_type_order = case_when(
-      min(original_trial_index[trial_type == "causation"]) < min(original_trial_index[trial_type == "free_sort"]) ~ 
-        list(c(causation = "first", free_sort = "second")),
-      TRUE ~ list(c(causation = "second", free_sort = "first"))
+    count = n(),  
+    total = first(total), 
+    mean_proportion = count / total, 
+    se = sqrt(mean_proportion * (1 - mean_proportion) / total),  
+    .groups = "drop")
+
+#stacked
+ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity") +
+  theme_bw()
+
+#unstacked
+ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_errorbar(
+    aes(
+      ymin = mean_proportion - se,
+      ymax = mean_proportion + se
+    ),
+    position = position_dodge(0.9),  #aign error bars with dodged bars
+    width = 0.2
+  ) +
+  theme_bw()
+
+```
+
+## item level, stacked
+
+```{r, fig.width = 12}
+dat_summarized_by_item <- dat %>% 
+  group_by(condition, itemB) %>%
+  mutate(total = n()) %>%  # Total responses per condition
+  group_by(condition, itemB, response) %>%
+  mutate(
+    count = n(),  # Count responses for each response type
+    total = first(total),  # Total responses for the condition
+    mean_proportion = count / total,  # Proportion of response within condition
+    se = sqrt(mean_proportion * (1 - mean_proportion) / total)) %>% 
+  distinct(condition, itemB, .keep_all = TRUE) %>% 
+  ungroup()
+
+#set x axis colors
+itemB_colors <- dat_summarized_by_item %>%
+  distinct(itemB, domain_itemB) %>%
+  mutate(color = case_when(
+    domain_itemB == "bio" ~ "green",
+    domain_itemB == "mind" ~ "blue",
+    domain_itemB == "action" ~ "red"
+  )) %>%
+  pull(color, name = itemB)
+
+p <- dat_summarized_by_item %>% 
+  ggplot(aes(x =itemB, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(dat_summarized_by_item$itemB)])) +
+  facet_wrap(~condition) 
+
+p
+
+ggsave(
+  filename = "figures/study2/p_study2_item-level_stacked.pdf",
+  plot = p,          
+  device = "pdf",           
+  #path = "path/to/directory", #Optional: specify a directory
+  width = 12,               
+  height = 6,             
+  units = "in"              
+)
+
+```
+
+## item-level, unstacked with error bars
+
+```{r, fig.width = 12}
+dat_summarized_by_item %>% 
+  ggplot(aes(x =itemB, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_errorbar(
+    aes(
+      ymin = mean_proportion - se,
+      ymax = mean_proportion + se
+    ),
+    position = position_dodge(0.9),  #align error bars with dodged bars
+    width = 0.2
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(dat_summarized_by_item$itemB)])) +
+  facet_wrap(~condition) 
+
+```
+
+# Modelling
+
+## effect of condition
+
+Todo: rename mean_emp_euclidean and mean_causal_dissimilarity to causal and freesort distance in all scripts!
+
+```{r}
+d_model <- dat %>% 
+  mutate(response = as.factor(response)) %>% 
+  mutate(subject_id = as.factor(subject_id)) %>% 
+  mutate(responses = ifelse(response == "causal", 1, 0)) %>% 
+  mutate(condition = as.factor(condition))
+  
+#model
+overall_model <- glmer(responses ~ condition + (1|subject_id), data = d_model, family = binomial(link = 'logit'))
+summary(overall_model)
+
+```
+
+## effect of causal and freesort distance in causal condition
+
+```{r}
+d_freesort_and_causal_distances <- read.csv(paste0(snapshots_input_path, "/diffs.csv")) %>% 
+  mutate(itemB = factor(itemB, levels = desired_order)) %>% 
+  mutate(itemA = factor(itemA, levels = desired_order)) 
+
+causal_condition <- d_model %>% 
+  select(-similarity_itemA) %>% 
+    filter(condition == "intervention") %>%
+    left_join(d_freesort_and_causal_distances %>% 
+                select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean) %>% 
+                rename("causal_itemA" = itemA,
+                       "causal_distance" = mean_causal_dissimilarity,
+                       "freesort_distance" = mean_emp_euclidean),
+              by = c("itemB", "causal_itemA")) 
+
+similarity_condition <- d_model %>% 
+  select(-causal_itemA) %>% 
+  filter(condition == "similarity") %>% 
+  left_join(d_ratings %>% 
+                select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean) %>% 
+                rename("similarity_itemA" = itemA,
+                       "causal_distance" = mean_causal_dissimilarity,
+                       "freesort_distance" = mean_emp_euclidean),
+              by = c("itemB", "similarity_itemA"))
+
+#Modelling both predictors 
+both_predictors_model <- glmer(responses ~ causal_distance + freesort_distance + (1|subject_id), data = causal_condition, family = binomial(link = "logit"))
+summary(both_predictors_model)
+
+fixed_effects <- fixef(both_predictors_model) #log odds
+odds_ratios <- exp(fixed_effects)  #convert log-odds to odds ratios
+probabilities <- 1 / (1 + exp(-fixed_effects)) #convert log odds to probability
+
+cat("\nBoth predictors model [intercept] [causal_distance] [freesort_distance]:\n ")
+cat("Fixed effects (log odds): ", fixed_effects, "\n")
+cat("Fixed effects (odds ratios): ", odds_ratios, "\n")
+cat("Fixed effects (probabilities, causal_distance = 0):", probabilities, "\n")
+#nb: fixed effects are intercept and slope. slope is change log odds of outcome for a unit increase in predictor
+
+```
+
+## effect of causal and freesort distance in similarity condition
+
+```{r}
+# Modelling predictors jointly
+both_predictors_model <- glmer(responses ~ causal_distance + freesort_distance + (1|subject_id), data = similarity_condition, family = binomial(link = "logit"))
+summary(both_predictors_model)
+
+fixed_effects <- fixef(both_predictors_model) #log odds
+odds_ratios <- exp(fixed_effects)  #convert log-odds to odds ratios
+probabilities <- 1 / (1 + exp(-fixed_effects)) #convert log odds to probability
+
+cat("\nBoth predictors model [intercept] [causal_distance] [freesort_distance]:\n ")
+cat("Fixed effects (log odds): ", fixed_effects, "\n")
+cat("Fixed effects (odds ratios): ", odds_ratios, "\n")
+cat("Fixed effects (probabilities, causal_distance = 0):", probabilities, "\n")
+
+```
+
+## predicting effect sizes (i.e. proportion differences) based on differences in rating scores
+
+### first get predicted score differences
+
+```{r}
+#getting predictions for causal condition (most causal item)
+diffs_causal <-d_freesort_and_causal_distances %>%
+  group_by(itemB, domain_itemA) %>%
+  slice(which.max(euclidean_minus_causal)) %>% 
+  ungroup() %>% 
+  group_by(itemB) %>% 
+  slice(which.max(euclidean_minus_causal)) %>% 
+  ungroup() %>% 
+  rename("causal_itemA" = itemA,
+         "domain_causal_itemA" = domain_itemA,
+         "causal_item_euc_minus_causal" = euclidean_minus_causal) %>%
+  select(causal_itemA, itemB, domain_causal_itemA, domain_itemB, causal_item_euc_minus_causal)
+
+#get predictions for causal condition (most causal item)
+diffs_similarity <- d_freesort_and_causal_distances %>%
+  group_by(itemB, domain_itemA) %>%
+  slice(which.min(euclidean_minus_causal)) %>% 
+  ungroup() %>% 
+  mutate(same_domain = ifelse(domain_itemA == domain_itemB, TRUE, FALSE)) %>% 
+  filter(same_domain == TRUE) %>% 
+  ungroup() %>% 
+  rename("similarity_itemA" = itemA,
+       "domain_similarity_itemA" = domain_itemA,
+       "similarity_item_euc_minus_causal" = euclidean_minus_causal) %>% 
+  select(similarity_itemA, itemB, domain_similarity_itemA, domain_itemB, similarity_item_euc_minus_causal)
+
+d_diffs <- diffs_causal %>% 
+  left_join(diffs_similarity %>% 
+              select(everything()), 
+              by = c("itemB", "domain_itemB")) %>% 
+  mutate(diff = causal_item_euc_minus_causal - similarity_item_euc_minus_causal)
+
+```
+
+### then plot predicted score differences
+
+```{r}
+dat_combined <- dat_summarized_by_item %>%
+  group_by(condition, itemB) %>%
+  reframe(
+    prop_causal = mean(mean_proportion[response == "causal"], na.rm = TRUE),
+    prop_similar = mean(mean_proportion[response == "similarity"], na.rm = TRUE),
+    prop_causal = replace_na(prop_causal, 0),  #fill missing values with 0: (for some items all subj choose 0, causing NaNs or their proportions)
+    prop_similar = replace_na(prop_similar, 0), 
+    observed_diff = case_when(
+      condition == "intervention" ~ prop_causal - prop_similar,  
+      condition == "similarity" ~ prop_similar - prop_causal  
     )
   ) %>%
-  unnest_wider(trial_type_order)
-
-# Add trial_type_order to data_causation
-data_causation <- data_causation %>%
-  left_join(
-    trial_order_info %>% select(filename, causation),
-    by = "filename"
-  ) %>%
-  rename(trial_type_order = causation) %>%
-  relocate(trial_type_order, .after = trial_type)
-
-# Add trial_type_order to data_freesort
-data_freesort <- data_freesort %>%
-  left_join(
-    trial_order_info %>% select(filename, free_sort),
-    by = "filename"
-  ) %>%
-  rename(trial_type_order = free_sort) %>%
-  relocate(trial_type_order, .after = trial_type)
+  left_join(d_diffs %>% select(itemB, diff), by = "itemB")  # merge in predicted differences
 
 ```
 
-# Merge both data frames
+## correlation bar plot
+
+something's wrong with remember and think something -- look into it!!
+```{r}
+itemB_colors <- dat_summarized_by_item %>%
+  distinct(itemB, domain_itemB) %>%
+  mutate(color = case_when(
+    domain_itemB == "bio" ~ "green",
+    domain_itemB == "mind" ~ "blue",
+    domain_itemB == "action" ~ "red"
+  )) %>%
+  pull(color, name = itemB)
+
+barplot <- dat_combined %>%
+  ggplot(aes(x = itemB)) +
+  geom_bar(aes(y = observed_diff), stat = "identity", fill = "blue", alpha = 0.6) +
+  geom_point(aes(y = diff), color = "red", size = 3) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(diffs_causal$itemB)])
+  ) +
+  labs(
+    title = "Observed vs Predicted Proportion Differences by Item",
+    x = "Item B",
+    y = "observed proportion differences"
+  ) +
+  facet_wrap(~condition)
+
+barplot
+
+```
+
+
+## correlation scatter plot 
+
+may be worse because of infinity values for remember and think about something....look into it!
 
 ```{r}
-# Merge causation and free_sort dataframes
-data_combined <- bind_rows(
-  data_causation,
-  data_freesort
+# Scatter plot with correlation for each condition
+scatter_plot <- dat_combined %>%
+  ggplot(aes(x = diff, y = observed_diff, color = condition)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
+  theme_bw() +
+  facet_wrap(~condition) +
+  labs(
+    title = "Observed vs Predicted Differences by Condition",
+    x = "Predicted proportion difference",
+    y = "Observed proportion difference",
+    color = "Condition"
+  )
+
+scatter_plot
+```
+
+### quantitative correlations 
+
+```{r}
+overall_correlations <- dat_combined %>%
+  summarize(
+    correlation = cor(diff, observed_diff, use = "complete.obs"),
+    p_value = cor.test(diff, observed_diff, use = "complete.obs")$p.value,
+    .groups = "drop"
+  )
+
+print(overall_correlations)
+
+condition_level_correlations <- dat_combined %>%
+  group_by(condition) %>%
+  summarize(
+    correlation = cor(diff, observed_diff, use = "complete.obs"),
+    p_value = cor.test(diff, observed_diff, use = "complete.obs")$p.value,
+    .groups = "drop"
+  )
+
+print(condition_level_correlations)
+
+```
+
+
+# Plotting logistic regression models
+
+## Intervention condition
+
+
+```{r}
+#create a new dataset for prediction
+prediction_data <- data.frame(
+  causal_distance = seq(min(causal_condition$causal_distance), 
+                        max(causal_condition$causal_distance), 
+                        length.out = 100)
 )
 
-assign(combined_output_csv, data_combined)
-
-write.csv(data_combined, combined_output_path, row.names = F)
-
-```
-
-## Generate theoretical RDM data 
-
-```{r}
-d_theories_categories <- expand.grid(itemA = desired_order, itemB = desired_order) %>% #expand grid
-  filter(itemA != itemB) %>%  # Remove self-pairs
-  
-  #theory 1: (3 groups) mind, body, action
-  mutate(MindBodyAction_itemA = case_when(itemA == "hear something" ~ "mind", #labels for first item of pair
-                               itemA == "choose what to do" ~ "mind",
-                               itemA == "remember something" ~ "mind",
-                               itemA == "think about something" ~ "mind",
-                               itemA == "see something" ~ "mind",
-                               itemA == "reach for something" ~ "act",
-                               itemA == "sit down" ~ "act", 
-                               itemA == "jump up and down" ~ "act",
-                               itemA == "kick something" ~ "act",
-                               itemA == "take a walk" ~ "act",
-                               itemA == "get tired" ~ "bio", 
-                               itemA == "become hungry" ~ "bio",
-                               itemA == "feel scared"~ "bio",
-                               itemA == "experience pain"~ "bio",
-                               itemA == "get sick"~ "bio"),
-         MindBodyAction_itemB = case_when(itemB == "hear something" ~ "mind", #labels for second item of pair
-                               itemB == "choose what to do" ~ "mind",
-                               itemB == "remember something" ~ "mind",
-                               itemB == "think about something" ~ "mind",
-                               itemB == "see something" ~ "mind",
-                               itemB == "reach for something" ~ "act",
-                               itemB == "sit down" ~ "act", 
-                               itemB == "jump up and down" ~ "act",
-                               itemB == "kick something" ~ "act",
-                               itemB == "take a walk" ~ "act",
-                               itemB == "get tired" ~ "bio", 
-                               itemB == "become hungry" ~ "bio",
-                               itemB == "feel scared"~ "bio",
-                               itemB == "experience pain"~ "bio",
-                               itemB == "get sick"~ "bio")) %>% 
-  
-  #theory 2: (6 groups) perceptual, cognition, object directed, non-object directed, bodily tied to simulation, bodily not tied to stimulation
-   mutate(PerCogOdActSpActBstimBnstim_itemA = case_when(itemA == "hear something" ~ "per",
-                               itemA == "see something" ~ "per",
-                               itemA == "choose what to do" ~ "cog",
-                               itemA == "remember something" ~ "cog",
-                               itemA == "think about something" ~ "cog",
-                               itemA == "reach for something" ~ "odAct",
-                               itemA == "sit down" ~ "SpAct", 
-                               itemA == "jump up and down" ~ "SpAct",
-                               itemA == "kick something" ~ "odAct",
-                               itemA == "take a walk" ~ "SpAct",
-                               itemA == "get tired" ~ "BnS", 
-                               itemA == "become hungry" ~ "BnS",
-                               itemA == "feel scared"~ "BS",
-                               itemA == "experience pain"~ "BS",
-                               itemA == "get sick"~ "BnS",),
-         PerCogOdActSpActBstimBnstim_itemB = case_when(itemB == "hear something" ~ "per",
-                               itemB == "see something" ~ "per",
-                               itemB == "choose what to do" ~ "cog",
-                               itemB == "remember something" ~ "cog",
-                               itemB == "think about something" ~ "cog",
-                               itemB == "reach for something" ~ "odAct",
-                               itemB == "sit down" ~ "SpAct", 
-                               itemB == "jump up and down" ~ "SpAct",
-                               itemB == "kick something" ~ "odAct",
-                               itemB == "take a walk" ~ "SpAct",
-                               itemB == "get tired" ~ "BnS", 
-                               itemB == "become hungry" ~ "BnS",
-                               itemB == "feel scared"~ "BS",
-                               itemB == "experience pain"~ "BS",
-                               itemB == "get sick"~ "BnS")) %>% 
-
-      #theory 3: (2 groups) physical and non-physical events:
-      mutate(PhysicalEthereal_itemA = case_when(itemA == "hear something" ~ "ethereal",
-                               itemA == "see something" ~ "ethereal",
-                               itemA == "choose what to do" ~ "ethereal",
-                               itemA == "remember something" ~ "ethereal",
-                               itemA == "think about something" ~ "ethereal",
-                               itemA == "reach for something" ~ "phys",
-                               itemA == "sit down" ~ "phys", 
-                               itemA == "jump up and down" ~ "phys",
-                               itemA == "kick something" ~ "phys",
-                               itemA == "take a walk" ~ "phys",
-                               itemA == "get tired" ~ "phys", 
-                               itemA == "become hungry" ~ "phys",
-                               itemA == "feel scared"~ "phys",
-                               itemA == "experience pain"~ "phys",
-                               itemA == "get sick"~ "phys"),
-             PhysicalEthereal_itemB = case_when(itemB == "hear something" ~ "ethereal",
-                               itemB == "see something" ~ "ethereal",
-                               itemB == "choose what to do" ~ "ethereal",
-                               itemB == "remember something" ~ "ethereal",
-                               itemB == "think about something" ~ "ethereal",
-                               itemB == "reach for something" ~ "phys",
-                               itemB == "sit down" ~ "phys", 
-                               itemB == "jump up and down" ~ "phys",
-                               itemB == "kick something" ~ "phys",
-                               itemB == "take a walk" ~ "phys",
-                               itemB == "get tired" ~ "phys", 
-                              itemB == "become hungry" ~ "phys",
-                               itemB == "feel scared"~ "phys",
-                               itemB == "experience pain"~ "phys",
-                               itemB == "get sick"~ "phys")) %>% 
-  
-  #scoring the items
-  mutate("theor1_Mind-Body-Action" = ifelse(MindBodyAction_itemA == MindBodyAction_itemB, 0, 1),
-         "theor2_PerCog-OdActSpAct-BodyStimBodynoStim" = ifelse(PerCogOdActSpActBstimBnstim_itemA == PerCogOdActSpActBstimBnstim_itemB, 0, 1),
-         "theor3_Physical-Ethereal" = ifelse(PhysicalEthereal_itemA == PhysicalEthereal_itemB, 0, 1)) 
-
-write.csv(d_theories_categories, theories_output_path, row.names = F)
-
-```
-
-## Compute cosine similarities from USE embeddings
-
-```{r}
-#load USE embeddings
-embedding_df <- readRDS(here("code/analysis/pilot/embeddings/item_embeddings.rds")) #read embeddings
-
-d_theories <- d_theories_categories %>% 
-  select(-c("MindBodyAction_itemA", "MindBodyAction_itemB", 
-            "PerCogOdActSpActBstimBnstim_itemA","PerCogOdActSpActBstimBnstim_itemB", 
-            "PhysicalEthereal_itemA", "PhysicalEthereal_itemB"))
-
-# Step 3: Merge embeddings back into the long data frame
-# Add embeddings for itemA and itemB
-d_theories_with_embeddings <- d_theories %>%
-  left_join(embedding_df, by = c("itemA" = "item")) %>%
-  rename(embeddingA = embedding) %>%
-  left_join(embedding_df, by = c("itemB" = "item")) %>%
-  rename(embeddingB = embedding)
-
-# Compute cosine similarity for each row
-d_all_theories <- d_theories_with_embeddings %>%
-  rowwise() %>% 
-  mutate(cosine_similarity = sum(unlist(embeddingA) * unlist(embeddingB)) /
-                 (sqrt(sum(unlist(embeddingA)^2)) * sqrt(sum(unlist(embeddingB)^2)))) %>%
-  ungroup() %>% 
-  rowwise() %>% 
-  mutate(cosine_similarity = (1 - cosine_similarity) / 2) %>% #turning cosine similarity to a disimilarity measure. For some reason high cosine similarity means disimilar
-  ungroup() %>% 
-  select(-c("embeddingA", "embeddingB")) %>% 
-  rename("theor4_cosine_similarity" = cosine_similarity) %>% 
-  ungroup() 
-
-# d_all_theories %>% 
-#   arrange(theor4_cosine_similarity)
-  
-write.csv(d_all_theories, theories_all_output_path, row.names = F)
-
-```
-
-# plot theoretical RDMS
-
-```{r}
-plot_rdm_theory <- function(data, column_name, desired_order, plot_title) {
-  # Prepare data and reorder
-  df_matrix <- data %>%
-    mutate(
-      itemA = factor(itemA, levels = desired_order),
-      itemB = factor(itemB, levels = desired_order)
-    ) %>%
-    select(itemA, itemB, all_of(column_name)) %>%
-    pivot_wider(names_from = itemB, values_from = all_of(column_name)) %>%
-    column_to_rownames("itemA")
-  
-  # Reorder rows and columns
-  df_matrix <- df_matrix[desired_order, desired_order]
-  diag(df_matrix) <- 0 # Set diagonal to 0
-  
-  # Plot RDM
-  corrplot(
-    as.matrix(df_matrix), method = "color", is.corr = FALSE,
-    tl.col = "black", title = plot_title,
-    mar = c(0, 0, 2, 0), addgrid.col = "darkgray"
-  )
-}
-
-# Define desired orders
-mba_order <- c("see something", "hear something", "choose what to do", 
-               "remember something", "think about something", "reach for something", 
-               "sit down", "jump up and down", "kick something", "take a walk", 
-               "get tired", "become hungry", "feel scared", "experience pain", "get sick")
-
-perccog_order <- c("see something", "hear something", "choose what to do", 
-                   "remember something", "think about something", "reach for something", 
-                   "kick something", "sit down", "jump up and down",  "take a walk", 
-                   "get tired", "become hungry", "get sick", "feel scared", "experience pain")
-
-physethereal_order <- c("see something", "hear something", "choose what to do", 
-                        "remember something", "think about something", "reach for something", 
-                        "kick something", "sit down", "jump up and down",  "take a walk", 
-                        "get tired", "become hungry", "get sick", "feel scared", "experience pain")
-
-# Plot RDMs for each theory
-plot_rdm_theory(d_all_theories, "theor4_cosine_similarity", mba_order, "1. Cosine Distance - RDM")
-plot_rdm_theory(d_all_theories, "theor1_Mind-Body-Action", mba_order, "2. Mind, Body & Action - RDM")
-plot_rdm_theory(d_all_theories, "theor2_PerCog-OdActSpAct-BodyStimBodynoStim", perccog_order, "3. Perception, Cognitive et al. - RDM")
-plot_rdm_theory(d_all_theories, "theor3_Physical-Ethereal", physethereal_order, "4. Physical & Ethereal - RDM")
-
-
-# save them
-#output_folder <- paste0(here(rdm_outputs_path), "/figures/theoretical-rdms/") -> delete this
-
-theories <- list(
-  list(column_name = "theor4_cosine_similarity", order = mba_order, title = "1. Cosine Distance - RDM"),
-  list(column_name = "theor1_Mind-Body-Action", order = mba_order, title = "2. Mind, Body & Action - RDM"),
-  list(column_name = "theor2_PerCog-OdActSpAct-BodyStimBodynoStim", order = perccog_order, title = "3. Perception, Cognitive et al. - RDM"),
-  list(column_name = "theor3_Physical-Ethereal", order = physethereal_order, title = "4. Physical & Ethereal - RDM")
+#add predicted probabilities to the dataset
+prediction_data$predicted_prob <- predict(
+  glm(formula = responses ~ causal_distance, family = binomial(link = "logit"), data = causal_condition),
+  newdata = prediction_data,
+  type = "response"
 )
 
-for (i in seq_along(theories)) {
-  theory <- theories[[i]]
-  output_file <- paste0(rdm_figures_outputs_path, "theory_", i, ".pdf")
-  pdf(file = output_file, width = 8, height = 6)   # Open the PDF device
-  plot_rdm_theory(
-    data = d_all_theories,
-    column_name = theory$column_name,
-    desired_order = theory$order,
-    plot_title = theory$title
-  )
-  dev.off() # Close the PDF device
-}
+#plot 1: causal distance
+ggplot(data = causal_condition, aes(x = causal_distance, y = responses)) +
+  geom_point(aes(color = factor(responses)), alpha = 0.5, position = position_jitter(height = 0.02)) +
+  geom_smooth(
+    method = "glm",
+    method.args = list(family = "binomial"),
+    se = TRUE,  # Add confidence interval
+    color = "blue",
+    size = 1.2
+  ) +
+  labs(
+    title = "Probability of Giving a Causal Response in Intervention Condition",
+    y = "Probability",
+    color = "Actual Response"
+  ) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(legend.position = "top")
+
+#plot 2: freesort distance
+ggplot(data = causal_condition, aes(x = freesort_distance, y = responses)) +
+  geom_point(aes(color = factor(responses)), alpha = 0.5, position = position_jitter(height = 0.02)) +
+  geom_smooth(
+    method = "glm",
+    method.args = list(family = "binomial"),
+    se = TRUE,  # Add confidence interval
+    color = "blue",
+    size = 1.2
+  ) +
+  labs(
+    title = "Probability of Giving a Causal Response in Intervention Condition",
+    y = "Probability",
+    color = "Actual Response"
+  ) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(legend.position = "top")
 
 ```
 
-Demographics
+## similarity condition
 
 ```{r}
-# demographics
-df_demographics <- d %>% 
-  filter(trial_id == "demographics_survey") %>% 
-  select("mturk_participant_id", "trial_id", "filename", 
-         "feedback", "age", "ethnicity", "gender", "race") 
+#plot 1: freesort distance
+ggplot(data = similarity_condition, aes(x = freesort_distance, y = responses)) +
+  geom_point(aes(color = factor(responses)), alpha = 0.5, position = position_jitter(height = 0.02)) +
+  geom_smooth(
+    method = "glm",
+    method.args = list(family = "binomial"),
+    se = TRUE,  # Add confidence interval
+    color = "blue",
+    size = 1.2
+  ) +
+  labs(
+    title = "Probability of Giving Causal Response in Similarity Condition",
+    y = "Prob",
+    color = "observed response"
+  ) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(legend.position = "top")
 
-summary(df_demographics$age)
-table(df_demographics$gender)
-table(df_demographics$ethnicity)
-table(df_demographics$race)
+#plot 2: causal distance
+ggplot(data = similarity_condition, aes(x = causal_distance, y = responses)) +
+  geom_point(aes(color = factor(responses)), alpha = 0.5, position = position_jitter(height = 0.02)) +
+  geom_smooth(
+    method = "glm",
+    method.args = list(family = "binomial"),
+    se = TRUE,  # Add confidence interval
+    color = "blue",
+    size = 1.2
+  ) +
+  labs(
+    title = "Probability of Giving Causal Response in Similarity Condition",
+    y = "Prob",
+    color = "observed responses"
+  ) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(legend.position = "top")
 
 ```
 
 
 
 
-Scrap on attention check
 
-```{r}
-d %>% 
-  distinct(trial_id)
-  filter(trial_id )
 
-```
+
+
+
+
 
 
 

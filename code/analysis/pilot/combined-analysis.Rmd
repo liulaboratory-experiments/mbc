@@ -64,8 +64,8 @@ causation_columns <- c("subject_id", "itemA", "itemB", "response")
 # paths
 base_path <- here("code", "analysis", "pilot")
 data_original_path <- paste0(base_path, "/data-combined/pilot05_121324_n50_combined_17")
-snapshots_input_path <- paste0(base_path, "/snapshots_preprocessing_analysis") #was dfs_outputs_path <- paste0(base_path, "/analysis-snapshots")
-snapshots_output_path <- paste0(base_path, "/snapshots_final_analysis")
+snapshots_input_path <- paste0(base_path, "/snapshots_study1_preprocessing_analysis") #was dfs_outputs_path <- paste0(base_path, "/analysis-snapshots")
+snapshots_output_path <- paste0(base_path, "/snapshots_study1_final_analysis")
 
 data_combined_path <- paste0(snapshots_input_path, "/pilot_121424_combined.csv")
 theories_all_input_path <- paste0(snapshots_input_path, "/pilot_121424_theories_all.csv") #RENAMED FROM d_all_theories
@@ -736,123 +736,122 @@ d_correlations_freesort_first %>%
 adding here because uses d_correlations
 
 ```{r}
-#checking distribution (looks equal, good)
-d %>% 
-  distinct(subject_id, trial_type, .keep_all = T) %>% 
-  count(trial_type, trial_type_order)
-
-#get order data
-d_order <- d_correlations %>% 
-  unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
-  left_join(d %>% 
-              select(subject_id, itemA, itemB, trial_type, trial_type_order) %>% 
-              unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
-              select(-c(itemA, itemB)),
-            by = c("subject_id", "item_pairs")) %>% 
-  select(subject_id, itemA, itemB, emp_euclidean, emp_causal_judgments, trial_type, trial_type_order) %>% 
-  mutate(domain_itemA = case_when(itemA == "hear something" ~ "mind", #labels for first item of pair
-                             itemA == "choose what to do" ~ "mind",
-                             itemA == "remember something" ~ "mind",
-                             itemA == "think about something" ~ "mind",
-                             itemA == "see something" ~ "mind",
-                             itemA == "reach for something" ~ "action",
-                             itemA == "sit down" ~ "action", 
-                             itemA == "jump up and down" ~ "action",
-                             itemA == "kick something" ~ "action",
-                             itemA == "take a walk" ~ "action",
-                             itemA == "get tired" ~ "bio", 
-                             itemA == "become hungry" ~ "bio",
-                             itemA == "feel scared"~ "bio",
-                             itemA == "experience pain"~ "bio",
-                             itemA == "get sick"~ "bio"),
-         domain_itemB = case_when(itemB == "hear something" ~ "mind", 
-                               itemB == "choose what to do" ~ "mind",
-                               itemB == "remember something" ~ "mind",
-                               itemB == "think about something" ~ "mind",
-                               itemB == "see something" ~ "mind",
-                               itemB == "reach for something" ~ "action",
-                               itemB == "sit down" ~ "action", 
-                               itemB == "jump up and down" ~ "action",
-                               itemB == "kick something" ~ "action",
-                               itemB == "take a walk" ~ "action",
-                               itemB == "get tired" ~ "bio", 
-                               itemB == "become hungry" ~ "bio",
-                               itemB == "feel scared"~ "bio",
-                               itemB == "experience pain"~ "bio",
-                               itemB == "get sick"~ "bio"))
-
-# Summary statistics
-d_order_summary <- d_order %>%
-  group_by(trial_type, trial_type_order) %>%
-  summarize(
-    mean_emp_euclidean = mean(emp_euclidean, na.rm = TRUE),
-    sd_emp_euclidean = sd(emp_euclidean, na.rm = TRUE),
-    mean_emp_causal = mean(emp_causal_judgments, na.rm = TRUE),
-    sd_emp_causal = sd(emp_causal_judgments, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-print(d_order_summary)
+# #checking distribution (looks equal, good)
+# d %>% 
+#   distinct(subject_id, trial_type, .keep_all = T) %>% 
+#   count(trial_type, trial_type_order)
+# 
+# #get order data
+# d_order <- d_correlations %>% 
+#   unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
+#   left_join(d %>% 
+#               select(subject_id, itemA, itemB, trial_type, trial_type_order) %>% 
+#               unite("item_pairs", itemA, itemB, sep = "_", remove = FALSE) %>% 
+#               select(-c(itemA, itemB)),
+#             by = c("subject_id", "item_pairs")) %>% 
+#   select(subject_id, itemA, itemB, emp_euclidean, emp_causal_judgments, trial_type, trial_type_order) %>% 
+#   mutate(domain_itemA = case_when(itemA == "hear something" ~ "mind", #labels for first item of pair
+#                              itemA == "choose what to do" ~ "mind",
+#                              itemA == "remember something" ~ "mind",
+#                              itemA == "think about something" ~ "mind",
+#                              itemA == "see something" ~ "mind",
+#                              itemA == "reach for something" ~ "action",
+#                              itemA == "sit down" ~ "action", 
+#                              itemA == "jump up and down" ~ "action",
+#                              itemA == "kick something" ~ "action",
+#                              itemA == "take a walk" ~ "action",
+#                              itemA == "get tired" ~ "bio", 
+#                              itemA == "become hungry" ~ "bio",
+#                              itemA == "feel scared"~ "bio",
+#                              itemA == "experience pain"~ "bio",
+#                              itemA == "get sick"~ "bio"),
+#          domain_itemB = case_when(itemB == "hear something" ~ "mind", 
+#                                itemB == "choose what to do" ~ "mind",
+#                                itemB == "remember something" ~ "mind",
+#                                itemB == "think about something" ~ "mind",
+#                                itemB == "see something" ~ "mind",
+#                                itemB == "reach for something" ~ "action",
+#                                itemB == "sit down" ~ "action", 
+#                                itemB == "jump up and down" ~ "action",
+#                                itemB == "kick something" ~ "action",
+#                                itemB == "take a walk" ~ "action",
+#                                itemB == "get tired" ~ "bio", 
+#                                itemB == "become hungry" ~ "bio",
+#                                itemB == "feel scared"~ "bio",
+#                                itemB == "experience pain"~ "bio",
+#                                itemB == "get sick"~ "bio"))
+# 
+# # Summary statistics
+# d_order_summary <- d_order %>%
+#   group_by(trial_type, trial_type_order) %>%
+#   summarize(
+#     mean_emp_euclidean = mean(emp_euclidean, na.rm = TRUE),
+#     sd_emp_euclidean = sd(emp_euclidean, na.rm = TRUE),
+#     mean_emp_causal = mean(emp_causal_judgments, na.rm = TRUE),
+#     sd_emp_causal = sd(emp_causal_judgments, na.rm = TRUE),
+#     .groups = "drop"
+#   )
+# 
+# print(d_order_summary)
 
 ```
  ## second order correlation
 
 ```{r}
-d_correlations_causation_first
+# d_correlations_causation_first
+# 
+# dput(head(d_correlations_causation_first))
+# dput(head(d_correlations_freesort_first))
+# 
+# 
+# fisher_z_test <- function(r1, r2, n1, n2) {
+#   z1 <- atanh(r1)  # Fisher transformation
+#   z2 <- atanh(r2)
+#   z_diff <- (z1 - z2) / sqrt(1 / (n1 - 3) + 1 / (n2 - 3))
+#   p_value <- 2 * (1 - pnorm(abs(z_diff)))  # Two-tailed p-value
+#   return(p_value)
+# }
+# 
+# # Example: Compare cor_theor1_emp between groups
+# p_value <- fisher_z_test(
+#   r1 = d_correlations_causation_first$`1_Mind-Body-Action`,
+#   r2 = d_correlations_freesort_first$`1_Mind-Body-Action`,
+#   n1 = length(subjects_causation_first),
+#   n2 = length(subjects_freesort_first)
+# )
 
-dput(head(d_correlations_causation_first))
-dput(head(d_correlations_freesort_first))
+# cat("P-value for difference in cor_theor1_emp:", p_value, "\n")
 
-
-fisher_z_test <- function(r1, r2, n1, n2) {
-  z1 <- atanh(r1)  # Fisher transformation
-  z2 <- atanh(r2)
-  z_diff <- (z1 - z2) / sqrt(1 / (n1 - 3) + 1 / (n2 - 3))
-  p_value <- 2 * (1 - pnorm(abs(z_diff)))  # Two-tailed p-value
-  return(p_value)
-}
-
-# Example: Compare cor_theor1_emp between groups
-p_value <- fisher_z_test(
-  r1 = d_correlations_causation_first$`1_Mind-Body-Action`,
-  r2 = d_correlations_freesort_first$`1_Mind-Body-Action`,
-  n1 = length(subjects_causation_first),
-  n2 = length(subjects_freesort_first)
-)
-
-cat("P-value for difference in cor_theor1_emp:", p_value, "\n")
-
-length(subjects_freesort_first)
 
 ```
 
 ```{r}
 # Split data into two task orders
-group1 <- d_correlations %>% filter(order == "causation_first")
-group2 <- d_correlations %>% filter(order == "causation_second")
+# group1 <- d_correlations %>% filter(order == "causation_first")
+# group2 <- d_correlations %>% filter(order == "causation_second")
 ```
 
 
 
 ```{r}
 # plot with noise ceiling
-d_correlations %>%
-  pivot_longer(cols = starts_with(c("1_","2_","3_","4_", "5_")),
-               names_to = "correlation_type",
-               values_to = "correlation_value") %>%
-  ggplot(aes(x = reorder(correlation_type, correlation_value, FUN = function(x) -mean(x)), y = correlation_value)) +
-  stat_summary(fun = "mean", geom = "bar", fill = "white", color = "black") +
-  geom_point(aes(color = subject_id)) +
-  geom_hline(yintercept = noise_ceiling$upper_bound, color = "blue", linetype = "dashed", linewidth = .5) +
-  geom_hline(yintercept = noise_ceiling$lower_bound, color = "red", linetype = "dashed", linewidth = .5) +
-  theme(axis.text.x = element_text(angle = 20, hjust = 1, size = 12),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14)) +
-  labs(x = "Theoretical RDMs", y = "Correlation with euclidean RDMs",
-       title = "Correlation between theoretical and empirical RDMs",
-       subtitle = paste0("Noise Ceiling: Upper: ", round(noise_ceiling$upper_bound, 3),
-                         " | Lower: ", round(noise_ceiling$lower_bound, 3)))
+# d_correlations %>%
+#   pivot_longer(cols = starts_with(c("1_","2_","3_","4_", "5_")),
+#                names_to = "correlation_type",
+#                values_to = "correlation_value") %>%
+#   ggplot(aes(x = reorder(correlation_type, correlation_value, FUN = function(x) -mean(x)), y = correlation_value)) +
+#   stat_summary(fun = "mean", geom = "bar", fill = "white", color = "black") +
+#   geom_point(aes(color = subject_id)) +
+#   geom_hline(yintercept = noise_ceiling$upper_bound, color = "blue", linetype = "dashed", linewidth = .5) +
+#   geom_hline(yintercept = noise_ceiling$lower_bound, color = "red", linetype = "dashed", linewidth = .5) +
+#   theme(axis.text.x = element_text(angle = 20, hjust = 1, size = 12),
+#         axis.text.y = element_text(size = 12),
+#         axis.title.x = element_text(size = 14),
+#         axis.title.y = element_text(size = 14)) +
+#   labs(x = "Theoretical RDMs", y = "Correlation with euclidean RDMs",
+#        title = "Correlation between theoretical and empirical RDMs",
+#        subtitle = paste0("Noise Ceiling: Upper: ", round(noise_ceiling$upper_bound, 3),
+#                          " | Lower: ", round(noise_ceiling$lower_bound, 3)))
 ```
 
 
@@ -1159,22 +1158,6 @@ ggsave(
 
 ```
 
-```{r}
-d_corr_means_domain_long %>% 
-  filter(itemB == "remember something") %>% 
-  pivot_wider(names_from = "mean_type",
-              values_from = "values") %>% 
-  mutate(filter)
-
-d_diffs %>% 
-  filter(itemB == "remember something") %>% 
-  arrange(euclidean_minus_causal)
-
-d_diffs %>% 
-  filter(itemB == "reach for something")
-
-```
-
 
 ## Plot relative distances (euclidean - causal)
 
@@ -1217,6 +1200,59 @@ ggsave(
   height = 8,               # Height of the PDF in inches
   units = "in"              # Units for width and height
 )
+
+write.csv(d_diffs, paste0(snapshots_output_path, "/diffs.csv"), row.names = F)
+
+```
+
+# Show expected effect sizes for study 2 (just run all above points first)
+
+```{r}
+#max regardless of domain
+diffs_causal <- d_diffs %>%
+  group_by(itemB, domain_itemA) %>%
+  slice(which.max(euclidean_minus_causal)) %>% 
+  ungroup() %>% 
+  group_by(itemB) %>% 
+  slice(which.max(euclidean_minus_causal)) %>% 
+  ungroup() %>% 
+  rename("causal_itemA" = itemA,
+         "domain_causal_itemA" = domain_itemA,
+         "causals_euc_minus_causal" = euclidean_minus_causal) %>% 
+  select(causal_itemA, itemB, domain_causal_itemA, domain_itemB, causals_euc_minus_causal)
+
+itemB_colors <- diffs_causal %>%
+  distinct(itemB, domain_itemB) %>%
+  mutate(color = case_when(
+    domain_itemB == "bio" ~ "green",
+    domain_itemB == "mind" ~ "blue",
+    domain_itemB == "action" ~ "red"
+  )) %>%
+  pull(color, name = itemB)
+
+#min in same domain
+diffs_sim <- d_diffs %>%
+  group_by(itemB, domain_itemA) %>%
+  slice(which.min(euclidean_minus_causal)) %>% 
+  ungroup() %>% 
+  mutate(same_domain = ifelse(domain_itemA == domain_itemB, TRUE, FALSE)) %>% 
+  filter(same_domain == TRUE) %>% 
+  ungroup() %>% 
+  rename("similarity_itemA" = itemA,
+       "domain_similarity_itemA" = domain_itemA,
+       "sims_euc_minus_causal" = euclidean_minus_causal) %>% 
+  select(similarity_itemA, itemB, domain_similarity_itemA, domain_itemB, sims_euc_minus_causal)
+
+diffs_causal %>% 
+  left_join(diffs_sim %>% 
+              select(everything()), 
+              by = c("itemB", "domain_itemB")) %>% 
+  mutate(diff = causals_euc_minus_causal - sims_euc_minus_causal) %>% 
+  ggplot(aes(itemB, diff)) +
+  geom_point() +
+  #theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(diffs_causal$itemB)])) 
+
 
 ```
 
