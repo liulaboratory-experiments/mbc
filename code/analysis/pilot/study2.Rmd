@@ -37,7 +37,25 @@ d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x)))
 
 ```
 
+Demographics
+
+```{r}
+# demographics
+df_demographics <- d %>% 
+  filter(trial_id == "demographics_survey") %>% 
+  select("mturk_participant_id", "trial_id", "filename", 
+         "feedback", "age", "ethnicity", "gender", "race") 
+
+summary(df_demographics$age)
+table(df_demographics$gender)
+table(df_demographics$ethnicity)
+table(df_demographics$race)
+
+```
+
 # Wrangle data
+
+changes post sending to shari: added factor levels to response in specified order 1/20/25
 
 ```{r}
  subjects_to_exclude <- d %>%
@@ -66,7 +84,8 @@ dat <- d %>%
   select(subject_id, condition, itemB, causal_itemA, similarity_itemA, response) %>% 
   mutate(causal_itemA = factor(causal_itemA, levels = desired_order),
          similarity_itemA = factor(similarity_itemA, levels = desired_order),
-         itemB = factor(itemB, levels = desired_order)) %>% 
+         itemB = factor(itemB, levels = desired_order),
+         response = factor(response, levels = c("similarity", "causal"))) %>% 
   mutate(domain_itemB = case_when(itemB == "hear something" ~ "mind", #labels for first item of pair
                                  itemB == "choose what to do" ~ "mind",
                                  itemB == "remember something" ~ "mind",
@@ -112,7 +131,6 @@ dat <- d %>%
                                  similarity_itemA == "feel scared"~ "bio",
                                  similarity_itemA == "experience pain"~ "bio",
                                  similarity_itemA == "get sick"~ "bio"))
-
 
 ```
 
@@ -167,21 +185,26 @@ dat_summarized_by_item <- dat %>%
   distinct(condition, itemB, .keep_all = TRUE) %>% 
   ungroup()
 
+#set response colors
+response_colors <- c("causal" = "#95d2d6", 
+                     "similarity" = "#fcf9f9")
+
 #set x axis colors
 itemB_colors <- dat_summarized_by_item %>%
   distinct(itemB, domain_itemB) %>%
   mutate(color = case_when(
-    domain_itemB == "bio" ~ "green",
-    domain_itemB == "mind" ~ "blue",
-    domain_itemB == "action" ~ "red"
+    domain_itemB == "bio" ~ "#f36b2d", #green #cd6b49
+    domain_itemB == "mind" ~ "#f7bf2a", #blue
+    domain_itemB == "action" ~ "#69ad44" #red #61a36a
   )) %>%
   pull(color, name = itemB)
 
 p <- dat_summarized_by_item %>% 
   ggplot(aes(x =itemB, y = mean_proportion, fill = response)) +
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity", color = "black") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(dat_summarized_by_item$itemB)])) +
+  scale_fill_manual(values = response_colors) +
   facet_wrap(~condition) 
 
 p
@@ -190,7 +213,6 @@ ggsave(
   filename = "figures/study2/p_study2_item-level_stacked.pdf",
   plot = p,          
   device = "pdf",           
-  #path = "path/to/directory", #Optional: specify a directory
   width = 12,               
   height = 6,             
   units = "in"              
@@ -198,10 +220,11 @@ ggsave(
 
 ```
 
+
 ## item-level, unstacked with error bars
 
 ```{r, fig.width = 12}
-dat_summarized_by_item %>% 
+p_item_level <- dat_summarized_by_item %>% 
   ggplot(aes(x =itemB, y = mean_proportion, fill = response)) +
   geom_bar(stat = "identity", position = "dodge") +
   geom_errorbar(
@@ -215,6 +238,8 @@ dat_summarized_by_item %>%
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(dat_summarized_by_item$itemB)])) +
   facet_wrap(~condition) 
+
+print(p_item_level)
 
 ```
 
@@ -254,7 +279,7 @@ causal_condition <- d_model %>%
                        "freesort_distance" = mean_emp_euclidean),
               by = c("itemB", "causal_itemA")) 
 
-similarity_condition <- d_model %>% 
+similarity_condition <- d_freesort_and_causal_distances %>% 
   select(-causal_itemA) %>% 
   filter(condition == "similarity") %>% 
   left_join(d_ratings %>% 
@@ -358,7 +383,6 @@ dat_combined <- dat_summarized_by_item %>%
 
 ## correlation bar plot
 
-something's wrong with remember and think something -- look into it!!
 ```{r}
 itemB_colors <- dat_summarized_by_item %>%
   distinct(itemB, domain_itemB) %>%
@@ -390,8 +414,6 @@ barplot
 
 
 ## correlation scatter plot 
-
-may be worse because of infinity values for remember and think about something....look into it!
 
 ```{r}
 # Scatter plot with correlation for each condition

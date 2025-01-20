@@ -229,6 +229,60 @@ corrplot(as.matrix(df_mean_distances_matrix), method = "color", is.corr = FALSE,
          addgrid.col = "darkgray")
 
 ```
+## figure for paper
+
+```{r, fig.width = 12, fig.height = 12}
+# Define colors for the 3 groups for average rdm label
+group_colors <- c("#f7bf2a", "#69ad44", "#f36b2d") 
+
+# Map each item to a color based on its group
+item_colors <- setNames(c(rep(group_colors[1], 5), 
+                          rep(group_colors[2], 5), 
+                          rep(group_colors[3], 5)), 
+                        desired_order)
+
+
+# Ensure the colors align with the matrix order
+label_colors <- item_colors[rownames(df_mean_distances_matrix)]
+
+# Define a custom cool-to-warm palette
+custom_palette <- colorRampPalette(c("blue", "red")) # Blue for low, white for mid, red for high
+
+#small image
+corrplot(
+  as.matrix(df_mean_distances_matrix),
+  method = "color",
+  is.corr = FALSE,
+  col = custom_palette(200),
+  tl.col = "black", #could be label_colors
+  title = "Average Freesort RDM",
+  mar = c(0, 0, 2, 0),
+  addgrid.col = "darkgray",
+  cl.offset = 1.0,  # Push labels even further
+  cl.cex = 0.8,     # Slightly smaller label text
+  cl.ratio = 0.22   # Widen the legend bar. Change this to push words far away
+)
+
+
+#large image
+corrplot(
+  as.matrix(df_mean_distances_matrix),
+  method = "color",
+  is.corr = FALSE,
+  col = custom_palette(200),
+  #tl.col = "black", #could be label_colors
+  tl.col = label_colors, #could be label_colors
+  tl.cex = 2,
+  title = "Average Freesort RDM",
+  mar = c(0, 0, 2, 0),
+  addgrid.col = "darkgray",
+  cl.offset = 1.0,  # Push labels even further
+  cl.cex = 2,     # Slightly smaller label text
+  cl.ratio = 0.22,   # Widen the legend bar. Change this to push words far away
+  cex.main = 2
+)
+```
+
 
 # Causation
 
@@ -613,10 +667,18 @@ write.csv(d_correlations, file = correlations_output_path, row.names = F)
 
 ## plot correlations with noise ceiling
 
-```{r, fig.width = 9}
+```{r, fig.width = 12}
 # plot with noise ceiling
-d_correlations %>%
-  pivot_longer(cols = starts_with(c("1_","2_","3_","4_", "5_")),
+d_correlations_renamed <- d_correlations %>% 
+  rename("3 Category" = `1_Mind-Body-Action`,
+         "6 Category" = `2_PerCog-ObjDir-Stimulus`,
+         "2 Category" = `3_Physical-Ethereal`,
+         "Cosine Similarity" = `4_cosine_similarity`) 
+
+d_correlations_renamed %>%
+  pivot_longer(
+               #cols = starts_with(c("1_","2_","3_","4_", "5_")),
+               cols = c("2 Category", "3 Category", "6 Category", "Cosine Similarity"),
                names_to = "correlation_type",
                values_to = "correlation_value") %>%
   ggplot(aes(x = reorder(correlation_type, correlation_value, FUN = function(x) -mean(x)), y = correlation_value)) +
@@ -627,13 +689,63 @@ d_correlations %>%
   theme(axis.text.x = element_text(angle = 20, hjust = 1, size = 12),
         axis.text.y = element_text(size = 12),
         axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14)) +
+        axis.title.y = element_text(size = 14),
+        legend.position = "none") +
   labs(x = "Theoretical RDMs", y = "Correlation with euclidean RDMs",
        title = "Correlation between theoretical and empirical RDMs",
        subtitle = paste0("Noise Ceiling: Upper: ", round(noise_ceiling$upper_bound, 3),
                          " | Lower: ", round(noise_ceiling$lower_bound, 3)))
 
 ```
+
+### figure for paper
+
+```{r}
+# Aggregate the data to calculate the mean correlation value per subject
+aggregated_data <- d_correlations_renamed %>%
+  pivot_longer(
+    cols = c("2 Category", "3 Category", "6 Category", "Cosine Similarity"),
+    names_to = "correlation_type",
+    values_to = "correlation_value"
+  ) %>%
+  group_by(subject_id, correlation_type) %>%
+  summarize(mean_correlation = mean(correlation_value, na.rm = TRUE), .groups = "drop")
+
+# Plot the aggregated data
+ggplot(aggregated_data, aes(x = reorder(correlation_type, mean_correlation, FUN = function(x) -mean(x)), 
+                            y = mean_correlation)) +
+  stat_summary(
+    fun = "mean",
+    geom = "bar",
+    fill = "#95d2d6",
+    color = "black"
+  ) +
+  stat_summary(
+    fun.data = mean_se,
+    geom = "errorbar",
+    width = 0.3,
+    color = "black"
+  ) +
+  geom_point(alpha = 0.1, size = 2) +  # One point per subject
+  geom_hline(yintercept = noise_ceiling$upper_bound, color = "blue", linetype = "dashed", linewidth = 0.5) +
+  geom_hline(yintercept = noise_ceiling$lower_bound, color = "red", linetype = "dashed", linewidth = 0.5) +
+  theme(
+    axis.text.x = element_text(angle = 20, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    legend.position = "none"
+  ) +
+  labs(
+    x = "Theoretical RDMs",
+    y = "Correlation with Euclidean RDMs",
+    title = "Correlation between Theoretical and Empirical RDMs",
+    subtitle = paste0("Noise Ceiling: Upper: ", round(noise_ceiling$upper_bound, 3),
+                      " | Lower: ", round(noise_ceiling$lower_bound, 3))
+  )
+
+```
+
 
 ## plot correlations with different order
 
