@@ -1,0 +1,32 @@
+---
+title: "study 2"
+output: html_document
+date: "2024-10-28"
+---
+
+# ReadMe
+
+This is the first step of processing. This script assigns an arbitrary subject ids from the Connect Ids.
+
+The data files will then be stored on /VAST/
+
+This script is local and cannot be run online because it references data with identifiable Connect ids. 
+
+```{r}
+base_path <- here("code", "analysis", "pilot")
+data_path <- paste0(base_path, "/data-intervention/pilot06_11425_n100-intervention-100")
+snapshots_input_path <- paste0(base_path, "/snapshots_study1_final_analysis")
+snapshots_output_path <- paste0(base_path, "/snapshots_study2_preprocessing")
+
+file_paths <- list.files(path = data_path, pattern = "^2025-", full.names = TRUE)
+d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x))) %>%
+    group_by(filename) %>%
+    mutate(subject_id = paste0("subj_", cur_group_id())) %>%
+    ungroup() %>% 
+    select(-c(mturk_participant_id, mturk_assignment_id, mturk_project_id, filename)) %>%
+    relocate(subject_id, .before = "success")
+
+#write.csv(d, paste0(snapshots_output_path, "/study2_raw_data.csv"), row.names = FALSE)
+
+```
+

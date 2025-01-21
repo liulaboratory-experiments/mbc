@@ -279,9 +279,29 @@ corrplot(
   cl.offset = 1.0,  # Push labels even further
   cl.cex = 2,     # Slightly smaller label text
   cl.ratio = 0.22,   # Widen the legend bar. Change this to push words far away
-  cex.main = 2
+  cex.main = 5
+)
+
+```
+test
+
+```{r}
+corrplot(
+  as.matrix(df_mean_distances_matrix),
+  method = "color",
+  is.corr = FALSE,
+  tl.pos = "n",
+  col = custom_palette(200),
+  tl.col = "black", #could be label_colors
+  title = "Average Freesort RDM",
+  mar = c(0, 0, 2, 0),
+  addgrid.col = "darkgray",
+  cl.offset = 1.0,  # Push labels even further
+  cl.cex = 0.8,     # Slightly smaller label text
+  cl.ratio = 0.22   # Widen the legend bar. Change this to push words far away
 )
 ```
+
 
 
 # Causation
