@@ -279,10 +279,10 @@ causal_condition <- d_model %>%
                        "freesort_distance" = mean_emp_euclidean),
               by = c("itemB", "causal_itemA")) 
 
-similarity_condition <- d_freesort_and_causal_distances %>% 
+similarity_condition <- d_model %>% 
   select(-causal_itemA) %>% 
   filter(condition == "similarity") %>% 
-  left_join(d_ratings %>% 
+  left_join(d_freesort_and_causal_distances %>% 
                 select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean) %>% 
                 rename("similarity_itemA" = itemA,
                        "causal_distance" = mean_causal_dissimilarity,
@@ -302,7 +302,6 @@ cat("Fixed effects (log odds): ", fixed_effects, "\n")
 cat("Fixed effects (odds ratios): ", odds_ratios, "\n")
 cat("Fixed effects (probabilities, causal_distance = 0):", probabilities, "\n")
 #nb: fixed effects are intercept and slope. slope is change log odds of outcome for a unit increase in predictor
-
 ```
 
 ## effect of causal and freesort distance in similarity condition
@@ -333,7 +332,7 @@ diffs_causal <-d_freesort_and_causal_distances %>%
   group_by(itemB, domain_itemA) %>%
   slice(which.max(euclidean_minus_causal)) %>% 
   ungroup() %>% 
-  group_by(itemB) %>% 
+  group_by(itemB) %>%  
   slice(which.max(euclidean_minus_causal)) %>% 
   ungroup() %>% 
   rename("causal_itemA" = itemA,

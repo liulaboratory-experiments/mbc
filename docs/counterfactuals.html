@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/jspsych"></script>
+    <script src="jspsych/dist/plugin-preload.js"></script>
+    <script src="jspsych/dist/plugin-instructions.js"></script>
+    <script src="jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="jspsych/dist/plugin-survey-html-form.js"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <link href="https://unpkg.com/jspsych/css/jspsych.css" rel="stylesheet" type="text/css">
+
+    <style>
+      #quitButton {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: lightgray;
+        color: black;
+        border: 2px solid black;
+        cursor: pointer;
+        font-size: 16px;
+      }
+    </style>
+
+  </head>
+  <body></body>
+
+  <button id="quitButton">Quit</button>
+
+  <script>
+
+      var jsPsych = initJsPsych({
+            on_finish: function() {
+                window.location = "https://connect.cloudresearch.com/participant/project/9CECB6EE85/complete";
+                //jsPsych.data.displayData();
+            },
+            show_progress_bar: true
+        });
+
+        //-------------------------------------------------------------------------------------------------------------------------------------
+        //experiment variables
+        const mturk_pilot_mode = false
+        const data_collection = false
+
+            // capture info from mturk/connect, except in test mode
+        if(mturk_pilot_mode) { 
+            var study_id = 'test';
+            var session_id = 'test';
+            participant_id = 'test_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
+        } else {
+            participant_id = jsPsych.data.getURLVariable('participantId'); 
+            var assignment_id = jsPsych.data.getURLVariable('assignm entId');
+            var project_id = jsPsych.data.getURLVariable('projectId');
+        }
+
+        jsPsych.data.addProperties({
+            mturk_participant_id: participant_id,
+            mturk_assignment_id: assignment_id,
+            mturk_project_id: project_id
+        })
+
+        // Get the current date and time
+        const now = new Date();
+        const dateString = now.toISOString().slice(0, 10); // Format as YYYY-MM-DD
+        const timeString = now.toTimeString().slice(0, 8).replace(/:/g, '-'); // Format as HH-MM-SS
+
+        // Create the filename with the current date and time
+        const filename = `${dateString}_${timeString}_${participant_id}.csv`;
+        //---------------------------------------------------------------------------------------------------------------------------------------
+
+
+    // Preload step
+    var preload = {
+      type: jsPsychPreload,
+      auto_preload: true
+    };
+
+    var instructions_intervention = {
+      type: jsPsychInstructions,
+      pages: [
+        '<div style="font-size: 22px; text-align: center;">' +
+        '<br>Welcome! <br>In this game you will be asked to imagine what would happen ' +
+        'in an alternative scenario. <br>On each trial, there will be an observed event (for example, ' +
+        '"a person took a walk, and then saw something"), <br>and then you will be asked to consider whether the outcome (i.e. seeing something) would still happen <br>' +
+        ' had the preceding event (i.e. taking a walk) not have happened.'
+      ],
+      show_clickable_nav: true
+    };
+
+    var instructions_similarity = {
+      type: jsPsychInstructions,
+      pages: [
+        '<div style="font-size: 22px; text-align: center;">' +
+        '<br>Welcome! <br>In this game you will be asked to imagine abilities a ' +
+        'creature might have. <br>On each trial, the creature will have a target ability (for example, ' +
+        '"the capacity to choose what to do"), <br> and two other possible abilities (for example, ' +
+        '"the capacity to see something" and "the capacity to get tired"). <br> Your job is to choose which of the two ' +
+        'abilities the creature would also have. '
+      ],
+      show_clickable_nav: true
+    }
+
+    // Define the item lists
+    var causal_itemA = [ //all top items already in another domain
+      "take a walk", "take a walk", "feel scared", "take a walk", "take a walk", 
+      "become hungry", "experience pain", "think about something", "think about something", "think about something", 
+      "jump up and down", "take a walk", "see something", "kick something", "see something" 
+    ];
+
+       // Define the item lists
+       var causal_itemA_past_tense = [ 
+      "took a walk", "took a walk", "felt scared", "took a walk", "took a walk", 
+      "became hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
+      "jumped up and down", "took a walk", "saw something", "kicked something", "saw something" 
+    ];
+
+           // Define the item lists
+           var causal_itemA_participle = [ 
+      "taken a walk", "taken a walk", "felt scared", "taken a walk", "taken a walk", 
+      "become hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
+      "jumped up and down", "taken a walk", "seen something", "kicked something", "seen something" 
+    ];
+
+
+    var similarity_itemA = [ //some items were not in same domain, but selected ones in same domain
+      "hear something", "see something", "remember something", "think about something", "remember something",
+      "kick something", "jump up and down", "sit down", "jump up and down", "jump up and down",
+      "feel scared", "experience pain", "become hungry", "feel scared", "get tired"
+    ];
+    var itemB = [
+      "see something", "hear something", "choose what to do", "remember something", "think about something", 
+      "reach for something", "sit down", "jump up and down", "kick something", "take a walk",
+      "get tired", "become hungry", "feel scared", "experience pain", "get sick"
+    ];
+
+    var itemB_past_tense = [
+      "saw something", "heard something", "chose what to do", "remembered something", "thought about something", 
+      "reached for something", "sat down", "jumped up and down", "kicked something", "took a walk",
+      "got tired", "became hungry", "felt scared", "experienced pain", "got sick"
+    ];
+
+    var itemB_participle = [
+      "seen something", "heard something", "chosen what to do", "remembered something", "thought about something", 
+      "reached for something", "sat down", "jumped up and down", "kicked something", "taken a walk",
+      "gotten tired", "become hungry", "felt scared", "experienced pain", "gotten sick"
+    ];
+
+    // Combine items into a single array of objects
+    var combined_items = [];
+    for (var i = 0; i < itemB.length; i++) {
+      combined_items.push({
+        itemB: itemB[i],
+        causal_itemA: causal_itemA[i],
+        similarity_itemA: similarity_itemA[i]
+      });
+    }
+
+    // Shuffle the combined array
+    combined_items = jsPsych.randomization.shuffle(combined_items);
+
+// Counterfactual study trials (using correct tense)
+var counterfactual_trials = combined_items.map(function(item, index) {
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<p style="font-size: 25px;">A person first <strong>${causal_itemA_past_tense[index]}</strong>, then <strong>${itemB_past_tense[index]}</strong>. <br>Would they have <strong>${itemB_participle[index]}</strong> if they hadn’t <strong>${causal_itemA_participle[index]}</strong>?</p>`,
+    choices: ["Yes", "No"],
+    button_layout: "flex",
+    data: {
+      condition: "counterfactual",
+      itemB: item.itemB,
+      causal_itemA: item.causal_itemA
+    },
+    on_finish: function(data) {
+      data.selected_choice = data.response === 0 ? "Yes" : "No"; // Capture the specific choice
+    }
+  };
+});
+
+  // Similarity study trials
+  var similarity_trials = combined_items.map(function(item) {
+  var choices = [
+    `<p style="font-size: 20px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 20px;">The ability to <strong>${item.similarity_itemA}</strong></p>`
+  ];
+  choices = jsPsych.randomization.shuffle(choices);
+
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<p style="font-size: 25px;">Suppose someone told you about a creature that could <strong>${item.itemB}</strong>. <br>Which of these two other abilities do you think the creature would also have?</p>`,
+    choices: choices,
+    button_layout: "flex",
+    data: {
+      condition: "similarity",
+      itemB: item.itemB,
+      causal_itemA: item.causal_itemA,
+      similarity_itemA: item.similarity_itemA
+    },
+    on_finish: function(data) {
+      data.selected_choice = choices[data.response]; // Capture the specific choice text
+    }
+  };
+});
+
+
+  // Attention check trials
+  var attention_check_trial_intervention = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<p style="font-size: 25px;">A person first <strong>jumped up and down</strong>, then <strong>got tired</strong>. For this question, please select 'yes'</p>`,
+  choices: [
+    `<p style="font-size: 20px;">yes`,
+    `<p style="font-size: 20px;">no`
+  ],
+  button_layout: "flex",
+  data: {
+    condition: "attention_check",
+    correct_response_attn: "yes"
+  },
+  on_finish: function(data) {
+    data.selected_choice = data.response === 0 ? "yes" : "no";
+  }
+};
+
+var attention_check_trial_similarity = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "The ability to <strong>choose what to do</strong>"</p>`,
+  choices: [
+    `<p style="font-size: 20px;">The ability to <strong>choose what to do</strong></p>`,
+    `<p style="font-size: 20px;">The ability to <strong>sit down</strong></p>`
+  ],
+  button_layout: "flex",
+  data: {
+    condition: "attention_check",
+    correct_response_attn: "choose what to do"
+  },
+  on_finish: function(data) {
+    data.selected_choice = data.response === 0 ? "The ability to choose what to do" : "The ability to sit down";
+  }
+};
+
+
+function insertAttentionCheck(trials, attentionCheck) {
+  var randomIndex = Math.floor(Math.random() * trials.length);
+  trials.splice(randomIndex, 0, attentionCheck);
+  return trials;
+}
+
+// Insert attention check into intervention trials
+intervention_trials = insertAttentionCheck(counterfactual_trials, attention_check_trial_intervention);
+
+// Insert attention check into similarity trials
+similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
+
+
+        const save_data = {
+            type: jsPsychPipe,
+            action: "save",
+            experiment_id: "SO63gxlALpE9",
+            filename: filename,
+            data_string: () => jsPsych.data.get().csv()
+        };
+
+
+        // Random assignment to a task
+//var task_assignment = Math.random() < 0.5 ? "intervention" : "similarity";
+
+var task_assignment = "intervention";
+
+
+// Define the timeline based on the assigned task
+var timeline = [preload];
+
+if (task_assignment === "intervention") {
+  timeline.push(instructions_intervention, ...counterfactual_trials);
+} else {
+  timeline.push(instructions_similarity, ...similarity_trials);
+}
+
+if (data_collection) {
+      timeline.push(save_data); 
+}
+
+// Run the experiment
+jsPsych.run(timeline);
+
+  </script>
+</html>

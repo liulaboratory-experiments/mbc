@@ -24,6 +24,7 @@ pacman::p_load(tidyverse,
                effects, 
                gt,
                webshot2,
+               knitr,
                performance)
 sessionInfo()
 
@@ -31,7 +32,7 @@ sessionInfo()
 
 # Read data
 
-TODO save this out into an intermediate csv? -> the input data, right? Done. I made a separate preprocessing script for reading and fixing ids locally, moving the connect ID data to /VAST/ and retaining the randomized subject ids. 
+TODO save this out into an intermediate csv? --> the input data, right? Done. I made a separate preprocessing script for reading and fixing ids (which I did locally), moving the ConnectID data to /VAST/ and retaining the randomized subject ids. 
 
 TODO reassign subject IDs - I'm pretty sure mTurk IDs are identifiable data, please check. At least, they could be used to link data from the same person across multiple experiments, which is not good.
 
@@ -137,7 +138,7 @@ dat <- d %>%
 
 ## table of choices
 
-TODO add mean causal and sim distances between A and B? -> done
+TODO add mean causal and sim distances between A and B? --> done
 ```{r}
 # design_pairs <- dat %>%
 #   select(itemB, causal_itemA, similarity_itemA) %>%
@@ -187,11 +188,11 @@ design_pairs <- dat %>% #start with raw data containing items
 
 ```
 
-## table plotting
+## table plotting with gt
 
 ```{r}
 #table with line breaks
-pairs_table <- pairs %>%
+pairs_table <- design_pairs %>%
   mutate(
     causal_choice = paste0(causal_choice, "<br>(", causal_distance_causal_choice, ", ", freesort_distance_causal_choice, ")"),
     similar_choice = paste0(similar_choice, "<br>(", causal_distance_similar_choice, ", ", freesort_distance_similar_choice, ")"),
@@ -238,6 +239,57 @@ df_table <- pairs_table %>%
 gtsave(df_table, "pairs-table.png")   # Save as PNG for use in presentations or documents
 ```
 
+## table without line breaks
+
+```{r}
+#==============omitting line breaks
+pairs_table <- design_pairs %>%
+  mutate(
+    causal_choice = paste0(causal_choice, " (", causal_distance_causal_choice, ", ", freesort_distance_causal_choice, ")"),
+    similar_choice = paste0(similar_choice, " (", causal_distance_similar_choice, ", ", freesort_distance_similar_choice, ")"),
+    group = case_when(
+      row_number() %in% 1:5 ~ "mind",
+      row_number() %in% 6:10 ~ "action",
+      row_number() %in% 11:15 ~ "body"
+    )
+  ) %>%
+  select(target_item, causal_choice, similar_choice, group)
+
+# Generate GT table with markdown rendering
+df_table <- pairs_table %>%
+  gt() %>%
+  tab_header(
+    title = "Target and Choice Items" #,
+    # subtitle = "Distances Between Target, Causal, and Similar Choices"
+  ) %>%
+  cols_label(
+    target_item = "Target Item",
+    causal_choice = md("Causal Choice<br>(Causal D., Freesort D.)"),
+    similar_choice = md("Similar Choice<br>(Causal D., Freesort D.)")
+  ) %>%
+  fmt_markdown(columns = c(causal_choice, similar_choice)) %>%  # Interpret markdown for line breaks
+  tab_style(
+    style = cell_fill(color = "#f7bf2a"),  # Highlight for 'mind'
+    locations = cells_body(rows = group == "mind")
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "#69ad44"),  # Highlight for 'action'
+    locations = cells_body(rows = group == "action")
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "#f36b2d"),  # Highlight for 'body'
+    locations = cells_body(rows = group == "body")
+  ) %>%
+  cols_hide(columns = group) %>%   # Optionally hide the helper column
+  tab_options(
+    table.font.names = "Baskerville"
+  )
+
+gtsave(df_table, "pairs-table-2.png")   # Save as PNG for use in presentations or documents
+
+```
+
+
 
 ## overall barplot
 
@@ -264,9 +316,43 @@ dat_summarized <- dat %>%
   geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
                                                                          ymin = mean_proportion - se),
                 stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  labs(y = "Proportion"))
+
+#visualize bar heights for writeup
+(fig_result_summary <- ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + # Customize bar colors
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), 
+                aes(ymax = mean_proportion + se, ymin = mean_proportion - se), 
+                stat = "identity", position = "identity", width = 0.3) +
+  geom_text(aes(label = round(mean_proportion, 2), 
+                y = mean_proportion + 0.02), # Adjust the y position slightly above the bar
+            position = position_dodge(width = 0.9), 
+            vjust = 0,
+            color = "white") + # Adjust vertical alignment
   theme_cowplot())
 
 ```
+
+## modelling barplot
+
+```{r}
+dat_prepped <- dat %>%
+  mutate(
+    response_binary = ifelse(response == "causal", 1, 0), # Binary outcome (1 = causal)
+    condition = as.factor(condition) # Ensure condition is a factor
+  )
+
+model <- glmer(response_binary ~ condition + (1 | subject_id), 
+               data = dat_prepped, 
+               family = binomial)
+
+# Summary of the model
+summary(model)
+
+```
+
 
 ## item level, stacked
 
@@ -421,6 +507,68 @@ cat("Fixed effects (probabilities, causal_distance = 0):", probabilities, "\n")
 #nb: fixed effects are intercept and slope. slope is change log odds of outcome for a unit increase in predictor
 
 ```
+
+
+## plotting effects combined graph
+
+```{r, fig.width = 8, fig.height = 8}
+effects_data <- allEffects(both_predictors_model)
+
+causal_effect <- as.data.frame(effects_data$`causal_itemA_freesort_minus_causal`)
+similar_effect <- as.data.frame(effects_data$`similar_itemA_freesort_minus_causal`)
+
+causal_effect$Predictor <- "Intervention"
+similar_effect$Predictor <- "Inference"
+
+colnames(causal_effect)[1] <- "PredictorValue"
+colnames(similar_effect)[1] <- "PredictorValue"
+
+combined_effects <- rbind(causal_effect, similar_effect)
+
+base_plot <- ggplot(combined_effects, aes(x = PredictorValue, y = fit, color = Predictor)) +
+  geom_line() +
+  geom_hline(yintercept = .5, linetype = "dashed") +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = Predictor), alpha = 0.2) +
+  labs(
+    title = "Probability of Making A Causal Choice",
+    x = "Choice Item Distance to Target Item",
+    y = "Probability",
+    color = "Condition",
+    fill = "Condition"
+  ) +
+  theme_cowplot() +
+  # scale_x_continuous(
+  #   breaks = c(min(combined_effects$PredictorValue), max(combined_effects$PredictorValue)),
+  #   labels = c("More similar, \nless causal", "More causal, \nless similar")
+  # ) +
+  theme(
+    plot.title = element_text(hjust = 0.5),  
+    axis.text.x = element_text(size = 16),  
+    axis.text.y = element_text(size = 16),  
+    axis.title.y = element_text(size = 16),  
+    axis.title.x = element_text(size = 16),  
+    # legend.position = "bottom", 
+    legend.title = element_text(size = 16), 
+    legend.text = element_text(size = 16),
+    plot.margin = margin(20, 20, 50, 20)   
+  )
+
+
+# Add annotations below the x-axis using cowplot's ggdraw
+ggdraw(base_plot) +
+  draw_label(
+    label = "More similar,\nless causal",
+    x = 0.1, y = 0.02, hjust = 0, vjust = 0, size = 16
+  ) +
+  draw_label(
+    label = " More causal,\nless similar",
+    x = 0.8, y = 0.02, hjust = 1, vjust = 0, size = 16
+  )
+
+
+```
+
+
 
 ## effect of causal and freesort distance in similarity condition
 

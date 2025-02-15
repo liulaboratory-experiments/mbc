@@ -92,7 +92,7 @@ data_freesort <- d %>%
   relocate(trial_type, .after = filename) %>% # Place `trial_type` column next to `filename`
   rename(original_trial_index = trial_index)
 
-write.csv(data_freesort, file = freesort_output_path, row.names = F)
+#write.csv(data_freesort, file = freesort_output_path, row.names = F)
 
 ```
 
@@ -404,6 +404,89 @@ write.csv(d_all_theories, theories_all_output_path, row.names = F)
 ```
 
 # plot theoretical RDMS
+
+```{r}
+
+plot_rdm_theory <- function(data, column_name, desired_order, plot_title) {
+  # Prepare data and reorder
+  df_matrix <- data %>%
+    mutate(
+      itemA = factor(itemA, levels = desired_order),
+      itemB = factor(itemB, levels = desired_order)
+    ) %>%
+    select(itemA, itemB, all_of(column_name)) %>% 
+    pivot_wider(names_from = itemB, values_from = all_of(column_name)) %>%
+    column_to_rownames("itemA")
+  
+  # Reorder rows and columns
+  df_matrix <- df_matrix[desired_order, desired_order]
+  diag(df_matrix) <- NA # Set diagonal to NA (was 0 until 1/30/25)
+  
+  # define rdm internal colors
+  custom_palette <- colorRampPalette(c("red", "white", "blue"))
+
+  # Plot RDM
+  corrplot(
+    as.matrix(df_matrix), method = "color", is.corr = FALSE,
+    col = custom_palette(200),
+    tl.col = "black", title = plot_title,
+    mar = c(0, 0, 2, 0), addgrid.col = "darkgray",
+    na.label = "square",       
+    na.label.col = "darkgrey",
+    cl.offset = 1.0,  
+    cl.cex = 0.8,     # Slightly smaller label text
+    cl.ratio = 0.22,   # Widen the legend bar. Change this to push words far away
+  )
+}
+
+
+# Define desired orders
+mba_order <- c("see something", "hear something", "choose what to do", 
+               "remember something", "think about something", "reach for something", 
+               "sit down", "jump up and down", "kick something", "take a walk", 
+               "get tired", "become hungry", "feel scared", "experience pain", "get sick")
+
+perccog_order <- c("see something", "hear something", "choose what to do", 
+                   "remember something", "think about something", "reach for something", 
+                   "kick something", "sit down", "jump up and down",  "take a walk", 
+                   "get tired", "become hungry", "get sick", "feel scared", "experience pain")
+
+physethereal_order <- c("see something", "hear something", "choose what to do", 
+                        "remember something", "think about something", "reach for something", 
+                        "kick something", "sit down", "jump up and down",  "take a walk", 
+                        "get tired", "become hungry", "get sick", "feel scared", "experience pain")
+
+# Plot RDMs for each theory
+plot_rdm_theory(d_all_theories, "theor4_cosine_similarity", mba_order, "1. Cosine Distance - RDM")
+plot_rdm_theory(d_all_theories, "theor1_Mind-Body-Action", mba_order, "2. Mind, Body & Action - RDM")
+plot_rdm_theory(d_all_theories, "theor2_PerCog-OdActSpAct-BodyStimBodynoStim", perccog_order, "3. Perception, Cognitive et al. - RDM")
+plot_rdm_theory(d_all_theories, "theor3_Physical-Ethereal", physethereal_order, "4. Physical & Ethereal - RDM")
+
+
+# save them
+#output_folder <- paste0(here(rdm_outputs_path), "/figures/theoretical-rdms/") -> delete this
+
+theories <- list(
+  list(column_name = "theor4_cosine_similarity", order = mba_order, title = "1. Cosine Distance - RDM"),
+  list(column_name = "theor1_Mind-Body-Action", order = mba_order, title = "2. Mind, Body & Action - RDM"),
+  list(column_name = "theor2_PerCog-OdActSpAct-BodyStimBodynoStim", order = perccog_order, title = "3. Perception, Cognitive et al. - RDM"),
+  list(column_name = "theor3_Physical-Ethereal", order = physethereal_order, title = "4. Physical & Ethereal - RDM")
+)
+
+for (i in seq_along(theories)) {
+  theory <- theories[[i]]
+  output_file <- paste0(rdm_figures_outputs_path, "theory_", i, ".pdf")
+  pdf(file = output_file, width = 8, height = 6)   # Open the PDF device
+  plot_rdm_theory(
+    data = d_all_theories,
+    column_name = theory$column_name,
+    desired_order = theory$order,
+    plot_title = theory$title
+  )
+  dev.off() # Close the PDF device
+}
+
+```
 
 ```{r}
 plot_rdm_theory <- function(data, column_name, desired_order, plot_title) {
