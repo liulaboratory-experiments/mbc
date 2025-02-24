@@ -154,8 +154,14 @@
     for (var i = 0; i < itemB.length; i++) {
       combined_items.push({
         itemB: itemB[i],
+        itemB_past_tense: itemB_past_tense[i], // Add past-tense version
+        itemB_participle: itemB_participle[i], // Add participle version
         causal_itemA: causal_itemA[i],
-        similarity_itemA: similarity_itemA[i]
+        causal_itemA_past_tense: causal_itemA_past_tense[i], // Add past-tense version
+        causal_itemA_participle: causal_itemA_participle[i], // Add participle version
+        similarity_itemA: similarity_itemA[i],
+        similarity_itemA_past_tense: similarity_itemA_past_tense[i], // Add past-tense version
+        similarity_itemA_participle: similarity_itemA_participle[i] // Add participle version
       });
     }
 
@@ -215,7 +221,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
     correct_response_attn: 0
   },
   on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "yes" : "no";
+    data.selected_choice = data.response < 10 ? "yes" : "no"; // Accepts anything close to 0
   }
 };
 
@@ -229,15 +235,23 @@ var attention_check_trial_similarity = {
     correct_response_attn: 0
   },
   on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "yes" : "no";
+    data.selected_choice = data.response < 10 ? "yes" : "no"; // Accepts anything close to 0
   }
 };
 
+// function insertAttentionCheck(trials, attentionCheck) {
+//   var randomIndex = Math.floor(Math.random() * trials.length);
+//   trials.splice(randomIndex, 0, attentionCheck);
+//   return trials;
+// }
 function insertAttentionCheck(trials, attentionCheck) {
-  var randomIndex = Math.floor(Math.random() * trials.length);
-  trials.splice(randomIndex, 0, attentionCheck);
+  if (trials.length > 0) {
+    var randomIndex = Math.floor(Math.random() * trials.length);
+    trials.splice(randomIndex, 0, attentionCheck);
+  }
   return trials;
 }
+
 
 // Insert attention check into intervention trials
 counterfactual_trials = insertAttentionCheck(counterfactual_trials, attention_check_trial_counterfactual);
