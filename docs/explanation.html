@@ -8,6 +8,7 @@
     <script src="jspsych/dist/plugin-html-slider-response.js"></script>
     <script src="jspsych/dist/plugin-survey-html-form.js"></script>
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-survey-slider@1.0.0"></script>
     <link href="https://unpkg.com/jspsych/css/jspsych.css" rel="stylesheet" type="text/css">
 
     <style>
@@ -39,10 +40,9 @@
             show_progress_bar: true
         });
 
-        //-------------------------------------------------------------------------------------------------------------------------------------
         //experiment variables
         const mturk_pilot_mode = false
-        const data_collection = false
+        const data_collection = true
 
             // capture info from mturk/connect, except in test mode
         if(mturk_pilot_mode) { 
@@ -77,14 +77,13 @@
       auto_preload: true
     };
 
-    var instructions_counterfactual = {
+    var instructions_explanation = {
       type: jsPsychInstructions,
       pages: [
         '<div style="font-size: 22px; text-align: center;">' +
-        '<br>Welcome! <br>In this game you will be asked to imagine what would happen ' +
-        'in an alternative scenario. <br>On each trial, there will be an observed event (for example, ' +
-        '"a person took a walk, and then saw something"), <br>and then you will be asked to consider whether the outcome (i.e. seeing something) would still happen <br>' +
-        ' if the preceding event (i.e. taking a walk) did not happen.'
+        '<br>Welcome! <br>In this game you will be asked to consider different explanations ' +
+        'for an event. <br>You will be presented with a target event (i.e. someone reached for something)' +
+        ' and asked to evaluate <br>how well two other events explains the target event (i.e. the person saw something, or the person got tired). '
       ],
       show_clickable_nav: true
     };
@@ -96,20 +95,11 @@
       "jump up and down", "take a walk", "see something", "kick something", "see something" 
     ];
 
-       // Define the item lists
-       var causal_itemA_past_tense = [ 
+    var causal_itemA_past_tense = [ //all top items already in another domain
       "took a walk", "took a walk", "felt scared", "took a walk", "took a walk", 
       "became hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
       "jumped up and down", "took a walk", "saw something", "kicked something", "saw something" 
     ];
-
-      // Define the item lists
-      var causal_itemA_participle = [ 
-      "taken a walk", "taken a walk", "felt scared", "taken a walk", "taken a walk", 
-      "become hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
-      "jumped up and down", "taken a walk", "seen something", "kicked something", "seen something" 
-    ];
-
 
     var similarity_itemA = [ //some items were not in same domain, but selected ones in same domain
       "hear something", "see something", "remember something", "think about something", "remember something",
@@ -117,16 +107,10 @@
       "feel scared", "experience pain", "become hungry", "feel scared", "get tired"
     ];
 
-    var similarity_itemA_past_tense = [ 
+    var similarity_itemA_past_tense = [ //some items were not in same domain, but selected ones in same domain
       "heard something", "saw something", "remembered something", "thought about something", "remembered something",
       "kicked something", "jumped up and down", "sat down", "jumped up and down", "jumped up and down",
       "felt scared", "experienced pain", "became hungry", "felt scared", "got tired"
-    ];
-
-    var similarity_itemA_participle = [ 
-      "heard something", "seen something", "remembered something", "thought about something", "remembered something",
-      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jump up and down",
-      "felt scared", "experienced pain", "became hungry", "felt scared", "gotten tired"
     ];
 
     var itemB = [
@@ -141,12 +125,6 @@
       "got tired", "became hungry", "felt scared", "experienced pain", "got sick"
     ];
 
-    var itemB_participle = [
-      "seen something", "heard something", "chosen what to do", "remembered something", "thought about something", 
-      "reached for something", "sat down", "jumped up and down", "kicked something", "taken a walk",
-      "gotten tired", "become hungry", "felt scared", "experienced pain", "gotten sick"
-    ];
-
     const slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'];
 
     // Combine items into a single array of objects
@@ -154,82 +132,115 @@
     for (var i = 0; i < itemB.length; i++) {
       combined_items.push({
         itemB: itemB[i],
+        itemB_past_tense: itemB_past_tense[i],
         causal_itemA: causal_itemA[i],
-        similarity_itemA: similarity_itemA[i]
+        causal_itemA_past_tense: causal_itemA_past_tense[i],
+        similarity_itemA: similarity_itemA[i],
+        similarity_itemA_past_tense: similarity_itemA_past_tense[i],
+
       });
     }
 
     // Shuffle the combined array
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
+//-----------------------------------
 // Causal counterfactuals study trials (using correct tense)
-var counterfactual_trials = combined_items.map(function(item, index) {
+// var explanation_trials = combined_items.map(function(item, index) {
+//   return {
+//     type: jsPsychHtmlSliderResponse,
+//     stimulus: `<p style="font-size: 25px;">Suppose that someone <strong>${item.itemB_past_tense}</strong>.
+//                <br>To what extent is the following a good explanation for why the person <strong>${item.itemB_past_tense}</strong>?</p>
+//                <p style="font-size: 25px;">Because they <strong>${item.causal_itemA_past_tense}</strong></p>`,
+//     labels: slider_labels,
+//     slider_width: 600,
+//     require_movement: true, 
+//     data: {
+//       condition: "counterfactual",
+//       itemB: item.itemB,
+//       causal_itemA: item.causal_itemA
+//     },
+//     on_finish: function(data) {
+//       data.response_value = data.response; 
+//     }
+//   };
+// });
+
+//-------------------------------------
+
+// Explanation study trials with two sliders per trial
+var explanation_trials = combined_items.map(function(item) {
   return {
-    type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 25px;">A person <strong>${causal_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
-               <br>Suppose that they didn't <strong>${causal_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_participle[index]}</strong>?</p>`,
-    labels: slider_labels,
+    type: jsPsychSurveySlider, // Use survey-slider to allow multiple sliders in one trial 
+    preamble: `<p style="font-size: 25px;">Suppose that someone <strong>${item.itemB_past_tense}</strong>.</p>
+               <p style="font-size: 25px;">Which of the following be a good explanation for why the person <strong>${item.itemB_past_tense}</strong>?</p>`,
+    questions: [
+      {
+        prompt: `<hr style="border: 1px solid #ccc; margin-bottom: 10px;">
+                <p style="font-size: 24px;">Because they <strong>${item.causal_itemA_past_tense}</strong></p>`,
+        ticks: slider_labels
+      },
+      {
+        prompt: `<hr style="border: 1px solid #ccc; margin-bottom: 10px;">
+                <p style="font-size: 24px;">Because they <strong>${item.similarity_itemA_past_tense}</strong></p>`,
+        ticks: slider_labels
+      }
+    ],
     slider_width: 600,
-    require_movement: true, 
+    require_movement: true,
     data: {
-      condition: "counterfactual",
-      itemB: item.itemB,
-      causal_itemA: item.causal_itemA
-    },
-    on_finish: function(data) {
-      data.response_value = data.response; 
+      condition: "explanation",
+      itemB_past_tense: item.itemB_past_tense,
+      causal_itemA_past_tense: item.causal_itemA_past_tense,
+      similarity_itemA_past_tense: item.similarity_itemA_past_tense
     }
   };
 });
 
-//---------------------
 
-  // Similarity counterfactual sstudy trials
-  var similarity_trials = combined_items.map(function(item, index) {
+//-------------------------------------------------
+// Explanation study trials with two sliders per trial
+var attention_check_trial_explanation_main = combined_items.map(function(item) {
   return {
-    type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 25px;">A person <strong>${similarity_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
-               <br>Suppose that they didn't <strong>${similarity_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_participle[index]}</strong>?</p>`,
-    labels: slider_labels, 
+    type: jsPsychSurveySlider, // Use survey-slider to allow multiple sliders in one trial 
+    preamble: `<p style="font-size: 25px;">For this question, please move both sliders to "definitely not"</strong></p>`,
+    questions: [
+      {
+        prompt: `<hr style="border: 1px solid #ccc; margin-bottom: 10px;">
+                <p style="font-size: 24px;">Because they <strong>Chose what to do</strong></p>`,
+        ticks: slider_labels
+      },
+      {
+        prompt: `<hr style="border: 1px solid #ccc; margin-bottom: 10px;">
+                <p style="font-size: 24px;">Because they <strong>Remembered something</strong></p>`,
+        ticks: slider_labels
+      }
+    ],
     slider_width: 600,
-    require_movement: true, 
+    require_movement: true,
     data: {
-      condition: "counterfactual",
-      itemB: item.itemB,
-      causal_itemA: item.causal_itemA
-    },
-    on_finish: function(data) {
-      data.response_value = data.response; 
+      condition: "attention_check",
+      correct_response_attn: "0"
     }
   };
 });
-
+//--------------------------------------------------------------------
 
   // Attention check trials
-  var attention_check_trial_counterfactual = {
-  type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 25px;">A person <strong>jumped up and down</strong>, then they <strong>got tired</strong>. <br>For this question, please select "definitely not"</p>`,
-  labels: slider_labels, 
-  data: {
-    condition: "attention_check",
-    correct_response_attn: 0
-  },
-  on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "yes" : "no";
-  }
-};
-
-var attention_check_trial_similarity = {
-  type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "The ability to <strong>choose what to do</strong>"</p>`,
-  labels: slider_labels, 
+  var attention_check_trial_explanation = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "Because they <strong>"chose what to do"</strong>"</p>`,
+  choices: [
+    `<p style="font-size: 24px;">Because they <strong>chose what to do</strong></p>`,
+    `<p style="font-size: 24px;">Because they <strong>sat down</strong></p>`
+  ],
   button_layout: "flex",
   data: {
     condition: "attention_check",
-    correct_response_attn: 0
+    correct_response_attn: "choose what to do"
   },
   on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "yes" : "no";
+    data.selected_choice = data.response === 0 ? "I would make them choose what to do" : "I would make them sit down";
   }
 };
 
@@ -240,11 +251,25 @@ function insertAttentionCheck(trials, attentionCheck) {
 }
 
 // Insert attention check into intervention trials
-counterfactual_trials = insertAttentionCheck(counterfactual_trials, attention_check_trial_counterfactual);
+intervention_trials = insertAttentionCheck(explanation_trials, attention_check_trial_explanation_main);
 
-// Insert attention check into similarity trials
-similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
-
+//to update!
+  var debrief_explanation = {
+        type: jsPsychInstructions,
+        pages: [
+            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
+            '<p>Thank you so much for helping us with this study!</p>' +
+            '<p>In this game, we asked you questions about what actions ' +
+            'you would take to achieve various outcomes.' +
+            '<br>Our goal was to study which kinds of actions you think are most likely to lead  ' +
+            'to the intended outcomes. <br>Do you select action items which are from the same conceptual category' +
+            '<br>as the outcome, or from a different category?' +
+            '<br>This shows us how you think various mental and bodily abilities group together.</p>' +
+            '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
+        ],
+        show_clickable_nav: true,
+        button_label_next: 'Next'
+        };
 
         const save_data = {
             type: jsPsychPipe,
@@ -254,10 +279,14 @@ similarity_trials = insertAttentionCheck(similarity_trials, attention_check_tria
             data_string: () => jsPsych.data.get().csv()
         };
 
+
+        // Random assignment to a task
+var task_assignment = Math.random() < 0.5 ? "intervention" : "similarity";
+
 // Define the timeline based on the assigned task
 var timeline = [preload];
 
-  timeline.push(instructions_counterfactual, ...counterfactual_trials, ...similarity_trials);
+timeline.push(instructions_explanation, ...explanation_trials, debrief_explanation);
 
 if (data_collection) {
       timeline.push(save_data); 

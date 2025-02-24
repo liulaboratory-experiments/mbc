@@ -460,10 +460,15 @@ n_pilot <- 50
 cohen_d <- t_value / sqrt(n_pilot)
 
 # Perform power analysis to find required sample size for replication
-power_analysis <- pwr.t.test(d = cohen_d, power = 0.80, sig.level = 0.05, type = "one.sample", alternative = "two.sided")
+power_analysis <- pwr.t.test(d = cohen_d, power = 0.9, sig.level = 0.05, type = "one.sample", alternative = "two.sided")
 
 # Display required sample size
 ceiling(power_analysis$n)  # Rounds up to the nearest integer
+
+
+
+pwr.t.test(d = 1.0, power = 0.80, sig.level = 0.05, type = "one.sample", alternative = "two.sided")
+pwr.t.test(d = 0.8, power = 0.80, sig.level = 0.05, type = "one.sample", alternative = "two.sided")
 
 ```
 
