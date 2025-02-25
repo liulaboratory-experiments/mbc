@@ -144,7 +144,7 @@
 
 //-----------------------------------
 // Causal counterfactuals study trials (using correct tense)
-var explanation_trials = combined_items.map(function(item, index) {
+var explanation_trials_causal = combined_items.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
     stimulus: `<p style="font-size: 25px;">Suppose that someone <strong>${item.itemB_past_tense}</strong>.
@@ -164,22 +164,30 @@ var explanation_trials = combined_items.map(function(item, index) {
   };
 });
 
-//--------------------------------
-// Explanation study trials with two sliders per trial
-var attention_check_trial_explanation_main = combined_items.map(function(item) {
+// Causal counterfactuals study trials (using correct tense)
+var explanation_trials_similar = combined_items.map(function(item, index) {
   return {
-    type: jsPsychHtmlSliderResponse,  
-    stimulus: `<p style="font-size: 25px;">Suppose that someone <strong> chose what to do</strong>.</p>
-              <p style="font-size: 25px;">For this question, please move the slider to <strong>"definitely not"</strong></p>`,
+    type: jsPsychHtmlSliderResponse,
+    stimulus: `<p style="font-size: 25px;">Suppose that someone <strong>${item.itemB_past_tense}</strong>.
+               <br>To what extent is the following a good explanation for why the person <strong>${item.itemB_past_tense}</strong>?</p>
+               <p style="font-size: 25px;">Because they <strong>${item.similarity_itemA_past_tense}</strong></p>`,
     labels: slider_labels,
     slider_width: slider_width,
-    require_movement: true,
+    require_movement: true, 
     data: {
-      condition: "attention_check",
-      correct_response_attn: "0"
+      condition: "counterfactual",
+      itemB: item.itemB,
+      causal_itemA: item.causal_itemA
+    },
+    on_finish: function(data) {
+      data.response_value = data.response; 
     }
   };
 });
+
+var all_trials = [...explanation_trials_causal, ...explanation_trials_similar];
+
+all_trials = jsPsych.randomization.shuffle(all_trials);
 
 //--------------------------------------------------------------------
 // Define attention check trials
@@ -210,10 +218,9 @@ var attention_check_trial_2 = {
 };
 
 // Insert attention check trials at specific positions
-explanation_trials.splice(6, 0, attention_check_trial_1); // Insert at trial 7 (index 6)
-explanation_trials.splice(21, 0, attention_check_trial_2); // Insert at trial 22 (index 21)
+all_trials.splice(6, 0, attention_check_trial_1); // Insert at trial 7 (index 6)
+all_trials.splice(21, 0, attention_check_trial_2); // Insert at trial 22 (index 21)
 
-//to update!
   var debrief_explanation = {
         type: jsPsychInstructions,
         pages: [
@@ -240,7 +247,7 @@ explanation_trials.splice(21, 0, attention_check_trial_2); // Insert at trial 22
 
 var timeline = [preload];
 
-timeline.push(instructions_explanation, ...explanation_trials, debrief_explanation);
+timeline.push(instructions_explanation, ...all_trials, debrief_explanation);
 
 if (data_collection) {
       timeline.push(save_data); 
