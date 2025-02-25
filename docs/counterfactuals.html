@@ -95,52 +95,45 @@
       "become hungry", "experience pain", "think about something", "think about something", "think about something", 
       "jump up and down", "take a walk", "see something", "kick something", "see something" 
     ];
-
-       // Define the item lists
-       var causal_itemA_past_tense = [ 
-      "took a walk", "took a walk", "felt scared", "took a walk", "took a walk", 
-      "became hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
-      "jumped up and down", "took a walk", "saw something", "kicked something", "saw something" 
-    ];
-
-      // Define the item lists
-      var causal_itemA_participle = [ 
-      "taken a walk", "taken a walk", "felt scared", "taken a walk", "taken a walk", 
-      "become hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
-      "jumped up and down", "taken a walk", "seen something", "kicked something", "seen something" 
-    ];
-
-
     var similarity_itemA = [ //some items were not in same domain, but selected ones in same domain
       "hear something", "see something", "remember something", "think about something", "remember something",
       "kick something", "jump up and down", "sit down", "jump up and down", "jump up and down",
       "feel scared", "experience pain", "become hungry", "feel scared", "get tired"
     ];
-
-    var similarity_itemA_past_tense = [ 
-      "heard something", "saw something", "remembered something", "thought about something", "remembered something",
-      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jumped up and down",
-      "felt scared", "experienced pain", "became hungry", "felt scared", "got tired"
-    ];
-
-    var similarity_itemA_participle = [ 
-      "heard something", "seen something", "remembered something", "thought about something", "remembered something",
-      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jump up and down",
-      "felt scared", "experienced pain", "became hungry", "felt scared", "gotten tired"
-    ];
-
     var itemB = [
       "see something", "hear something", "choose what to do", "remember something", "think about something", 
       "reach for something", "sit down", "jump up and down", "kick something", "take a walk",
       "get tired", "become hungry", "feel scared", "experience pain", "get sick"
     ];
 
+      //past tense
+       var causal_itemA_past_tense = [ 
+      "took a walk", "took a walk", "felt scared", "took a walk", "took a walk", 
+      "became hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
+      "jumped up and down", "took a walk", "saw something", "kicked something", "saw something" 
+    ];
+    var similarity_itemA_past_tense = [ 
+      "heard something", "saw something", "remembered something", "thought about something", "remembered something",
+      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jumped up and down",
+      "felt scared", "experienced pain", "became hungry", "felt scared", "got tired"
+    ];
     var itemB_past_tense = [
       "saw something", "heard something", "chose what to do", "remembered something", "thought about something", 
       "reached for something", "sat down", "jumped up and down", "kicked something", "took a walk",
       "got tired", "became hungry", "felt scared", "experienced pain", "got sick"
     ];
 
+    //part participle
+      var causal_itemA_participle = [ 
+      "taken a walk", "taken a walk", "felt scared", "taken a walk", "taken a walk", 
+      "become hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
+      "jumped up and down", "taken a walk", "seen something", "kicked something", "seen something" 
+    ];
+    var similarity_itemA_participle = [ 
+      "heard something", "seen something", "remembered something", "thought about something", "remembered something",
+      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jump up and down",
+      "felt scared", "experienced pain", "became hungry", "felt scared", "gotten tired"
+    ];
     var itemB_participle = [
       "seen something", "heard something", "chosen what to do", "remembered something", "thought about something", 
       "reached for something", "sat down", "jumped up and down", "kicked something", "taken a walk",
@@ -148,6 +141,7 @@
     ];
 
     const slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'];
+    const slider_width = 800;
 
     // Combine items into a single array of objects
     var combined_items = [];
@@ -175,7 +169,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
     stimulus: `<p style="font-size: 25px;">A person <strong>${causal_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
                <br>Suppose that they didn't <strong>${causal_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_participle[index]}</strong>?</p>`,
     labels: slider_labels,
-    slider_width: 600,
+    slider_width: slider_width,
     require_movement: true, 
     data: {
       condition: "counterfactual",
@@ -187,8 +181,6 @@ var counterfactual_trials = combined_items.map(function(item, index) {
     }
   };
 });
-
-//---------------------
 
   // Similarity counterfactual sstudy trials
   var similarity_trials = combined_items.map(function(item, index) {
@@ -197,7 +189,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
     stimulus: `<p style="font-size: 25px;">A person <strong>${similarity_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
                <br>Suppose that they didn't <strong>${similarity_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_participle[index]}</strong>?</p>`,
     labels: slider_labels, 
-    slider_width: 600,
+    slider_width: slider_width,
     require_movement: true, 
     data: {
       condition: "counterfactual",
@@ -209,7 +201,6 @@ var counterfactual_trials = combined_items.map(function(item, index) {
     }
   };
 });
-
 
   // Attention check trials
   var attention_check_trial_counterfactual = {
@@ -252,7 +243,6 @@ function insertAttentionCheck(trials, attentionCheck) {
   return trials;
 }
 
-
 // Insert attention check into intervention trials
 counterfactual_trials = insertAttentionCheck(counterfactual_trials, attention_check_trial_counterfactual);
 
@@ -260,13 +250,13 @@ counterfactual_trials = insertAttentionCheck(counterfactual_trials, attention_ch
 similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
 
 
-        const save_data = {
-            type: jsPsychPipe,
-            action: "save",
-            experiment_id: "SO63gxlALpE9",
-            filename: filename,
-            data_string: () => jsPsych.data.get().csv()
-        };
+const save_data = {
+    type: jsPsychPipe,
+    action: "save",
+    experiment_id: "SO63gxlALpE9",
+    filename: filename,
+    data_string: () => jsPsych.data.get().csv()
+};
 
 // Define the timeline based on the assigned task
 var timeline = [preload];
