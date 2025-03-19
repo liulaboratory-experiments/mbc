@@ -70,6 +70,7 @@
         const filename = `${dateString}_${timeString}_${participant_id}.csv`;
         //---------------------------------------------------------------------------------------------------------------------------------------
 
+     
 
     // Preload step
     var preload = {
@@ -91,13 +92,13 @@
 
     // Define the item lists
     var causal_itemA = [ //all top items already in another domain
-      "take a walk", "take a walk", "feel scared", "take a walk", "take a walk", 
-      "become hungry", "experience pain", "think about something", "think about something", "think about something", 
-      "jump up and down", "take a walk", "see something", "kick something", "see something" 
+      "jump up and down", "kick something", "feel scared", "feel scared", "take a walk", 
+      "become hungry", "experience pain", "see something", "feel scared", "think about something", 
+      "jump up and down", "take a walk", "think about something", "kick something", "see something" 
     ];
     var similarity_itemA = [ //some items were not in same domain, but selected ones in same domain
-      "hear something", "see something", "remember something", "think about something", "remember something",
-      "kick something", "jump up and down", "sit down", "jump up and down", "jump up and down",
+      "hear something", "see something", "remember something", "think about something", "choose what to do",
+      "kick something", "reach for something", "sit down", "jump up and down", "kick something",
       "feel scared", "experience pain", "become hungry", "feel scared", "get tired"
     ];
     var itemB = [
@@ -108,13 +109,13 @@
 
       //past tense
        var causal_itemA_past_tense = [ 
-      "took a walk", "took a walk", "felt scared", "took a walk", "took a walk", 
-      "became hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
-      "jumped up and down", "took a walk", "saw something", "kicked something", "saw something" 
+      "jumped up and down", "kicked something", "felt scared", "felt scared", "took a walk", 
+      "became hungry", "experienced pain", "saw something", "felt scared", "thought about something", 
+      "jumped up and down", "took a walk", "thought about something", "kicked something", "saw something" 
     ];
     var similarity_itemA_past_tense = [ 
-      "heard something", "saw something", "remembered something", "thought about something", "remembered something",
-      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jumped up and down",
+      "heard something", "saw something", "remembered something", "thought about something", "chose what to do",
+      "kicked something", "reached for something", "sat down", "jumped up and down", "kicked something",
       "felt scared", "experienced pain", "became hungry", "felt scared", "got tired"
     ];
     var itemB_past_tense = [
@@ -125,13 +126,13 @@
 
     //past participle
       var causal_itemA_participle = [ 
-      "taken a walk", "taken a walk", "felt scared", "taken a walk", "taken a walk", 
-      "become hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
-      "jumped up and down", "taken a walk", "seen something", "kicked something", "seen something" 
+      "jumped up and down", "kicked something", "felt scared", "felt scared", "taken a walk", 
+      "become hungry", "experienced pain", "seen something", "felt scared", "thought about something", 
+      "jumped up and down", "taken a walk", "thought about something", "kicked something", "seen something" 
     ];
     var similarity_itemA_participle = [ 
-      "heard something", "seen something", "remembered something", "thought about something", "remembered something",
-      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jump up and down",
+      "heard something", "seen something", "remembered something", "thought about something", "chosen what to do",
+      "kicked something", "reached for something", "sat down", "jumped up and down", "kicked something",
       "felt scared", "experienced pain", "became hungry", "felt scared", "gotten tired"
     ];
     var itemB_participle = [
@@ -147,9 +148,8 @@
      "gotten tired", "become hungry", "felt scared", "experienced pain", "gotten sick"
     ]
     
-
     const slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'];
-    const slider_width = 800;
+    const slider_widths = 800;
 
     // Combine items into a single array of objects
     var combined_items = [];
@@ -177,7 +177,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
     stimulus: `<p style="font-size: 25px;">A person <strong>${causal_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
                <br>Suppose that they didn't <strong>${causal_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_referent[index]}</strong>?</p>`,
     labels: slider_labels,
-    slider_width: slider_width,
+    slider_width: slider_widths,
     require_movement: true, 
     data: {
       condition: "counterfactual",
@@ -197,7 +197,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
     stimulus: `<p style="font-size: 25px;">A person <strong>${similarity_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
                <br>Suppose that they didn't <strong>${similarity_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_referent[index]}</strong>?</p>`,
     labels: slider_labels, 
-    slider_width: slider_width,
+    slider_width: slider_widths,
     require_movement: true, 
     data: {
       condition: "counterfactual",
@@ -215,6 +215,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
   type: jsPsychHtmlSliderResponse,
   stimulus: `<p style="font-size: 25px;">A person <strong>jumped up and down</strong>, then they <strong>got tired</strong>. <br>For this question, please select <strong>"definitely not"</strong></p>`,
   labels: slider_labels, 
+  slider_width: slider_widths,
   data: {
     condition: "attention_check",
     correct_response_attn: 0
@@ -228,6 +229,7 @@ var attention_check_trial_similarity = {
   type: jsPsychHtmlSliderResponse,
   stimulus: `<p style="font-size: 25px;">A person <strong>saw something</strong>, then they <strong>felt hungry</strong>. <br>For this question, please select <strong>"definitely yes"</strong></p>`,
   labels: slider_labels, 
+  slider_width: slider_widths,
   button_layout: "flex",
   data: {
     condition: "attention_check",
