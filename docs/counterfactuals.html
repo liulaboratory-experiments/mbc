@@ -51,7 +51,7 @@
             participant_id = 'test_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
         } else {
             participant_id = jsPsych.data.getURLVariable('participantId'); 
-            var assignment_id = jsPsych.data.getURLVariable('assignm entId');
+            var assignment_id = jsPsych.data.getURLVariable('assignmentId');
             var project_id = jsPsych.data.getURLVariable('projectId');
         }
 
@@ -123,7 +123,7 @@
       "got tired", "became hungry", "felt scared", "experienced pain", "got sick"
     ];
 
-    //part participle
+    //past participle
       var causal_itemA_participle = [ 
       "taken a walk", "taken a walk", "felt scared", "taken a walk", "taken a walk", 
       "become hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
@@ -139,6 +139,14 @@
       "reached for something", "sat down", "jumped up and down", "kicked something", "taken a walk",
       "gotten tired", "become hungry", "felt scared", "experienced pain", "gotten sick"
     ];
+
+    //itemB "the same thing"
+    var itemB_referent = [
+     "seen the same thing", "heard the same thing", "chosen to do the same thing", "remembered the same thing", "thought the same thing",
+     "reached for the same thing", "sat down at the same place", "jumped up and down", "kicked the same thing", "taken the same walk",
+     "gotten tired", "become hungry", "felt scared", "experienced pain", "gotten sick"
+    ]
+    
 
     const slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'];
     const slider_width = 800;
@@ -167,7 +175,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
     stimulus: `<p style="font-size: 25px;">A person <strong>${causal_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
-               <br>Suppose that they didn't <strong>${causal_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_participle[index]}</strong>?</p>`,
+               <br>Suppose that they didn't <strong>${causal_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_referent[index]}</strong>?</p>`,
     labels: slider_labels,
     slider_width: slider_width,
     require_movement: true, 
@@ -187,7 +195,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
     stimulus: `<p style="font-size: 25px;">A person <strong>${similarity_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
-               <br>Suppose that they didn't <strong>${similarity_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_participle[index]}</strong>?</p>`,
+               <br>Suppose that they didn't <strong>${similarity_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_referent[index]}</strong>?</p>`,
     labels: slider_labels, 
     slider_width: slider_width,
     require_movement: true, 
@@ -205,7 +213,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
   // Attention check trials
   var attention_check_trial_counterfactual = {
   type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 25px;">A person <strong>jumped up and down</strong>, then they <strong>got tired</strong>. <br>For this question, please select "definitely not"</p>`,
+  stimulus: `<p style="font-size: 25px;">A person <strong>jumped up and down</strong>, then they <strong>got tired</strong>. <br>For this question, please select <strong>"definitely not"</strong></p>`,
   labels: slider_labels, 
   data: {
     condition: "attention_check",
@@ -218,7 +226,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
 
 var attention_check_trial_similarity = {
   type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "The ability to <strong>choose what to do</strong>"</p>`,
+  stimulus: `<p style="font-size: 25px;">A person <strong>saw something</strong>, then they <strong>felt hungry</strong>. <br>For this question, please select <strong>"definitely yes"</strong></p>`,
   labels: slider_labels, 
   button_layout: "flex",
   data: {

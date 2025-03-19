@@ -406,17 +406,17 @@ mds_df <- as.data.frame(mds_result$gspace)
 mds_df$Item <- rownames(mds_result$gspace)  # Add labels
 colnames(mds_df) <- c("Dim1", "Dim2", "Item")
 
-# Plot with ggplot2
-ggplot(mds_df, aes(x = V1, y = V2, label = Item)) +
-  geom_point(size = 3, color = "blue") +
-  geom_text(vjust = -0.5, hjust = 0.5) +
-  theme_minimal() +
-  labs(title = "Asymmetric MDS Visualization", x = "Dimension 1", y = "Dimension 2")
-
-
-str(mds_result)
-
-str(mds_result$gspace)
+# # Plot with ggplot2
+# ggplot(mds_df, aes(x = V1, y = V2, label = Item)) +
+#   geom_point(size = 3, color = "blue") +
+#   geom_text(vjust = -0.5, hjust = 0.5) +
+#   theme_minimal() +
+#   labs(title = "Asymmetric MDS Visualization", x = "Dimension 1", y = "Dimension 2")
+# 
+# 
+# str(mds_result)
+# 
+# str(mds_result$gspace)
 ```
 
 #unfolding
@@ -1575,9 +1575,9 @@ write.csv(d_diffs, paste0(snapshots_output_path, "/diffs.csv"), row.names = F)
 ```{r}
 #max regardless of domain
 diffs_causal <- d_diffs %>%
-  group_by(itemB, domain_itemA) %>%
-  slice(which.max(euclidean_minus_causal)) %>% 
-  ungroup() %>% 
+  # group_by(itemB, domain_itemA) %>%
+  # slice(which.max(euclidean_minus_causal)) %>% 
+  # ungroup() %>% 
   group_by(itemB) %>% 
   slice(which.max(euclidean_minus_causal)) %>% 
   ungroup() %>% 
