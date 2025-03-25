@@ -143,18 +143,18 @@
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
 //-----------------------------------
-// Causal counterfactuals study trials (using correct tense)
+// Causal trials
 var explanation_trials_causal = combined_items.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 25px;">Suppose that someone <strong>${item.itemB_past_tense}</strong>.
-               <br>To what extent is the following a good explanation for why the person <strong>${item.itemB_past_tense}</strong>?</p>
-               <p style="font-size: 25px;">Because they <strong>${item.causal_itemA_past_tense}</strong></p>`,
+    stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
+               <p style="font-size: 25px;">Someone <strong>${item.itemB_past_tense}</strong> because they <strong>${item.causal_itemA_past_tense}</strong>.</p>
+               <p style="font-size: 25px;">To what extent is this a good explanation?</p>`,
     labels: slider_labels,
     slider_width: slider_width,
     require_movement: true, 
     data: {
-      condition: "counterfactual",
+      condition: "causal",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA
     },
@@ -164,20 +164,20 @@ var explanation_trials_causal = combined_items.map(function(item, index) {
   };
 });
 
-// Causal counterfactuals study trials (using correct tense)
+// Similarity trials
 var explanation_trials_similar = combined_items.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 25px;">Suppose that someone <strong>${item.itemB_past_tense}</strong>.
-               <br>To what extent is the following a good explanation for why the person <strong>${item.itemB_past_tense}</strong>?</p>
-               <p style="font-size: 25px;">Because they <strong>${item.similarity_itemA_past_tense}</strong></p>`,
+    stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
+               <p style="font-size: 25px;">Someone <strong>${item.itemB_past_tense}</strong> because they <strong>${item.similarity_itemA_past_tense}</strong>.</p>
+               <p style="font-size: 25px;">To what extent is this a good explanation?</p>`,
     labels: slider_labels,
     slider_width: slider_width,
     require_movement: true, 
     data: {
-      condition: "counterfactual",
+      condition: "similar",
       itemB: item.itemB,
-      causal_itemA: item.causal_itemA
+      similar_itemA: item.similarity_itemA
     },
     on_finish: function(data) {
       data.response_value = data.response; 
@@ -193,27 +193,29 @@ all_trials = jsPsych.randomization.shuffle(all_trials);
 // Define attention check trials
 var attention_check_trial_1 = {
   type: jsPsychHtmlSliderResponse,  
-  stimulus: `<p style="font-size: 25px;">Suppose that someone <strong>chose what to do</strong>.</p>
-             <p style="font-size: 25px;">For this question, please move the slider to <strong>"definitely not"</strong></p>`,
-  labels: slider_labels,
-  slider_width: slider_width,
-  require_movement: true,
-  data: {
-    condition: "attention_check",
-    correct_response_attn: "0"
-  }
-};
-
-var attention_check_trial_2 = {
-  type: jsPsychHtmlSliderResponse,  
-  stimulus: `<p style="font-size: 25px;">Suppose that someone <strong>took a walk</strong>.</p>
+  stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
+             <p style="font-size: 25px;">Someone <strong>took a walk</strong>. </p>
              <p style="font-size: 25px;">For this question, please move the slider to <strong>"definitely yes"</strong></p>`,
   labels: slider_labels,
   slider_width: slider_width,
   require_movement: true,
   data: {
-    condition: "attention_check",
+    condition: "attention_check_1",
     correct_response_attn: "100"
+  }
+};
+
+var attention_check_trial_2 = {
+  type: jsPsychHtmlSliderResponse,  
+  stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
+             <p style="font-size: 25px;">Someone <strong>chose what to do</strong>. </p>
+             <p style="font-size: 25px;">For this question, please move the slider to <strong>"definitely no"</strong></p>`,
+  labels: slider_labels,
+  slider_width: slider_width,
+  require_movement: true,
+  data: {
+    condition: "attention_check_2",
+    correct_response_attn: "0"
   }
 };
 
