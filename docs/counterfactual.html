@@ -85,7 +85,7 @@
         '<br>Welcome! <br>In this game you will be asked to imagine what would happen ' +
         'in an alternative scenario. <br>On each trial, there will be an observed event (for example, ' +
         '"a person took a walk, and then saw something"), <br>and then you will be asked to consider whether the outcome (i.e. seeing something) would still happen <br>' +
-        ' if the preceding event (i.e. taking a walk) did not happen.'
+        ' if the first event (i.e. taking a walk) did not happen.'
       ],
       show_clickable_nav: true
     };
@@ -170,7 +170,7 @@
     // Shuffle the combined array
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
-// Causal counterfactuals study trials (using correct tense)
+// Causal counterfactual trials
 var counterfactual_trials = combined_items.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
@@ -190,7 +190,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
   };
 });
 
-  // Similarity counterfactual sstudy trials
+  // Similarity counterfactual trials
   var similarity_trials = combined_items.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
@@ -202,7 +202,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
     data: {
       condition: "counterfactual",
       itemB: item.itemB,
-      causal_itemA: item.causal_itemA
+      similar_itemA: item.similarity_itemA
     },
     on_finish: function(data) {
       data.response_value = data.response; 
@@ -217,7 +217,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
   labels: slider_labels, 
   slider_width: slider_widths,
   data: {
-    condition: "attention_check",
+    condition: "attention_check_counterfactual",
     correct_response_attn: 0
   },
   on_finish: function(data) {
@@ -232,11 +232,11 @@ var attention_check_trial_similarity = {
   slider_width: slider_widths,
   button_layout: "flex",
   data: {
-    condition: "attention_check",
-    correct_response_attn: 0
+    condition: "attention_check_similarity",
+    correct_response_attn: 100
   },
   on_finish: function(data) {
-    data.selected_choice = data.response < 10 ? "yes" : "no"; // Accepts anything close to 0
+    data.selected_choice = data.response > 90 ? "yes" : "no"; // Accepts anything close to 100
   }
 };
 
