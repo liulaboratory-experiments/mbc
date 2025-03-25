@@ -174,8 +174,8 @@
 var counterfactual_trials = combined_items.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 25px;">A person <strong>${causal_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
-               <br>Suppose that they didn't <strong>${causal_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_referent[index]}</strong>?</p>`,
+    stimulus: `<p style="font-size: 25px;">A person <strong>${causal_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>.</p> 
+               <p style="font-size: 25px;">Suppose that they didn't <strong>${causal_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_referent[index]}</strong>?</p>`,
     labels: slider_labels,
     slider_width: slider_widths,
     require_movement: true, 
@@ -194,8 +194,8 @@ var counterfactual_trials = combined_items.map(function(item, index) {
   var similarity_trials = combined_items.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
-    stimulus: `<p style="font-size: 25px;">A person <strong>${similarity_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>. 
-               <br>Suppose that they didn't <strong>${similarity_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_referent[index]}</strong>?</p>`,
+    stimulus: `<p style="font-size: 25px;">A person <strong>${similarity_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>.</p> 
+               <p style="font-size: 25px;">Suppose that they didn't <strong>${similarity_itemA[index]}</strong>. <br>Would they still have <strong>${itemB_referent[index]}</strong>?</p>`,
     labels: slider_labels, 
     slider_width: slider_widths,
     require_movement: true, 
@@ -213,7 +213,8 @@ var counterfactual_trials = combined_items.map(function(item, index) {
   // Attention check trials
   var attention_check_trial_counterfactual = {
   type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 25px;">A person <strong>jumped up and down</strong>, then they <strong>got tired</strong>. <br>For this question, please select <strong>"definitely not"</strong></p>`,
+  stimulus: `<p style="font-size: 25px;">A person <strong>jumped up and down</strong>, then they <strong>got tired</strong>.</p>
+             <p style="font-size: 25px;">For this question, please select <strong>"definitely not"</strong></p>`,
   labels: slider_labels, 
   slider_width: slider_widths,
   data: {
@@ -227,7 +228,8 @@ var counterfactual_trials = combined_items.map(function(item, index) {
 
 var attention_check_trial_similarity = {
   type: jsPsychHtmlSliderResponse,
-  stimulus: `<p style="font-size: 25px;">A person <strong>saw something</strong>, then they <strong>felt hungry</strong>. <br>For this question, please select <strong>"definitely yes"</strong></p>`,
+  stimulus: `<p style="font-size: 25px;">A person <strong>saw something</strong>, then they <strong>felt hungry</strong>.</p>
+             <p style="font-size: 25px;">For this question, please select <strong>"definitely yes"</strong></p>`,
   labels: slider_labels, 
   slider_width: slider_widths,
   button_layout: "flex",
@@ -259,7 +261,26 @@ counterfactual_trials = insertAttentionCheck(counterfactual_trials, attention_ch
 // Insert attention check into similarity trials
 similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
 
+var all_trials = [...counterfactual_trials, ...similarity_trials ];
 
+all_trials = jsPsych.randomization.shuffle(all_trials);
+
+var debrief = {
+        type: jsPsychInstructions,
+        pages: [
+            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
+            '<p>Thank you so much for helping us with this study!</p>' +
+            '<p>In this game, we asked you questions about whether an outcome would ' +
+            'still happen if a preceding event did not happen.' +
+            '<br>Our goal is to study how people make sense of counterfactual situations. ' +
+            '<br>These are situations where an event that usually leads to an outcome does not occur. ' +
+            '<br>Do people rely on their understanding of causal relationships, <br>or their understanding ' +
+            ' of similarity relationships to make sense of such situations? '
+        ],
+        show_clickable_nav: true,
+        button_label_next: 'Next'
+        };
+      
 const save_data = {
     type: jsPsychPipe,
     action: "save",
@@ -271,7 +292,7 @@ const save_data = {
 // Define the timeline based on the assigned task
 var timeline = [preload];
 
-  timeline.push(instructions_counterfactual, ...counterfactual_trials, ...similarity_trials);
+  timeline.push(instructions_counterfactual, ...all_trials, debrief);
 
 if (data_collection) {
       timeline.push(save_data); 
