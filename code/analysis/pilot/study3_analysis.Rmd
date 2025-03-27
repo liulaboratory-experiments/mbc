@@ -44,7 +44,13 @@ desired_order <- c("see something", "hear something", "choose what to do",
 
 d <- read.csv(paste0(data_path, "/2025-03-25_13-12-24_undefined.csv"))
 
-d
+#do this in a separate pre-processing pipeline
+file_paths <- list.files(path = data_path, pattern = "^2025-", full.names = TRUE)
+d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x))) %>%
+     mutate(subject_id = paste0("subj_", cur_group_id())) %>%
+     select(-c(mturk_participant_id, mturk_assignment_id, mturk_project_id)) %>%
+     relocate(subject_id, .before = "success")
+
 ```
 
 
@@ -52,18 +58,14 @@ d
 
 ```{r}
  subjects_to_exclude <- d %>%
-  filter(grepl("attention_check", condition))
-  filter(condition == "attention_check") %>% 
-  rowwise() %>% 
-  mutate(correct_attn_check = case_when(
-    grepl(correct_response_attn, selected_choice) ~ "yes",
-    TRUE ~ "no"
-  )) %>% 
-  filter(correct_attn_check == "no") %>% 
-  pull(subject_id) #1 subject: subject 11
+  filter(grepl("attention_check", condition)) %>% 
+  filter(selected_choice == "no") %>% 
+  pull(subject_id) %>% 
+  unique()
 
 dat <- d %>% 
-  filter(!subject_id %in% subjects_to_exclude) %>% #exclude 1 subject who failed attn check
+  # filter(!subject_id %in% subjects_to_exclude) %>% 
+  filter(subject_id %in% subjects_to_exclude) %>% #exclude 1 subject who failed attn check
   filter(condition %in% c("intervention", "similarity")) %>%
   mutate(response = as.factor(response)) %>% 
   mutate(condition = as.factor(condition)) %>% 
@@ -128,6 +130,9 @@ dat <- d %>%
                                  similarity_itemA == "experience pain"~ "bio",
                                  similarity_itemA == "get sick"~ "bio")) 
 
+
+d %>% 
+  count(condition)
 
 ```
 

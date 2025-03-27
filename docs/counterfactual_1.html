@@ -145,7 +145,7 @@
     var itemB_referent = [
      "seen the same thing", "heard the same thing", "chosen to do the same thing", "remembered the same thing", "thought the same thing",
      "reached for the same thing", "sat down at the same place", "jumped up and down", "kicked the same thing", "taken the same walk",
-     "gotten tired", "become hungry", "felt scared", "experienced pain", "gotten sick"
+     "gotten tired all the same", "become hungry all the same", "felt scared all the same", "experienced the same pain", "gotten sick in the same way"
     ]
     
     const slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'];
@@ -219,10 +219,10 @@ var counterfactual_trials = combined_items.map(function(item, index) {
   slider_width: slider_widths,
   data: {
     condition: "attention_check_counterfactual",
-    attn_response: data.response
   },
   on_finish: function(data) {
-    data.attn_correct = data.response < 10 ? "yes" : "no"; // Accepts anything close to 0
+    data.attn_response = data.response;
+    data.attn_correct = data.response < 10 ? "yes" : "no";     // Accepts anything close to 0
   }
 };
 
@@ -234,10 +234,9 @@ var attention_check_trial_similarity = {
   slider_width: slider_widths,
   button_layout: "flex",
   data: {
-    condition: "attention_check_similarity",
-    attn_response: data.response
-  },
+    condition: "attention_check_similarity",  },
   on_finish: function(data) {
+    data.attn_response = data.response;
     data.attn_correct = data.response > 90 ? "yes" : "no"; // Accepts anything close to 100
   }
 };
@@ -255,15 +254,6 @@ function insertAttentionCheck(trials, attentionCheck) {
   return trials;
 }
 
-// Insert attention check into intervention trials
-counterfactual_trials = insertAttentionCheck(counterfactual_trials, attention_check_trial_counterfactual);
-
-// Insert attention check into similarity trials
-similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
-
-var all_trials = [...counterfactual_trials, ...similarity_trials ];
-
-all_trials = jsPsych.randomization.shuffle(all_trials);
 
 var debrief = {
         type: jsPsychInstructions,
@@ -359,6 +349,14 @@ var debrief = {
                 data.ethnicity = ""}
             }
         };
+
+// Insert attention check trials
+counterfactual_trials = insertAttentionCheck(counterfactual_trials, attention_check_trial_counterfactual);
+similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
+
+var all_trials = [...counterfactual_trials, ...similarity_trials];
+
+all_trials = jsPsych.randomization.shuffle(all_trials);
 
 const save_data = {
     type: jsPsychPipe,
