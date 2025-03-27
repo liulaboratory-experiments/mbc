@@ -200,7 +200,7 @@ var counterfactual_trials = combined_items.map(function(item, index) {
     slider_width: slider_widths,
     require_movement: true, 
     data: {
-      condition: "counterfactual",
+      condition: "similarity",
       itemB: item.itemB,
       similar_itemA: item.similarity_itemA
     },
@@ -327,7 +327,9 @@ var debrief = {
                 '</div> </div>' +
                 '<p> Please press the finish button to complete the experiment. </p> </div>',
             button_label: 'Finish',
-            data: { trial_id: 'demographics_survey'},
+            data: { 
+              trial_id: 'demographics_survey'
+            },
             on_finish: function(data){
 
             data.feedback = data.response['feedback'];

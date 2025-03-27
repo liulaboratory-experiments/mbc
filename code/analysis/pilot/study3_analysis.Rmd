@@ -42,14 +42,16 @@ desired_order <- c("see something", "hear something", "choose what to do",
                    "sit down", "jump up and down", "kick something", "take a walk", 
                    "get tired", "become hungry", "feel scared", "experience pain", "get sick")
 
-d <- read.csv(paste0(data_path, "/2025-03-25_13-12-24_undefined.csv"))
-
-#do this in a separate pre-processing pipeline
 file_paths <- list.files(path = data_path, pattern = "^2025-", full.names = TRUE)
-d <- map_df(file_paths, ~ read_csv(.x) %>% mutate(filename = basename(.x))) %>%
-     mutate(subject_id = paste0("subj_", cur_group_id())) %>%
-     select(-c(mturk_participant_id, mturk_assignment_id, mturk_project_id)) %>%
-     relocate(subject_id, .before = "success")
+
+d <- imap_dfr(file_paths, ~ {
+  read_csv(.x, col_types = cols(response = col_character())) %>%
+    mutate(
+      filename = basename(.x),
+      subject_id = paste0("subj_", str_pad(.y, 2, pad = "0"))
+    )}) %>%
+  select(-c(mturk_participant_id, mturk_assignment_id, mturk_project_id)) %>%
+  relocate(subject_id, .before = "success")
 
 ```
 
