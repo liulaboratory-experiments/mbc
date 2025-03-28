@@ -200,6 +200,9 @@
     const slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'];
     const slider_widths = 800;
 
+
+    
+
     // Combine items into a single array of objects
     var combined_items = [];
     for (var i = 0; i < itemB.length; i++) {
@@ -217,10 +220,16 @@
     }
 
     // Shuffle the combined array
-    combined_items = jsPsych.randomization.shuffle(combined_items);
+    //combined_items = jsPsych.randomization.shuffle(combined_items);
+
+
+    var combined_items_cf = jsPsych.randomization.shuffle([...combined_items]);
+    var combined_items_sim = jsPsych.randomization.shuffle([...combined_items]);
+
 
 // Causal counterfactual trials
-var counterfactual_trials = combined_items.map(function(item, index) {
+//var counterfactual_trials = combined_items.map(function(item, index) {
+var counterfactual_trials = combined_items_cf.map(function(item, index) {
   return {
     type: jsPsychHtmlSliderResponse,
     stimulus: `<p style="font-size: 25px;">A person <strong>${causal_itemA_past_tense[index]}</strong>, then they <strong>${itemB_past_tense[index]}</strong>.</p> 
