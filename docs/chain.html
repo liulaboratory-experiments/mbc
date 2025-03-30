@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/jspsych"></script>
+    <script src="jspsych/dist/plugin-preload.js"></script>
+    <script src="jspsych/dist/plugin-instructions.js"></script>
+    <script src="jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="jspsych/dist/plugin-html-slider-response.js"></script>
+    <script src="jspsych/dist/plugin-survey-html-form.js"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-survey-slider@1.0.0"></script>
+    <link href="https://unpkg.com/jspsych/css/jspsych.css" rel="stylesheet" type="text/css">
+
+    <style>
+      #quitButton {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: lightgray;
+        color: black;
+        border: 2px solid black;
+        cursor: pointer;
+        font-size: 16px;
+      }
+    </style>
+
+  </head>
+  <body></body>
+
+  <button id="quitButton">Quit</button>
+
+  <script>
+
+      var jsPsych = initJsPsych({
+            on_finish: function() {
+                window.location = "https://connect.cloudresearch.com/participant/project/BED0E6503D/complete";
+                //jsPsych.data.displayData();
+            },
+            show_progress_bar: true
+        });
+
+        //experiment variables
+        const mturk_pilot_mode = false
+        const data_collection = false
+
+            // capture info from mturk/connect, except in test mode
+        if(mturk_pilot_mode) { 
+            var study_id = 'test';
+            var session_id = 'test';
+            participant_id = 'test_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
+        } else {
+            participant_id = jsPsych.data.getURLVariable('participantId'); 
+            var assignment_id = jsPsych.data.getURLVariable('assignm entId');
+            var project_id = jsPsych.data.getURLVariable('projectId');
+        }
+
+        jsPsych.data.addProperties({
+            mturk_participant_id: participant_id,
+            mturk_assignment_id: assignment_id,
+            mturk_project_id: project_id
+        })
+
+        // Get the current date and time
+        const now = new Date();
+        const dateString = now.toISOString().slice(0, 10); // Format as YYYY-MM-DD
+        const timeString = now.toTimeString().slice(0, 8).replace(/:/g, '-'); // Format as HH-MM-SS
+
+        // Create the filename with the current date and time
+        const filename = `${dateString}_${timeString}_${participant_id}.csv`;
+        //---------------------------------------------------------------------------------------------------------------------------------------
+
+
+    // Preload step
+    var preload = {
+      type: jsPsychPreload,
+      auto_preload: true
+    };
+
+    var instruction = {
+      type: jsPsychInstructions,
+      pages: [
+        '<div style="font-size: 22px; text-align: center;">' +
+        '<br>Welcome! <br>In this game you will be asked to consider a sequence of three events. ' +
+        '<br>Your job is to indicate the most likely middle event that will complete the chain.'
+      ],
+      show_clickable_nav: true
+    };
+
+    // Define the item lists
+    var causal_itemB = [ 
+      "see something", "hear something", "experience pain", 
+      "get tired", "see something", "choose what to do",
+      "choose what to do"
+    ];
+    var similar_itemB = [ 
+      "jump up and down", "jump up and down", "take a walk",
+      "take a walk", "experience pain", "sit down",
+      "see something"
+    ];
+    var itemC = [
+      "reach for something", "sit down", "jump up and down",
+      "sit down", "get sick", "jump up and down",
+      "get tired"
+    ];
+    var itemA = [
+      "take a walk", "take a walk", "sit down", 
+      "jump up and down", "hear something", "get tired", 
+      "hear something",
+    ];
+    var itemA_past_tense = [
+      "took a walk", "took a walk", "sat down",
+      "jumped up and down", "reached for something", "got tired",
+      "heard something"
+    ];
+
+
+var main_trials = itemA.map(function(item, index) {
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <p style="font-size: 25px;">Suppose that someone <strong>${itemA_past_tense[index]}</strong>.</p>
+      <p style="font-size: 25px;">What would you do to make them <strong>${itemC[index]}</strong>?</p>
+      <p style="font-size: 25px;">I would make them...</p>
+    `,
+    choices: [causal_itemB[index], similar_itemB[index]], // Button labels
+  };
+});
+
+var debrief = {
+      type: jsPsychInstructions,
+      pages: [
+        '<div style="font-size: 22px; text-align: center;">' +
+        '<br>Thank you for your participation!'
+      ],
+      show_clickable_nav: true
+    };
+
+var timeline = [preload];
+
+timeline.push(instruction, ...main_trials, debrief);
+
+jsPsych.run(timeline);
+
+  </script>
+</html>

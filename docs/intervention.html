@@ -180,7 +180,7 @@
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
     // Intervention study trials
-    var intervention_trials = combined_items.map(function(item) {
+  var intervention_trials = combined_items.map(function(item) {
   var choices = [
     `<p style="font-size: 20px;">I would make them <strong>${item.causal_itemA}</strong></p>`,
     `<p style="font-size: 20px;">I would make them <strong>${item.similarity_itemA}</strong></p>`

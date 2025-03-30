@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/jspsych"></script>
+    <script src="jspsych/dist/plugin-preload.js"></script>
+    <script src="jspsych/dist/plugin-instructions.js"></script>
+    <script src="jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="jspsych/dist/plugin-html-slider-response.js"></script>
+    <script src="jspsych/dist/plugin-survey-html-form.js"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-survey-slider@1.0.0"></script>
+    <link href="https://unpkg.com/jspsych/css/jspsych.css" rel="stylesheet" type="text/css">
+
+    <style>
+      #quitButton {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: lightgray;
+        color: black;
+        border: 2px solid black;
+        cursor: pointer;
+        font-size: 16px;
+      }
+    </style>
+
+  </head>
+  <body></body>
+
+  <button id="quitButton">Quit</button>
+
+  <script>
+
+      var jsPsych = initJsPsych({
+            on_finish: function() {
+                window.location = "https://connect.cloudresearch.com/participant/project/BED0E6503D/complete";
+                //jsPsych.data.displayData();
+            },
+            show_progress_bar: true
+        });
+
+        //experiment variables
+        const mturk_pilot_mode = false
+        const data_collection = false
+
+            // capture info from mturk/connect, except in test mode
+        if(mturk_pilot_mode) { 
+            var study_id = 'test';
+            var session_id = 'test';
+            participant_id = 'test_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
+        } else {
+            participant_id = jsPsych.data.getURLVariable('participantId'); 
+            var assignment_id = jsPsych.data.getURLVariable('assignm entId');
+            var project_id = jsPsych.data.getURLVariable('projectId');
+        }
+
+        jsPsych.data.addProperties({
+            mturk_participant_id: participant_id,
+            mturk_assignment_id: assignment_id,
+            mturk_project_id: project_id
+        })
+
+        // Get the current date and time
+        const now = new Date();
+        const dateString = now.toISOString().slice(0, 10); // Format as YYYY-MM-DD
+        const timeString = now.toTimeString().slice(0, 8).replace(/:/g, '-'); // Format as HH-MM-SS
+
+        // Create the filename with the current date and time
+        const filename = `${dateString}_${timeString}_${participant_id}.csv`;
+        //---------------------------------------------------------------------------------------------------------------------------------------
+
+    // Preload step
+    var preload = {
+      type: jsPsychPreload,
+      auto_preload: true
+    };
+
+    var instructions_intervention = {
+      type: jsPsychInstructions,
+      pages: [
+        '<div style="font-size: 22px; text-align: center;">' +
+        '<br>Welcome! <br>In this game you will be asked to imagine what you would do ' +
+        'in different scenarios. <br>On each trial, there will be an intended outcome (for example, ' +
+        'to remove a creature\'s ability to "choose what to do"), <br>and two possible abilities of the creature you could remove (for example "see something" and "jump up and down")' +
+        '. <br>Your job is to choose the action that you think will best lead to the outcome - ' +
+        '<br>the one most likely to succeed, and to succeed immediately.'
+      ],
+      show_clickable_nav: true
+    };
+
+    var instructions_inference = {
+      type: jsPsychInstructions,
+      pages: [
+        '<div style="font-size: 22px; text-align: center;">' +
+        '<br>Welcome! <br>In this game you will be asked to imagine abilities a ' +
+        'creature might have. <br>On each trial, the creature will have a target ability (for example, ' +
+        '"the capacity to choose what to do"), <br> and two other possible abilities (for example, ' +
+        '"the capacity to see something" and "the capacity to get tired"). <br> Your job is to choose which of the two ' +
+        'abilities the creature would also have that would enable them to experience the target ability. '
+      ],
+      show_clickable_nav: true
+    }
+
+    // Define the item lists
+    var causal_itemA = [ //all top items already in another domain
+      "take a walk", "take a walk", "feel scared", "take a walk", "take a walk", 
+      "become hungry", "experience pain", "think about something", "think about something", "think about something", 
+      "jump up and down", "take a walk", "see something", "kick something", "see something" 
+    ];
+    var similarity_itemA = [ //some items were not in same domain, but selected ones in same domain
+      "hear something", "see something", "remember something", "think about something", "remember something",
+      "kick something", "jump up and down", "sit down", "jump up and down", "jump up and down",
+      "feel scared", "experience pain", "become hungry", "feel scared", "get tired"
+    ];
+    var itemB = [
+      "see something", "hear something", "choose what to do", "remember something", "think about something", 
+      "reach for something", "sit down", "jump up and down", "kick something", "take a walk",
+      "get tired", "become hungry", "feel scared", "experience pain", "get sick"
+    ];
+
+        //=============================past tense
+    var causal_itemA_past_tense = [ 
+      "took a walk", "took a walk", "felt scared", "took a walk", "took a walk", 
+      "became hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
+      "jumped up and down", "took a walk", "saw something", "kicked something", "saw something" 
+  ];
+
+    var similarity_itemA_past_tense = [ 
+      "heard something", "saw something", "remembered something", "thought about something", "remembered something",
+      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jumped up and down",
+      "felt scared", "experienced pain", "became hungry", "felt scared", "got tired"
+    ];
+    var itemB_past_tense = [
+      "saw something", "heard something", "chose what to do", "remembered something", "thought about something", 
+      "reached for something", "sat down", "jumped up and down", "kicked something", "took a walk",
+      "got tired", "became hungry", "felt scared", "experienced pain", "got sick"
+    ];
+
+          //=============================simple present tense
+    var causal_itemA_present_tense = [ 
+      "takes a walk", "takes a walk", "feels scared", "takes a walk", "takes a walk", 
+      "becomes hungry", "experiences pain", "thinks about something", "thinks about something", "thinks about something", 
+      "jumps up and down", "takes a walk", "sees something", "kicks something", "sees something" 
+  ];
+
+    var similarity_itemA_present_tense = [ 
+      "hears something", "sees something", "remembers something", "thinks about something", "remembers something",
+      "kicks something", "jumps up and down", "sits down", "jumps up and down", "jumps up and down",
+      "feels scared", "experiences pain", "becomes hungry", "feels scared", "gets  tired"
+    ];
+    var itemB_present_tense = [
+      "sees something", "hears something", "chooses what to do", "remembers something", "thinks about something", 
+      "reaches for something", "sits down", "jumps up and down", "kicks something", "takes a walk",
+      "gets tired", "becomes hungry", "feels scared", "experiences pain", "gets sick"
+    ];
+
+    //=============================past participle
+      var causal_itemA_participle = [ 
+      "taken a walk", "taken a walk", "felt scared", "taken a walk", "taken a walk", 
+      "become hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
+      "jumped up and down", "taken a walk", "seen something", "kicked something", "seen something" 
+    ];
+    var similarity_itemA_participle = [ 
+      "heard something", "seen something", "remembered something", "thought about something", "remembered something",
+      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jumped up and down",
+      "felt scared", "experienced pain", "become hungry", "felt scared", "gotten tired"
+    ];
+    var itemB_participle = [
+      "seen something", "heard something", "chosen what to do", "remembered something", "thought about something", 
+      "reached for something", "sat down", "jumped up and down", "kicked something", "taken a walk",
+      "gotten tired", "become hungry", "felt scared", "experienced pain", "gotten sick"
+    ];
+
+    // Combine items into a single array of objects
+    var combined_items = [];
+    for (var i = 0; i < itemB.length; i++) {
+      combined_items.push({
+        itemB: itemB[i],
+        causal_itemA: causal_itemA[i],
+        similarity_itemA: similarity_itemA[i],
+        //past tense
+        causal_itemA_past_tense: causal_itemA_past_tense[i],
+        similarity_itemA_present_tense: similarity_itemA_present_tense[i],
+        itemB_past_tense: itemB_past_tense[i],
+        //present tense
+        causal_itemA_present_tense: causal_itemA_present_tense[i],
+        similarity_itemA_present_tense: similarity_itemA_present_tense[i],
+        itemB_present_tense: itemB_present_tense[i],
+        //participle
+        causal_itemA_participle: causal_itemA_participle[i],
+        similarity_itemA_participle: similarity_itemA_participle[i],
+        itemB_participle: itemB_participle[i]
+      });
+    }
+
+    // Shuffle the combined array
+    combined_items = jsPsych.randomization.shuffle(combined_items);
+
+    // Intervention (using similarity) study trials
+  var intervention_trials = combined_items.map(function(item) {
+  var choices = [
+    `<p style="font-size: 23px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 23px;">The ability to <strong>${item.similarity_itemA}</strong></p>`
+  ];
+  choices = jsPsych.randomization.shuffle(choices);
+
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<p style="font-size: 25px;">Suppose you would like to take away a creature's ability to <strong>${item.itemB}</strong>.</p>
+               <p style="font-size: 25px;">Which of these abilities of the creature would you remove?</p>`,
+    choices: choices,
+    button_layout: "flex",
+    data: {
+      condition: "intervention",
+      itemB: item.itemB,
+      causal_itemA: item.causal_itemA,
+      similarity_itemA: item.similarity_itemA
+    },
+    on_finish: function(data) {
+      data.selected_choice = choices[data.response]; 
+    }
+  };
+});
+
+  // Inference (using causality) study trials
+  var inference_trials = combined_items.map(function(item) {
+  var choices = [
+    `<p style="font-size: 23px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 23px;">The ability to <strong>${item.similarity_itemA}</strong></p>`
+  ];
+  choices = jsPsych.randomization.shuffle(choices);
+
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<p style="font-size: 25px;">Suppose you encounter a creature which <strong>${item.itemB_present_tense}</strong>.</p>
+               <p style="font-size: 25px;">Which of these experiences do you think the creature would also have for them to <strong>${item.itemB}</strong>?</p>`,
+    choices: choices,
+    button_layout: "flex",  
+    data: {
+      condition: "inference",
+      itemB: item.itemB,
+      causal_itemA: item.causal_itemA,
+      similarity_itemA: item.similarity_itemA
+    },
+    on_finish: function(data) {
+      data.selected_choice = choices[data.response]; 
+    }
+  };
+});
+
+  // Attention check trials
+  var attention_check_trial_intervention = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "I would make them <strong>"choose what to do"</strong></p>`,
+  choices: [
+    `<p style="font-size: 23px;">I would make them <strong>choose what to do</strong></p>`,
+    `<p style="font-size: 23px;">I would make them <strong>sit down</strong></p>`
+  ],
+  button_layout: "flex",
+  data: {
+    condition: "attention_check",
+    correct_response_attn: "choose what to do"
+  },
+  on_finish: function(data) {
+    data.selected_choice = data.response === 0 ? "I would make them choose what to do" : "I would make them sit down";
+  }
+};
+
+var attention_check_trial_inference = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "The ability to <strong>choose what to do</strong>"</p>`,
+  choices: [
+    `<p style="font-size: 23px;">The ability to <strong>choose what to do</strong></p>`,
+    `<p style="font-size: 23px;">The ability to <strong>sit down</strong></p>`
+  ],
+  button_layout: "flex",
+  data: {
+    condition: "attention_check",
+    correct_response_attn: "choose what to do"
+  },
+  on_finish: function(data) {
+    data.selected_choice = data.response === 0 ? "The ability to choose what to do" : "The ability to sit down";
+  }
+};
+
+function insertAttentionCheck(trials, attentionCheck) {
+  var randomIndex = Math.floor(Math.random() * trials.length);
+  trials.splice(randomIndex, 0, attentionCheck);
+  return trials;
+}
+
+// Insert attention check into intervention trials
+intervention_trials = insertAttentionCheck(intervention_trials, attention_check_trial_intervention);
+
+// Insert attention check into inference trials
+inference_trials = insertAttentionCheck(inference_trials, attention_check_trial_inference);
+
+var debrief_intervention = {
+        type: jsPsychInstructions,
+        pages: [
+            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
+            '<p>Thank you so much for helping us with this study!</p>' +
+            '<p>In this game, we asked you questions about what actions ' +
+            'you would take to achieve various outcomes.' +
+            '<br>Our goal was to study which kinds of actions you think are most likely to lead  ' +
+            'to the intended outcomes. <br>Do you select action items which are from the same conceptual category' +
+            '<br>as the outcome, or from a different category?' +
+            '<br>This shows us how you think various mental and bodily abilities group together.</p>' +
+            '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
+        ],
+        show_clickable_nav: true,
+        button_label_next: 'Next'
+        };
+      
+      var debrief_inference = {
+        type: jsPsychInstructions,
+        pages: [
+            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
+            '<p>Thank you so much for helping us with this study!</p>' +
+            '<p>In this game, we asked you questions about which other abilities ' +
+            'a creature might have, <br>given that they have a target ability.' +
+            '<br>The goal was to see whether you select abilities which are similar' +
+            ' or different from the target ability.' +
+            '<br>This shows us how you think various mental and bodily abilities group together.</p>' +
+            '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
+        ],
+        show_clickable_nav: true,
+        button_label_next: 'Next'
+        };
+
+// Random assignment to a task
+var task_assignment = Math.random() < 0.5 ? "intervention" : "inference";
+
+
+// Define the timeline based on the assigned task
+var timeline = [preload];
+
+if (task_assignment === "intervention") {
+  timeline.push(instructions_intervention, ...intervention_trials, debrief_intervention);
+} else {
+  timeline.push(instructions_inference, ...inference_trials, debrief_inference);
+}
+
+if (data_collection) {
+      timeline.push(save_data); 
+}
+
+// Run the experiment
+jsPsych.run(timeline);
+
+  </script>
+</html>

@@ -1,0 +1,211 @@
+"itemA","itemB","domain_itemA","domain_itemB","mean_causal_distance","mean_freesort_distance","freesort_minus_causal"
+"become hungry","choose what to do","bio","mind",0.1846,0.4822,0.2976
+"become hungry","experience pain","bio","bio",0.3128,0.4134,0.1006
+"become hungry","feel scared","bio","bio",0.5994,0.4926,-0.1068
+"become hungry","get sick","bio","bio",0.4418,0.3878,-0.054
+"become hungry","get tired","bio","bio",0.3376,0.2924,-0.0452
+"become hungry","hear something","bio","mind",0.5942,0.544,-0.0501999999999999
+"become hungry","jump up and down","bio","action",0.68,0.5794,-0.1006
+"become hungry","kick something","bio","action",0.6048,0.6338,0.029
+"become hungry","reach for something","bio","action",0.1918,0.5934,0.4016
+"become hungry","remember something","bio","mind",0.3812,0.5614,0.1802
+"become hungry","see something","bio","mind",0.5706,0.596,0.0254
+"become hungry","sit down","bio","action",0.3056,0.513,0.2074
+"become hungry","take a walk","bio","action",0.5096,0.5972,0.0875999999999999
+"become hungry","think about something","bio","mind",0.2184,0.5722,0.3538
+"choose what to do","become hungry","mind","bio",0.5292,0.4822,-0.047
+"choose what to do","experience pain","mind","bio",0.431,0.5178,0.0868
+"choose what to do","feel scared","mind","bio",0.3324,0.524,0.1916
+"choose what to do","get sick","mind","bio",0.5908,0.5366,-0.0542
+"choose what to do","get tired","mind","bio",0.3944,0.5384,0.144
+"choose what to do","hear something","mind","mind",0.5322,0.5252,-0.00700000000000001
+"choose what to do","jump up and down","mind","action",0.365,0.4726,0.1076
+"choose what to do","kick something","mind","action",0.3968,0.503,0.1062
+"choose what to do","reach for something","mind","action",0.216,0.4312,0.2152
+"choose what to do","remember something","mind","mind",0.2754,0.3438,0.0684
+"choose what to do","see something","mind","mind",0.4054,0.4882,0.0828
+"choose what to do","sit down","mind","action",0.2458,0.463,0.2172
+"choose what to do","take a walk","mind","action",0.2686,0.4344,0.1658
+"choose what to do","think about something","mind","mind",0.1712,0.3482,0.177
+"experience pain","become hungry","bio","bio",0.643,0.4134,-0.2296
+"experience pain","choose what to do","bio","mind",0.2232,0.5178,0.2946
+"experience pain","feel scared","bio","bio",0.1302,0.3086,0.1784
+"experience pain","get sick","bio","bio",0.23,0.238,0.00800000000000001
+"experience pain","get tired","bio","bio",0.2518,0.4114,0.1596
+"experience pain","hear something","bio","mind",0.507,0.5738,0.0668
+"experience pain","jump up and down","bio","action",0.3792,0.5786,0.1994
+"experience pain","kick something","bio","action",0.3816,0.5802,0.1986
+"experience pain","reach for something","bio","action",0.2858,0.5778,0.292
+"experience pain","remember something","bio","mind",0.3252,0.6006,0.2754
+"experience pain","see something","bio","mind",0.492,0.6296,0.1376
+"experience pain","sit down","bio","action",0.1454,0.5826,0.4372
+"experience pain","take a walk","bio","action",0.5298,0.6108,0.081
+"experience pain","think about something","bio","mind",0.2356,0.628,0.3924
+"feel scared","become hungry","bio","bio",0.6818,0.4926,-0.1892
+"feel scared","choose what to do","bio","mind",0.1782,0.524,0.3458
+"feel scared","experience pain","bio","bio",0.3854,0.3086,-0.0768
+"feel scared","get sick","bio","bio",0.4632,0.3828,-0.0804
+"feel scared","get tired","bio","bio",0.4848,0.411,-0.0738
+"feel scared","hear something","bio","mind",0.4044,0.4808,0.0764
+"feel scared","jump up and down","bio","action",0.4568,0.5978,0.141
+"feel scared","kick something","bio","action",0.3398,0.5836,0.2438
+"feel scared","reach for something","bio","action",0.2992,0.6138,0.3146
+"feel scared","remember something","bio","mind",0.2714,0.575,0.3036
+"feel scared","see something","bio","mind",0.3968,0.5692,0.1724
+"feel scared","sit down","bio","action",0.3256,0.5782,0.2526
+"feel scared","take a walk","bio","action",0.403,0.6086,0.2056
+"feel scared","think about something","bio","mind",0.1814,0.5748,0.3934
+"get sick","become hungry","bio","bio",0.5058,0.3878,-0.118
+"get sick","choose what to do","bio","mind",0.2798,0.5366,0.2568
+"get sick","experience pain","bio","bio",0.0814,0.238,0.1566
+"get sick","feel scared","bio","bio",0.1628,0.3828,0.22
+"get sick","get tired","bio","bio",0.1182,0.3408,0.2226
+"get sick","hear something","bio","mind",0.5864,0.5862,-0.000199999999999978
+"get sick","jump up and down","bio","action",0.767,0.5826,-0.1844
+"get sick","kick something","bio","action",0.6652,0.6018,-0.0634
+"get sick","reach for something","bio","action",0.3676,0.5948,0.2272
+"get sick","remember something","bio","mind",0.432,0.6454,0.2134
+"get sick","see something","bio","mind",0.4786,0.6562,0.1776
+"get sick","sit down","bio","action",0.146,0.522,0.376
+"get sick","take a walk","bio","action",0.6564,0.6364,-0.02
+"get sick","think about something","bio","mind",0.3132,0.6694,0.3562
+"get tired","become hungry","bio","bio",0.4224,0.2924,-0.13
+"get tired","choose what to do","bio","mind",0.3002,0.5384,0.2382
+"get tired","experience pain","bio","bio",0.442,0.4114,-0.0306
+"get tired","feel scared","bio","bio",0.5086,0.411,-0.0976
+"get tired","get sick","bio","bio",0.4214,0.3408,-0.0806
+"get tired","hear something","bio","mind",0.5588,0.499,-0.0598
+"get tired","jump up and down","bio","action",0.7348,0.5566,-0.1782
+"get tired","kick something","bio","action",0.6846,0.5902,-0.0944
+"get tired","reach for something","bio","action",0.479,0.6264,0.1474
+"get tired","remember something","bio","mind",0.4616,0.6008,0.1392
+"get tired","see something","bio","mind",0.5178,0.5634,0.0456
+"get tired","sit down","bio","action",0.097,0.4586,0.3616
+"get tired","take a walk","bio","action",0.616,0.5612,-0.0548
+"get tired","think about something","bio","mind",0.3576,0.6228,0.2652
+"hear something","become hungry","mind","bio",0.5432,0.544,0.000800000000000023
+"hear something","choose what to do","mind","mind",0.179,0.5252,0.3462
+"hear something","experience pain","mind","bio",0.3866,0.5738,0.1872
+"hear something","feel scared","mind","bio",0.1102,0.4808,0.3706
+"hear something","get sick","mind","bio",0.6056,0.5862,-0.0194
+"hear something","get tired","mind","bio",0.5958,0.499,-0.0968
+"hear something","jump up and down","mind","action",0.3158,0.6026,0.2868
+"hear something","kick something","mind","action",0.4108,0.5182,0.1074
+"hear something","reach for something","mind","action",0.2668,0.4674,0.2006
+"hear something","remember something","mind","mind",0.1642,0.3708,0.2066
+"hear something","see something","mind","mind",0.4394,0.2028,-0.2366
+"hear something","sit down","mind","action",0.3858,0.629,0.2432
+"hear something","take a walk","mind","action",0.4214,0.6104,0.189
+"hear something","think about something","mind","mind",0.1378,0.3952,0.2574
+"jump up and down","become hungry","action","bio",0.29,0.5794,0.2894
+"jump up and down","choose what to do","action","mind",0.5038,0.4726,-0.0312
+"jump up and down","experience pain","action","bio",0.2452,0.5786,0.3334
+"jump up and down","feel scared","action","bio",0.633,0.5978,-0.0352
+"jump up and down","get sick","action","bio",0.3838,0.5826,0.1988
+"jump up and down","get tired","action","bio",0.1068,0.5566,0.4498
+"jump up and down","hear something","action","mind",0.4444,0.6026,0.1582
+"jump up and down","kick something","action","action",0.5876,0.2734,-0.3142
+"jump up and down","reach for something","action","action",0.5596,0.394,-0.1656
+"jump up and down","remember something","action","mind",0.5584,0.6592,0.1008
+"jump up and down","see something","action","mind",0.4392,0.6062,0.167
+"jump up and down","sit down","action","action",0.555,0.3538,-0.2012
+"jump up and down","take a walk","action","action",0.6872,0.2662,-0.421
+"jump up and down","think about something","action","mind",0.4426,0.6784,0.2358
+"kick something","become hungry","action","bio",0.5952,0.6338,0.0386000000000001
+"kick something","choose what to do","action","mind",0.4614,0.503,0.0416
+"kick something","experience pain","action","bio",0.118,0.5802,0.4622
+"kick something","feel scared","action","bio",0.493,0.5836,0.0906
+"kick something","get sick","action","bio",0.6876,0.6018,-0.0858
+"kick something","get tired","action","bio",0.263,0.5902,0.3272
+"kick something","hear something","action","mind",0.331,0.5182,0.1872
+"kick something","jump up and down","action","action",0.4998,0.2734,-0.2264
+"kick something","reach for something","action","action",0.6116,0.3976,-0.214
+"kick something","remember something","action","mind",0.4762,0.6588,0.1826
+"kick something","see something","action","mind",0.5024,0.5328,0.0304000000000001
+"kick something","sit down","action","action",0.4848,0.415,-0.0698
+"kick something","take a walk","action","action",0.6036,0.31,-0.2936
+"kick something","think about something","action","mind",0.4378,0.6396,0.2018
+"reach for something","become hungry","action","bio",0.583,0.5934,0.0104000000000001
+"reach for something","choose what to do","action","mind",0.428,0.4312,0.00320000000000004
+"reach for something","experience pain","action","bio",0.271,0.5778,0.3068
+"reach for something","feel scared","action","bio",0.5014,0.6138,0.1124
+"reach for something","get sick","action","bio",0.6764,0.5948,-0.0816
+"reach for something","get tired","action","bio",0.4062,0.6264,0.2202
+"reach for something","hear something","action","mind",0.6094,0.4674,-0.142
+"reach for something","jump up and down","action","action",0.527,0.394,-0.133
+"reach for something","kick something","action","action",0.6242,0.3976,-0.2266
+"reach for something","remember something","action","mind",0.4108,0.4904,0.0796
+"reach for something","see something","action","mind",0.437,0.4402,0.00319999999999998
+"reach for something","sit down","action","action",0.6138,0.4528,-0.161
+"reach for something","take a walk","action","action",0.6812,0.4608,-0.2204
+"reach for something","think about something","action","mind",0.361,0.492,0.131
+"remember something","become hungry","mind","bio",0.3708,0.5614,0.1906
+"remember something","choose what to do","mind","mind",0.1472,0.3438,0.1966
+"remember something","experience pain","mind","bio",0.361,0.6006,0.2396
+"remember something","feel scared","mind","bio",0.1718,0.575,0.4032
+"remember something","get sick","mind","bio",0.5442,0.6454,0.1012
+"remember something","get tired","mind","bio",0.531,0.6008,0.0698
+"remember something","hear something","mind","mind",0.5228,0.3708,-0.152
+"remember something","jump up and down","mind","action",0.3962,0.6592,0.263
+"remember something","kick something","mind","action",0.4378,0.6588,0.221
+"remember something","reach for something","mind","action",0.2974,0.4904,0.193
+"remember something","see something","mind","mind",0.4216,0.3956,-0.026
+"remember something","sit down","mind","action",0.3226,0.6484,0.3258
+"remember something","take a walk","mind","action",0.3004,0.6402,0.3398
+"remember something","think about something","mind","mind",0.079,0.134,0.055
+"see something","become hungry","mind","bio",0.251,0.596,0.345
+"see something","choose what to do","mind","mind",0.1766,0.4882,0.3116
+"see something","experience pain","mind","bio",0.402,0.6296,0.2276
+"see something","feel scared","mind","bio",0.1148,0.5692,0.4544
+"see something","get sick","mind","bio",0.3904,0.6562,0.2658
+"see something","get tired","mind","bio",0.5238,0.5634,0.0396
+"see something","hear something","mind","mind",0.4146,0.2028,-0.2118
+"see something","jump up and down","mind","action",0.3148,0.6062,0.2914
+"see something","kick something","mind","action",0.3568,0.5328,0.176
+"see something","reach for something","mind","action",0.1866,0.4402,0.2536
+"see something","remember something","mind","mind",0.1126,0.3956,0.283
+"see something","sit down","mind","action",0.302,0.6158,0.3138
+"see something","take a walk","mind","action",0.3272,0.6244,0.2972
+"see something","think about something","mind","mind",0.1212,0.3502,0.229
+"sit down","become hungry","action","bio",0.6368,0.513,-0.1238
+"sit down","choose what to do","action","mind",0.417,0.463,0.046
+"sit down","experience pain","action","bio",0.4014,0.5826,0.1812
+"sit down","feel scared","action","bio",0.6422,0.5782,-0.064
+"sit down","get sick","action","bio",0.6752,0.522,-0.1532
+"sit down","get tired","action","bio",0.5158,0.4586,-0.0572
+"sit down","hear something","action","mind",0.5182,0.629,0.1108
+"sit down","jump up and down","action","action",0.8418,0.3538,-0.488
+"sit down","kick something","action","action",0.7204,0.415,-0.3054
+"sit down","reach for something","action","action",0.5102,0.4528,-0.0574
+"sit down","remember something","action","mind",0.4088,0.6484,0.2396
+"sit down","see something","action","mind",0.5054,0.6158,0.1104
+"sit down","take a walk","action","action",0.7564,0.3808,-0.3756
+"sit down","think about something","action","mind",0.288,0.644,0.356
+"take a walk","become hungry","action","bio",0.1848,0.5972,0.4124
+"take a walk","choose what to do","action","mind",0.3732,0.4344,0.0612
+"take a walk","experience pain","action","bio",0.2758,0.6108,0.335
+"take a walk","feel scared","action","bio",0.426,0.6086,0.1826
+"take a walk","get sick","action","bio",0.5486,0.6364,0.0878
+"take a walk","get tired","action","bio",0.1252,0.5612,0.436
+"take a walk","hear something","action","mind",0.2706,0.6104,0.3398
+"take a walk","jump up and down","action","action",0.649,0.2662,-0.3828
+"take a walk","kick something","action","action",0.6036,0.31,-0.2936
+"take a walk","reach for something","action","action",0.557,0.4608,-0.0962000000000001
+"take a walk","remember something","action","mind",0.275,0.6402,0.3652
+"take a walk","see something","action","mind",0.2418,0.6244,0.3826
+"take a walk","sit down","action","action",0.5412,0.3808,-0.1604
+"take a walk","think about something","action","mind",0.236,0.6352,0.3992
+"think about something","become hungry","mind","bio",0.3102,0.5722,0.262
+"think about something","choose what to do","mind","mind",0.1304,0.3482,0.2178
+"think about something","experience pain","mind","bio",0.387,0.628,0.241
+"think about something","feel scared","mind","bio",0.1672,0.5748,0.4076
+"think about something","get sick","mind","bio",0.5006,0.6694,0.1688
+"think about something","get tired","mind","bio",0.3616,0.6228,0.2612
+"think about something","hear something","mind","mind",0.5292,0.3952,-0.134
+"think about something","jump up and down","mind","action",0.3398,0.6784,0.3386
+"think about something","kick something","mind","action",0.37,0.6396,0.2696
+"think about something","reach for something","mind","action",0.2688,0.492,0.2232
+"think about something","remember something","mind","mind",0.0904,0.134,0.0436
+"think about something","see something","mind","mind",0.45,0.3502,-0.0998
+"think about something","sit down","mind","action",0.2978,0.644,0.3462
+"think about something","take a walk","mind","action",0.2588,0.6352,0.3764
