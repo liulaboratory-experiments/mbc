@@ -116,6 +116,12 @@
 
 
 var main_trials = itemA.map(function(item, index) {
+  var choices = [
+    `<p style="font-size: 23px;">${causal_itemB[index]}</p>`,
+    `<p style="font-size: 23px;">${similar_itemB[index]}</p>`
+  ];
+  choices = jsPsych.randomization.shuffle(choices);
+
   return {
     type: jsPsychHtmlButtonResponse,
     stimulus: `
@@ -123,7 +129,9 @@ var main_trials = itemA.map(function(item, index) {
       <p style="font-size: 25px;">What would you do to make them <strong>${itemC[index]}</strong>?</p>
       <p style="font-size: 25px;">I would make them...</p>
     `,
-    choices: [causal_itemB[index], similar_itemB[index]], // Button labels
+    //choices: [causal_itemB[index], similar_itemB[index]], // Button labels
+    choices: choices
+
   };
 });
 
