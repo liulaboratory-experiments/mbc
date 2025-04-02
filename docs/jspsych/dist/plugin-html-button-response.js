@@ -114,13 +114,108 @@ var jsPsychHtmlButtonResponse = (function (jspsych) {
       this.jsPsych = jsPsych;
     }
     static info = info;
+    // trial(display_element, trial) {
+    //   const stimulusElement = document.createElement("div");
+    //   stimulusElement.id = "jspsych-html-button-response-stimulus";
+    //   stimulusElement.innerHTML = trial.stimulus;
+    //   display_element.appendChild(stimulusElement);
+    //   const buttonGroupElement = document.createElement("div");
+    //   buttonGroupElement.id = "jspsych-html-button-response-btngroup";
+    //   if (trial.button_layout === "grid") {
+    //     buttonGroupElement.classList.add("jspsych-btn-group-grid");
+    //     if (trial.grid_rows === null && trial.grid_columns === null) {
+    //       throw new Error(
+    //         "You cannot set `grid_rows` to `null` without providing a value for `grid_columns`."
+    //       );
+    //     }
+    //     const n_cols = trial.grid_columns === null ? Math.ceil(trial.choices.length / trial.grid_rows) : trial.grid_columns;
+    //     const n_rows = trial.grid_rows === null ? Math.ceil(trial.choices.length / trial.grid_columns) : trial.grid_rows;
+    //     buttonGroupElement.style.gridTemplateColumns = `repeat(${n_cols}, 1fr)`;
+    //     buttonGroupElement.style.gridTemplateRows = `repeat(${n_rows}, 1fr)`;
+    //   } else if (trial.button_layout === "flex") {
+    //     buttonGroupElement.classList.add("jspsych-btn-group-flex");
+    //   }
+    //   for (const [choiceIndex, choice] of trial.choices.entries()) {
+    //     buttonGroupElement.insertAdjacentHTML("beforeend", trial.button_html(choice, choiceIndex));
+    //     const buttonElement = buttonGroupElement.lastChild;
+    //     buttonElement.dataset.choice = choiceIndex.toString();
+    //     buttonElement.addEventListener("click", () => {
+    //       after_response(choiceIndex);
+    //     });
+    //   }
+    //   display_element.appendChild(buttonGroupElement);
+    //   if (trial.prompt !== null) {
+    //     display_element.insertAdjacentHTML("beforeend", trial.prompt);
+    //   }
+    //   var start_time = performance.now();
+    //   var response = {
+    //     rt: null,
+    //     button: null
+    //   };
+    //   const end_trial = () => {
+    //     var trial_data = {
+    //       rt: response.rt,
+    //       stimulus: trial.stimulus,
+    //       response: response.button
+    //     };
+    //     this.jsPsych.finishTrial(trial_data);
+    //   };
+    //   function after_response(choice) {
+    //     var end_time = performance.now();
+    //     var rt = Math.round(end_time - start_time);
+    //     response.button = parseInt(choice);
+    //     response.rt = rt;
+    //     stimulusElement.classList.add("responded");
+    //     for (const button of buttonGroupElement.children) {
+    //       button.setAttribute("disabled", "disabled");
+    //     }
+    //     if (trial.response_ends_trial) {
+    //       end_trial();
+    //     }
+    //   }
+    //   if (trial.stimulus_duration !== null) {
+    //     this.jsPsych.pluginAPI.setTimeout(() => {
+    //       stimulusElement.style.visibility = "hidden";
+    //     }, trial.stimulus_duration);
+    //   }
+    //   if (trial.enable_button_after > 0) {
+    //     var btns = document.querySelectorAll(".jspsych-html-button-response-button button");
+    //     for (var i = 0; i < btns.length; i++) {
+    //       btns[i].setAttribute("disabled", "disabled");
+    //     }
+    //     this.jsPsych.pluginAPI.setTimeout(() => {
+    //       var btns2 = document.querySelectorAll(".jspsych-html-button-response-button button");
+    //       for (var i2 = 0; i2 < btns2.length; i2++) {
+    //         btns2[i2].removeAttribute("disabled");
+    //       }
+    //     }, trial.enable_button_after);
+    //   }
+    //   if (trial.trial_duration !== null) {
+    //     this.jsPsych.pluginAPI.setTimeout(end_trial, trial.trial_duration);
+    //   }
+    // }
+
     trial(display_element, trial) {
       const stimulusElement = document.createElement("div");
       stimulusElement.id = "jspsych-html-button-response-stimulus";
       stimulusElement.innerHTML = trial.stimulus;
-      display_element.appendChild(stimulusElement);
+      //display_element.appendChild(stimulusElement);
+    
+      // Create a container for the grid layout
+      const gridContainer = document.createElement("div");
+      gridContainer.classList.add("grid-layout-container");
+    
+      // Add left text
+      const leftText = document.createElement("div");
+      leftText.classList.add("grid-left-text");
+      leftText.innerHTML = trial.left_text || "Left Text"; // Add a trial parameter for left text
+      gridContainer.appendChild(leftText);
+    
+      // Add button group
       const buttonGroupElement = document.createElement("div");
       buttonGroupElement.id = "jspsych-html-button-response-btngroup";
+      gridContainer.appendChild(buttonGroupElement);
+    
       if (trial.button_layout === "grid") {
         buttonGroupElement.classList.add("jspsych-btn-group-grid");
         if (trial.grid_rows === null && trial.grid_columns === null) {
@@ -135,6 +230,7 @@ var jsPsychHtmlButtonResponse = (function (jspsych) {
       } else if (trial.button_layout === "flex") {
         buttonGroupElement.classList.add("jspsych-btn-group-flex");
       }
+    
       for (const [choiceIndex, choice] of trial.choices.entries()) {
         buttonGroupElement.insertAdjacentHTML("beforeend", trial.button_html(choice, choiceIndex));
         const buttonElement = buttonGroupElement.lastChild;
@@ -143,15 +239,30 @@ var jsPsychHtmlButtonResponse = (function (jspsych) {
           after_response(choiceIndex);
         });
       }
-      display_element.appendChild(buttonGroupElement);
+    
+      // Add right text
+      const rightText = document.createElement("div");
+      rightText.classList.add("grid-right-text");
+      rightText.innerHTML = trial.right_text || "Right Text"; // Add a trial parameter for right text
+      gridContainer.appendChild(rightText);
+    
+      // Append the grid container to the display element
+      display_element.appendChild(gridContainer);
+
+       // Append the stimulus element to the bottom
+      display_element.appendChild(stimulusElement);
+
+    
       if (trial.prompt !== null) {
         display_element.insertAdjacentHTML("beforeend", trial.prompt);
       }
+    
       var start_time = performance.now();
       var response = {
         rt: null,
         button: null
       };
+    
       const end_trial = () => {
         var trial_data = {
           rt: response.rt,
@@ -160,6 +271,7 @@ var jsPsychHtmlButtonResponse = (function (jspsych) {
         };
         this.jsPsych.finishTrial(trial_data);
       };
+    
       function after_response(choice) {
         var end_time = performance.now();
         var rt = Math.round(end_time - start_time);
@@ -173,11 +285,13 @@ var jsPsychHtmlButtonResponse = (function (jspsych) {
           end_trial();
         }
       }
+    
       if (trial.stimulus_duration !== null) {
         this.jsPsych.pluginAPI.setTimeout(() => {
           stimulusElement.style.visibility = "hidden";
         }, trial.stimulus_duration);
       }
+    
       if (trial.enable_button_after > 0) {
         var btns = document.querySelectorAll(".jspsych-html-button-response-button button");
         for (var i = 0; i < btns.length; i++) {
@@ -190,10 +304,14 @@ var jsPsychHtmlButtonResponse = (function (jspsych) {
           }
         }, trial.enable_button_after);
       }
+    
       if (trial.trial_duration !== null) {
         this.jsPsych.pluginAPI.setTimeout(end_trial, trial.trial_duration);
       }
     }
+
+    //end
+
     simulate(trial, simulation_mode, simulation_options, load_callback) {
       if (simulation_mode == "data-only") {
         load_callback();
