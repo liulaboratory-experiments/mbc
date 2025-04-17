@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jspsych/dist/jspsych.js"></script>
+    <script src="jspsych/dist/plugin-instructions.js"></script>
+    <script src="jspsych/dist/plugin-html-button-response.js"></script>
+    <link rel="stylesheet" href="jspsych/dist/jspsych.css">
+  </head>
+  <body></body>
+  <script>
+
+  var jsPsych = initJsPsych({
+    on_finish: function() {
+      jsPsych.data.displayData();
+    }
+  });
+
+  var itemA = [
+      "took a walk", "took a walk", "sat down", 
+      "jumped up and down", "heard something", "got tired", 
+      "heard something",
+    ];
+
+    var itemC = [
+      "reach for something", "sit down", "jump up and down",
+      "sit down", "get sick", "jump up and down",
+      "get tired"
+    ];
+
+    var causal_itemB = [ 
+      "see something", "hear something", "experience pain", 
+      "get tired", "see something", "choose what to do",
+      "choose what to do"
+    ];
+    var similar_itemB = [ 
+      "jump up and down", "jump up and down", "take a walk",
+      "take a walk", "experience pain", "sit down",
+      "see something"
+    ];
+
+
+  var timeline = [];
+
+
+  var instruction = {
+      type: jsPsychInstructions,
+      pages: [
+        'Welcome! In this game you will be asked to consider a group of ' +
+        'three events: X Y and Z. <br>The three events are related in meaning. ' +
+        '<br>On each, trial you will see two of the three events (X and Z). ' +
+        '<br>Your job is to indicate the third event that will complete the group.' 
+      ],
+      show_clickable_nav: true
+    };
+
+
+  var grid_trials = itemA.map(function (item, index) {
+  // Define the choices for the current trial
+  var choices = [
+    `<p style="font-size: 23px;">${causal_itemB[index]}</p>`,
+    `<p style="font-size: 23px;">${similar_itemB[index]}</p>`
+  ];
+
+  var left_text = `<p style="font-size: 23px;">Suppose that someone <strong>${itemA[index]}</strong>, which made them</p> `;
+  var right_text = `<p style="font-size: 23px;">, which made them <strong>${itemC[index]}</strong>.</p>`;
+
+  // Randomize the order of the buttons
+  choices = jsPsych.randomization.shuffle(choices);
+
+  // Return the trial object
+  return {
+    type: jsPsychHtmlButtonResponse,
+    choices: choices,
+    stimulus: '<p style="font-size: 23px;"> Which event do you think best completes this sequence? </p>',
+    left_text: left_text, 
+    right_text: right_text,
+    button_html: function (choice, choice_index) {
+      return `<button class="jspsych-btn-joseph">${choice}</button>`;
+    },
+    button_layout: 'grid',
+    grid_rows: 2, // 2 rows for two buttons
+    grid_columns: 1, // 1 column
+  };
+});
+
+
+  timeline.push(instruction, ...grid_trials);
+
+ jsPsych.run(timeline)
+
+  </script>
+</html>

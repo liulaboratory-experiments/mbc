@@ -333,7 +333,34 @@ dat_summarized <- dat %>%
             color = "white") + # Adjust vertical alignment
   theme_cowplot())
 
+
+#fig_result_summary <- 
+ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_point() +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  labs(y = "Proportion")
+
+ dat %>%
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  group_by(condition) %>%
+  mutate(total = n()) %>% 
+  group_by(condition, response) %>%
+  summarize(
+    count = n(),  
+    total = first(total))
+
 ```
+violin plots
+
+```{r}
+
+```
+
 
 ## modelling barplot
 
@@ -419,6 +446,8 @@ ggsave(
 )
 
 ```
+
+
 
 # Modelling
 

@@ -110,10 +110,10 @@ dat_ex_plot <- dat_ex %>%
 
 ```{r}
 dat_ex_plot %>% 
-  ggplot(aes(x = explanation_type, y = likelihood)) +
+  ggplot(aes(x = explanation_type, y = likelihood, color = explanation_type)) +
   geom_violin() +
   geom_jitter(width = .05, alpha = .1) +
-  stat_summary(fun = mean, geom = "point", size = 5, color = "red") +
+  stat_summary(fun = mean, geom = "point", size = 5, color = "black") +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = .2) +
   geom_hline(yintercept = 50, linetype = "dashed") +
   labs(y = "Likelihood of Occurring", x = "Explanation type") +

@@ -201,10 +201,10 @@ dat_plot <- dat %>%
 
 ```{r}
 dat_plot %>% 
-  ggplot(aes(x = counterfactual_type, y = likelihood)) +
+  ggplot(aes(x = counterfactual_type, y = likelihood, color = counterfactual_type)) +
   geom_violin() +
   geom_jitter(width = .05, alpha = .1) +
-  stat_summary(fun = mean, geom = "point", size = 5, color = "red") +
+  stat_summary(fun = mean, geom = "point", size = 5, color = "black") +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = .2) +
   geom_hline(yintercept = 50, linetype = "dashed") +
   labs(y = "Likelihood of Occurring", x = "Counterfactual type") +
