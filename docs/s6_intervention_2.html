@@ -42,7 +42,7 @@
 
         //experiment variables
         const mturk_pilot_mode = false
-        const data_collection = false
+        const data_collection = true
 
             // capture info from mturk/connect, except in test mode
         if(mturk_pilot_mode) { 
@@ -76,28 +76,73 @@
       auto_preload: true
     };
 
-    var instructions_intervention = {
+    var duration = '4 minutes';
+        var amount = '$1';
+        var consent = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: '<p><b>Consent Form</b></p> <div style="text-align:left;' +
+                'background-color:lightblue; padding:2vw; max-width:80vw;">' +
+                '<p><b>Purpose:</b> The purpose of this study is to understand ' +
+                'how people think about the physical and social world.</p>' +
+                '<p><b>Procedures:</b> In this study, you will watch videos, ' +
+                'read sentences, or see pictures, and answer simple questions ' +
+                'about them. This study should take approximately ' + duration + 
+                '</p><p><b>Participation:</b> Participation in this study is ' +
+                'voluntary. If you decide to join now, you can change your mind ' +
+                'later. ' +
+                '</p><p><b>Payment:</b> You will be paid $15.00/hour ' +
+                'for participating in this study. Given the estimated duration of ' +
+                duration + ', your payment will amount to ' + amount + '.</p>' +
+                '<p><b>Risks and benefits:</b> There are no risks associated ' +
+                'with participating in this study. There are no direct benefits ' +
+                'associated with participating in this study. </p><p><b>Use of ' +
+                'data by study researchers:</b> The research team led by Shari ' +
+                'Liu at JHU will have access to your answers. ' +
+                '</p><p><b>Publication of results:</b> The results of the research ' +
+                'may be presented at scientific meetings or published in scientific ' +
+                'journals. Your individual responses may be published. We will ' +
+                'never publish your name, the date that you participated, and any other ' +
+                'information that could be used to identify you. </p><p><b>' +
+                'Researcher contact information:</b> This study is run by Dr. ' +
+                'Shari Liu at JHU. If you have any questions or concerns about ' +
+                'this study, or in the very unlikely event of a research-related ' +
+                'injury, please contact sliu199@jhu.edu. ' +
+                '</p><p><b>Research rights information:</b> If you have questions about ' +
+                'your rights as a research participant or feel that you have not ' +
+                'been treated fairly, please call the Homewood Institutional Review ' +
+                'Board at Johns Hopkins University at (410) 516-6580. If you have ' +
+                'any questions or issues completing the survey, please email Shari ' +
+                'Liu at sliu199@jhu.edu. </p> </div>' +
+                '<p> Do you consent to participate? </p>',
+            choices: ['Yes', 'No'],
+            data: {trial_id: 'consent'},
+            on_finish: function(data) {
+            if (data.response === 1) {  // If 'No' is chosen 
+            jsPsych.abortExperiment('You did not consent to participate. The study will now end. Thank you for your time.');  
+            }
+            }
+        };
+
+    var instructions_causal = {
       type: jsPsychInstructions,
       pages: [
-        '<div style="font-size: 22px; text-align: center;">' +
+        '<div style="font-size: 25px; text-align: center;">' +
         '<br>Welcome! <br>In this game you will be asked to imagine what you would do ' +
         'in different scenarios. <br>On each trial, there will be an intended outcome (for example, ' +
-        'to remove a creature\'s ability to "choose what to do"), <br>and two possible abilities of the creature you could remove (for example "see something" and "jump up and down")' +
-        '. <br>Your job is to choose the action that you think will best lead to the outcome - ' +
-        '<br>the one most likely to succeed, and to succeed immediately.'
+        '"choose what to do"), <br>and two possible actions (for example "see something" and "jump up and down")' +
+        '<p style="font-size: 25px;">Your job is to choose the action that you think will best lead to the outcome - ' +
+        '<br>the one most likely to succeed, and to succeed immediately.</p>'
       ],
       show_clickable_nav: true
     };
 
-    var instructions_inference = {
+    var instructions_similar = {
       type: jsPsychInstructions,
       pages: [
-        '<div style="font-size: 22px; text-align: center;">' +
-        '<br>Welcome! <br>In this game you will be asked to imagine abilities a ' +
-        'creature might have. <br>On each trial, the creature will have a target ability (for example, ' +
-        '"the capacity to choose what to do"), <br> and two other possible abilities (for example, ' +
-        '"the capacity to see something" and "the capacity to get tired"). <br> Your job is to choose which of the two ' +
-        'abilities the creature would also have that would enable them to experience the target ability. '
+        '<div style="font-size: 25px; text-align: center;">' +
+        '<br>Welcome! <br>In this game you will be asked to imagine that you have ' +
+        'magical powers.' +
+        '<br>Please read carefully and respond with the magic spell you would use in the given scenario.'
       ],
       show_clickable_nav: true
     }
@@ -197,22 +242,22 @@
     // Shuffle the combined array
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
-    // Intervention (using similarity) study trials
-  var intervention_trials = combined_items.map(function(item) {
+    // Intervention (using causality) study trials
+  var causal_trials = combined_items.map(function(item) {
   var choices = [
-    `<p style="font-size: 23px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 23px;">The ability to <strong>${item.similarity_itemA}</strong></p>`
+    `<p style="font-size: 25px;"><strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 25px;"><strong>${item.similarity_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Suppose you would like to take away a creature's ability to <strong>${item.itemB}</strong>.</p>
-               <p style="font-size: 25px;">Which of these abilities of the creature would you remove?</p>`,
+    stimulus: `<p style="font-size: 25px;">Which of these actions would you do to make someone <strong>${item.itemB}</strong>?</p>
+              <p style="font-size: 25px;">I would make them...</p>`,
     choices: choices,
     button_layout: "flex",
     data: {
-      condition: "intervention",
+      condition: "causal",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similarity_itemA: item.similarity_itemA
@@ -223,22 +268,24 @@
   };
 });
 
-  // Inference (using causality) study trials
-  var inference_trials = combined_items.map(function(item) {
+  // Intervention (using similarity) study trials
+  var similar_trials = combined_items.map(function(item) {
   var choices = [
-    `<p style="font-size: 23px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 23px;">The ability to <strong>${item.similarity_itemA}</strong></p>`
+    `<p style="font-size: 25px;"><strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 25px;"><strong>${item.similarity_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Suppose you encounter a creature which <strong>${item.itemB_present_tense}</strong>.</p>
-               <p style="font-size: 25px;">Which of these experiences do you think the creature would also have for them to <strong>${item.itemB}</strong>?</p>`,
+    stimulus: `<p style="font-size: 25px;">Suppose that you had magical powers, and wanted to give a creature the ability to <strong>${item.itemB}</strong>. 
+               <br>However you ran out of that specific spell. 
+               <br>Which of these other two spells would most likely accomplish your goal?</p>
+               <p style="font-size: 25px;">Giving the creature the ability to...</p>`,
     choices: choices,
     button_layout: "flex",  
     data: {
-      condition: "inference",
+      condition: "similar",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similarity_itemA: item.similarity_itemA
@@ -250,12 +297,13 @@
 });
 
   // Attention check trials
-  var attention_check_trial_intervention = {
+  var attention_check_trial_causal = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "I would make them <strong>"choose what to do"</strong></p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong></p>
+              <p style="font-size: 25px;">I would make them...</p>`,
   choices: [
-    `<p style="font-size: 23px;">I would make them <strong>choose what to do</strong></p>`,
-    `<p style="font-size: 23px;">I would make them <strong>sit down</strong></p>`
+    `<p style="font-size: 23px;"><strong>choose what to do</strong></p>`,
+    `<p style="font-size: 23px;"><strong>sit down</strong></p>`
   ],
   button_layout: "flex",
   data: {
@@ -263,16 +311,17 @@
     correct_response_attn: "choose what to do"
   },
   on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "I would make them choose what to do" : "I would make them sit down";
+    data.selected_choice = data.response === 0 ? "choose what to do" : "sit down";
   }
 };
 
-var attention_check_trial_inference = {
+var attention_check_trial_similar = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "The ability to <strong>choose what to do</strong>"</p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "<strong>choose what to do</strong>"</p>
+            <p style="font-size: 25px;">Giving the creature the ability to...</p>`,
   choices: [
-    `<p style="font-size: 23px;">The ability to <strong>choose what to do</strong></p>`,
-    `<p style="font-size: 23px;">The ability to <strong>sit down</strong></p>`
+    `<p style="font-size: 23px;"><strong>choose what to do</strong></p>`,
+    `<p style="font-size: 23px;"><strong>sit down</strong></p>`
   ],
   button_layout: "flex",
   data: {
@@ -280,7 +329,7 @@ var attention_check_trial_inference = {
     correct_response_attn: "choose what to do"
   },
   on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "The ability to choose what to do" : "The ability to sit down";
+    data.selected_choice = data.response === 0 ? "choose what to do" : "sit down";
   }
 };
 
@@ -290,39 +339,39 @@ function insertAttentionCheck(trials, attentionCheck) {
   return trials;
 }
 
-// Insert attention check into intervention trials
-intervention_trials = insertAttentionCheck(intervention_trials, attention_check_trial_intervention);
+// Insert attention check into causal trials
+causal_trials = insertAttentionCheck(causal_trials, attention_check_trial_causal);
 
-// Insert attention check into inference trials
-inference_trials = insertAttentionCheck(inference_trials, attention_check_trial_inference);
+// Insert attention check into similar trials
+similar_trials = insertAttentionCheck(similar_trials, attention_check_trial_similar);
 
-var debrief_intervention = {
+var debrief_causal = {
         type: jsPsychInstructions,
         pages: [
             '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
             '<p>Thank you so much for helping us with this study!</p>' +
             '<p>In this game, we asked you questions about what actions ' +
             'you would take to achieve various outcomes.' +
-            '<br>Our goal was to study which kinds of actions you think are most likely to lead  ' +
-            'to the intended outcomes. <br>Do you select action items which are from the same conceptual category' +
-            '<br>as the outcome, or from a different category?' +
-            '<br>This shows us how you think various mental and bodily abilities group together.</p>' +
+            '<br>Our goal was to study which kinds of causes you think are most likely to lead  ' +
+            'to intended outcomes: <br>causes from a similar conceptual category or causes' +
+            '<br>from a different conceptual category?' +
+            '<br>This reveals insights into how our causal reasoning helps us understand mental, physical, and bodily events.</p>' +
             '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
         ],
         show_clickable_nav: true,
         button_label_next: 'Next'
         };
       
-      var debrief_inference = {
+      var debrief_similar = {
         type: jsPsychInstructions,
         pages: [
             '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
             '<p>Thank you so much for helping us with this study!</p>' +
-            '<p>In this game, we asked you questions about which other abilities ' +
-            'a creature might have, <br>given that they have a target ability.' +
-            '<br>The goal was to see whether you select abilities which are similar' +
-            ' or different from the target ability.' +
-            '<br>This shows us how you think various mental and bodily abilities group together.</p>' +
+            '<p>In this game, we asked you questions about which magical spells ' +
+            'you would cast in order to give a creature a certain ability.' +
+            '<br>The goal was to see whether you select spells which give an ability that is similar' +
+            ' or causally related to the target ability.' +
+            '<br>This reveals insights into how our causal reasoning helps us understand mental, physical, and bodily events.</p>' +
             '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
         ],
         show_clickable_nav: true,
@@ -330,16 +379,16 @@ var debrief_intervention = {
         };
 
 // Random assignment to a task
-var task_assignment = Math.random() < 0.5 ? "intervention" : "inference";
+var task_assignment = Math.random() < 0.5 ? "causal" : "similar";
 
 
 // Define the timeline based on the assigned task
 var timeline = [preload];
 
-if (task_assignment === "intervention") {
-  timeline.push(instructions_intervention, ...intervention_trials, debrief_intervention);
+if (task_assignment === "causal") {
+  timeline.push(consent, instructions_causal, ...causal_trials, debrief_causal);
 } else {
-  timeline.push(instructions_inference, ...inference_trials, debrief_inference);
+  timeline.push(consent, instructions_similar, ...similar_trials, debrief_similar);
 }
 
 if (data_collection) {

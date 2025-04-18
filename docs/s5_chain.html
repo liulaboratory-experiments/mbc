@@ -42,7 +42,7 @@
 
         //experiment variables
         const mturk_pilot_mode = false
-        const data_collection = false
+        const data_collection = true
 
             // capture info from mturk/connect, except in test mode
         if(mturk_pilot_mode) { 
@@ -191,7 +191,7 @@ main_trials = insertAttentionCheck(main_trials, attention_check_trial);
 var debrief = {
     type: jsPsychInstructions,
     pages: [
-        '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
+        '<p style="font-size: 25px;"><strong>Debrief</strong></p>' +
         '<p>Thank you so much for helping us with this study!</p>' +
         '<p>In this game, we asked you questions about what actions ' +
         'you think would best complete a causal chain.' +
