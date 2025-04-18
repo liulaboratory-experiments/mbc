@@ -6,7 +6,7 @@ date: "2024-10-28"
 
 # ReadMe
 
-This is the analysis for study 5 of the MBC project, alias the counterfactual study.  
+This is the analysis for study 5 of the MBC project, alias the causal chain study.  
 The question: 
 
 # Set options
@@ -39,91 +39,14 @@ freesort_and_causal_distances_df_path <- paste0(base_path, "/data-explanation_1/
 ```
 
 
-```{r}
-distances <- read.csv(freesort_and_causal_distances_df_path)
-
-
-summary(distances)
-
-target_items <- c("take a walk", "reach for something")
-
-# Step 1: Filter for rows where *one* of the items is in target_items
-closest_candidates <- distances %>%
-  filter((itemA %in% target_items & !(itemB %in% target_items)) |
-         (itemB %in% target_items & !(itemA %in% target_items))) %>%
-  mutate(other_item = ifelse(itemA %in% target_items, itemB, itemA))
-
-# Step 2: Group by that "other" item, and summarize total distance
-closest_summary <- closest_candidates %>%
-  group_by(other_item) %>%
-  summarise(total_freesort_distance = sum(mean_freesort_distance),
-            total_causal_distance = sum(mean_causal_distance),
-            total_combined = total_freesort_distance + total_causal_distance) %>%
-  arrange(total_freesort_distance)
-
-# View the closest item(s)
-head(closest_summary)
-
-```
-
-
-```{r}
-target_items <- c("experience pain", "become hungry")
-
-# Step 1: Filter for rows where *one* of the items is in target_items
-closest_candidates <- distances %>%
-  filter((itemA %in% target_items & !(itemB %in% target_items)) |
-         (itemB %in% target_items & !(itemA %in% target_items))) %>%
-  mutate(other_item = ifelse(itemA %in% target_items, itemB, itemA))
-
-# Step 2: Group by that "other" item, and summarize total distance
-closest_summary <- closest_candidates %>%
-  group_by(other_item) %>%
-  summarise(total_freesort_distance = sum(mean_freesort_distance),
-            total_causal_distance = sum(mean_causal_distance),
-            total_combined = total_freesort_distance + total_causal_distance) %>%
-  arrange(total_freesort_distance)
-
-# View the closest item(s)
-head(closest_summary)
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Study 3 - Counterfactuals
+# Study 5 - Causal chain
 
 ## Prepare data
 
 ### read data
 
 ```{r, warnings = FALSE}
-data_path_cf <- paste0(base_path, "/data-counterfactual_1/pilot3")
+data_path_cf <- paste0(base_path, "/data-study5/pilot1")
 
 desired_order <- c("see something", "hear something", "choose what to do", 
                    "remember something", "think about something", "reach for something", 
@@ -153,230 +76,157 @@ TODO: rename itemB to target item.
 ```{r}
 subjects_to_exclude <- d %>%
   filter(grepl("attention_check", condition)) %>% 
-  filter(attn_correct == "no") %>% 
+  mutate(attn_correct = correct_response_attn == selected_choice) %>% 
+  filter(attn_correct == FALSE) %>%
   pull(subject_id) %>% 
   unique()
 
 dat <- d %>% 
-  filter(!subject_id %in% subjects_to_exclude) %>%
-  filter(condition %in% c("counterfactual", "similarity")) %>% 
-  mutate(condition = ifelse(condition == "counterfactual", "causal", condition)) %>% #meant to call it causal (both are counterfactuals)
+  # filter(!subject_id %in% subjects_to_exclude) %>% ##===== Do not exclude for now
+  filter(condition %in% c("main")) %>% 
   mutate(response = as.factor(response)) %>% 
   mutate(condition = as.factor(condition)) %>% 
+  rowwise() %>%
+  mutate(response = case_when(
+    grepl(causal_itemB, selected_choice) ~ "causal",
+    grepl(similar_itemB, selected_choice) ~ "similar",
+    TRUE ~ "other"
+  )) %>% 
   select(-condition) %>% 
-  select(subject_id, itemB, causal_itemA, similar_itemA, response_value) %>% 
-  mutate(causal_itemA = factor(causal_itemA, levels = desired_order), #this col has unique values; we're assigning 15 lvls
-         similar_itemA = factor(similar_itemA, levels = desired_order), #this col has unique values; we're assigning 15 lvls
-         itemB = factor(itemB, levels = desired_order)) %>% 
-  # filter(subject_id == "subj_01" & itemB == "see something") %>% 
-  mutate(item_type = case_when(
-        !is.na(causal_itemA) ~ "causal_itemA",
-        !is.na(similar_itemA) ~ "similar_itemA"),
-        item = coalesce(as.character(causal_itemA), as.character(similar_itemA))) %>% 
-  select(-causal_itemA, -similar_itemA) %>% 
-  pivot_wider(names_from = item_type,
-              values_from = c(item, response_value)) %>% 
-  rename("causal_itemA" = item_causal_itemA,
-         "similar_itemA" = item_similar_itemA, 
-         "causal_itemA_counterfactual" = response_value_causal_itemA,
-         "similar_itemA_counterfactual" = response_value_similar_itemA) 
+  select(subject_id, itemA, itemC, causal_itemB, similar_itemB, response) %>% 
+  mutate(causal_itemB = factor(causal_itemB, levels = desired_order),
+         similar_itemB = factor(similar_itemB, levels = desired_order),
+         itemA = factor(itemA, levels = desired_order),
+         itemC = factor(itemC, levels = desired_order)) %>% 
+  mutate(domain_itemA= case_when(itemA == "hear something" ~ "mind", 
+                                 itemA == "choose what to do" ~ "mind",
+                                 itemA == "remember something" ~ "mind",
+                                 itemA == "think about something" ~ "mind",
+                                 itemA == "see something" ~ "mind",
+                                 itemA == "reach for something" ~ "action",
+                                 itemA == "sit down" ~ "action", 
+                                 itemA == "jump up and down" ~ "action",
+                                 itemA == "kick something" ~ "action",
+                                 itemA == "take a walk" ~ "action",
+                                 itemA == "get tired" ~ "bio", 
+                                 itemA == "become hungry" ~ "bio",
+                                 itemA == "feel scared"~ "bio",
+                                 itemA == "experience pain"~ "bio",
+                                 itemA == "get sick"~ "bio"),
+         domain_itemC= case_when(itemC == "hear something" ~ "mind", 
+                                 itemC == "choose what to do" ~ "mind",
+                                 itemC == "remember something" ~ "mind",
+                                 itemC == "think about something" ~ "mind",
+                                 itemC == "see something" ~ "mind",
+                                 itemC == "reach for something" ~ "action",
+                                 itemC == "sit down" ~ "action", 
+                                 itemC == "jump up and down" ~ "action",
+                                 itemC == "kick something" ~ "action",
+                                 itemC == "take a walk" ~ "action",
+                                 itemC == "get tired" ~ "bio", 
+                                 itemC == "become hungry" ~ "bio",
+                                 itemC == "feel scared"~ "bio",
+                                 itemC == "experience pain"~ "bio",
+                                 itemC == "get sick"~ "bio"),
+         domain_causalitemB = case_when(causal_itemB == "hear something" ~ "mind", 
+                                 causal_itemB == "choose what to do" ~ "mind",
+                                 causal_itemB == "remember something" ~ "mind",
+                                 causal_itemB == "think about something" ~ "mind",
+                                 causal_itemB == "see something" ~ "mind",
+                                 causal_itemB == "reach for something" ~ "action",
+                                 causal_itemB == "sit down" ~ "action", 
+                                 causal_itemB == "jump up and down" ~ "action",
+                                 causal_itemB == "kick something" ~ "action",
+                                 causal_itemB == "take a walk" ~ "action",
+                                 causal_itemB == "get tired" ~ "bio", 
+                                 causal_itemB == "become hungry" ~ "bio",
+                                 causal_itemB == "feel scared"~ "bio",
+                                 causal_itemB == "experience pain"~ "bio",
+                                 causal_itemB == "get sick"~ "bio"),
+          domain_similaritemB = case_when(similar_itemB == "hear something" ~ "mind", 
+                                 similar_itemB == "choose what to do" ~ "mind",
+                                 similar_itemB == "remember something" ~ "mind",
+                                 similar_itemB == "think about something" ~ "mind",
+                                 similar_itemB == "see something" ~ "mind",
+                                 similar_itemB == "reach for something" ~ "action",
+                                 similar_itemB == "sit down" ~ "action", 
+                                 similar_itemB == "jump up and down" ~ "action",
+                                 similar_itemB == "kick something" ~ "action",
+                                 similar_itemB == "take a walk" ~ "action",
+                                 similar_itemB == "get tired" ~ "bio", 
+                                 similar_itemB == "become hungry" ~ "bio",
+                                 similar_itemB == "feel scared"~ "bio",
+                                 similar_itemB == "experience pain"~ "bio",
+                                 similar_itemB == "get sick"~ "bio")) 
+  
+  
 
 ```
 
-## plot dv vs conditions
 
-### prepare to plot
+
 
 ```{r}
-dat_plot <- dat %>% 
-  rename("causal" = causal_itemA_counterfactual,
-         "similar" = similar_itemA_counterfactual) %>% 
-  pivot_longer(cols = c("causal", "similar"), 
-               names_to = "counterfactual_type",
-               values_to = "likelihood") 
+dat_summarized <- dat %>%
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  # group_by(condition) %>%
+  mutate(total = n()) %>% 
+  group_by(response) %>%
+  summarize(
+    count = n(),  
+    total = first(total), 
+    mean_proportion = count / total, 
+    se = sqrt(mean_proportion * (1 - mean_proportion) / total),  
+    .groups = "drop")
 
-```
+#stacked
+(fig_result_summary <- ggplot(dat_summarized, aes(x = response, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  labs(y = "Proportion"))
 
-### plot dv vs counterfactual type
-
-```{r}
-dat_plot %>% 
-  ggplot(aes(x = counterfactual_type, y = likelihood, color = counterfactual_type)) +
-  geom_violin() +
-  geom_jitter(width = .05, alpha = .1) +
-  stat_summary(fun = mean, geom = "point", size = 5, color = "black") +
-  stat_summary(fun.data = mean_se, geom = "errorbar", width = .2) +
-  geom_hline(yintercept = 50, linetype = "dashed") +
-  labs(y = "Likelihood of Occurring", x = "Counterfactual type") +
-  scale_x_discrete(labels = c("counterfactual" = "Causal", "similarity" = "Similar")) +
-  theme_bw() +
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 12),
-        axis.title.y = element_text(size = 12))
-
-```
+#visualize bar heights for writeup
+(fig_result_summary <- ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + # Customize bar colors
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), 
+                aes(ymax = mean_proportion + se, ymin = mean_proportion - se), 
+                stat = "identity", position = "identity", width = 0.3) +
+  geom_text(aes(label = round(mean_proportion, 2), 
+                y = mean_proportion + 0.02), # Adjust the y position slightly above the bar
+            position = position_dodge(width = 0.9), 
+            vjust = 0,
+            color = "white") + # Adjust vertical alignment
+  theme_cowplot())
 
 
-### plot, facet by target items
-
-first prune text labels
-
-```{r, fig.width = 12, fig.height = 12}
-dat_plot_long <- dat_plot %>%
-  pivot_longer(cols = c("causal_itemA", "similar_itemA"),
-               names_to = "item_type",
-               values_to = "item") %>%
-  group_by(subject_id, itemB) %>%
-  slice(-c(2, 3))
-
-label_data <- dat_plot_long %>%
-  ungroup() %>% 
-  distinct(itemB, counterfactual_type, item)
-
-dat_plot_long %>%
-  ggplot(aes(x = counterfactual_type, y = likelihood, color = counterfactual_type)) +
-  geom_violin() +
-  geom_jitter(width = .05, alpha = .1) +
-  stat_summary(fun = mean, geom = "point", size = 4, color = "red") +
-  stat_summary(fun.data = mean_se, geom = "errorbar", width = .2) +
-  geom_hline(yintercept = 50, linetype = "dashed") +
-  geom_text(data = label_data, aes(label = item), y = 95, vjust = 1, size = 3.5) +
-  labs(y = "Likelihood of Occurring", x = "Counterfactual type") +
-  scale_x_discrete(labels = c("counterfactual" = "Causal", "similarity" = "Similar")) +
-  theme_bw() +
-  theme(
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_text(size = 12),
-    axis.title.x = element_text(size = 12),
-    axis.title.y = element_text(size = 12),
-    legend.position = "none") +
-  facet_wrap(~itemB)
-
-```
-
-### plot single subject
-
-```{r, fig.width = 12, fig.height = 12}
-dat_plot_long %>% 
-  filter(subject_id == "subj_01") %>% 
-  ggplot(aes(x = counterfactual_type, y = likelihood, color = counterfactual_type)) +
+#fig_result_summary <- 
+ggplot(dat_summarized, aes(x = response, y = mean_proportion, fill = response)) +
   geom_point() +
-  geom_hline(yintercept = 50, linetype = "dashed") +
-  geom_text(aes(label = item), y = 95, vjust = 1, size = 3.5) +
-  labs(y = "Likelihood of Occurring", x = "Counterfactual type") +
-  theme_bw() +
-  theme(
-        axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 12),
-        axis.title.y = element_text(size = 12),
-        legend.position = "none") +
-  facet_wrap(~itemB)
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  labs(y = "Proportion")
 
+ dat %>%
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  group_by(condition) %>%
+  mutate(total = n()) %>% 
+  group_by(condition, response) %>%
+  summarize(
+    count = n(),  
+    total = first(total))
+ 
+ 
 ```
 
-## plot dv vs distances
-
-### prepare append distances 
-
-```{r}
-distances <- read.csv(freesort_and_causal_distances_df_path)
-
-dat_distances <- dat_plot_long %>% 
-  ungroup() %>% 
-  rename("itemA" = item) %>% 
-  left_join(distances %>% 
-              select(itemB, itemA, mean_causal_distance, mean_freesort_distance, freesort_minus_causal),
-            by = c("itemB", "itemA")) %>% 
-  mutate(mean_causal_distance = round(mean_causal_distance, 2),
-         mean_freesort_distance = round(mean_freesort_distance, 2),
-         freesort_minus_causal = round(freesort_minus_causal, 2)) %>% 
-  mutate(itemB = factor(itemB, levels = desired_order))
-
-```
-
-### plot difference scores
-
-15 similar item - target item pairs, 15 causal item - target item pairs. 
-The more causal (right of x -axis), the less likely the counterfactual event will occur
-
-```{r, fig.width = 12}
-#make separate data frame with only distances and difference scores?
-#or, get the mean responses and an error bar for it?
-
-#parcel out labels
-label_distances <- dat_distances %>%
-  distinct(itemB, counterfactual_type, itemA, freesort_minus_causal)
-    
-
-#plot
-dat_distances %>% 
-  ggplot(aes(x = freesort_minus_causal, y = likelihood, color = counterfactual_type)) +
-  geom_point(alpha = .2) +
-  geom_text(data = label_distances, aes(label = itemB), y = 95, vjust = .5, size = 3.5, angle = 80) +
-  geom_text(data = label_distances, aes(label = itemA), y = 85, vjust = .5, size = 3.5, angle = 80) +
-  stat_summary(fun.data = mean_se, geom = "errorbar", width = .01, color = "black") +
-  stat_summary(fun = "mean", geom = "point", shape = 1, size = 3, color = "black") +
-  geom_smooth(method = "lm") +
-  geom_hline(yintercept = 50, linetype = "dashed") +
-  theme_bw() +
-  labs(y = "Likelihood of Occurring", x = "Freesort minus Causal Distance") +
-  theme_bw() +
-  theme(
-        axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 12),
-        axis.title.y = element_text(size = 12))
-```
-
-### itemwise difference scores
-
-```{r, fig.width = 12}
-dat_distances %>% 
-  ggplot(aes(x = freesort_minus_causal, y = likelihood, color = counterfactual_type)) +
-  geom_point(alpha = .2) +
-  geom_text(data = label_distances, aes(label = itemA), y = 90, size = 3.5) +
-  stat_summary(fun.data = mean_se, geom = "errorbar", width = .03, color = "black") +
-  stat_summary(fun = "mean", geom = "point", shape = 1, size = 2, color = "black") +
-  geom_smooth(method = "lm") +
-  geom_hline(yintercept = 50, linetype = "dashed") +
-  theme_bw() +
-  labs(y = "Likelihood of Occurring", x = "Freesort minus Causal Distance") +
-  theme_bw() +
-  theme(
-        axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 12),
-        axis.title.y = element_text(size = 12)) +
-  facet_wrap(~itemB)
-
-
-```
-
-
-### plot individual distances
-
-```{r, fig.width = 8}
-dat_distances %>% 
-  pivot_longer(cols = c("mean_causal_distance", "mean_freesort_distance"),
-               names_to = "distance_type", 
-               values_to = "distances") %>% 
-  ggplot(aes(x = distances, y = likelihood, color = distance_type)) +
-  geom_jitter(width = .01, alpha = .2) +
-  geom_smooth(method = "lm") +
-  geom_hline(yintercept = 50, linetype = "dashed") +
-  theme_bw() +
-  labs(y = "Likelihood of Occurring", x = "Distance") +
-  theme_bw() +
-  theme(
-        axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        axis.title.x = element_text(size = 12),
-        axis.title.y = element_text(size = 12)) +
-  facet_wrap(~item_type)
-
-```
 
 
 

@@ -1,0 +1,222 @@
+---
+title: "study 6"
+output: html_document
+date: "2024-10-28"
+---
+
+# ReadMe
+
+This is the analysis for study 6 of the MBC project, alias the counterfactual study.  
+The question: 
+
+# Set options
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+pacman::p_load(
+               lme4, 
+               here, 
+               patchwork, 
+               cowplot, 
+               viridis, 
+               effects, 
+               gt,
+               webshot2,
+               knitr,
+               performance,
+               tidyverse)
+sessionInfo()
+
+```
+
+# Global variables
+
+```{r}
+base_path <- here("code", "analysis", "pilot")
+freesort_and_causal_distances_df_path <- paste0(base_path, "/data-explanation_1/freesort_minus_causals.csv")
+
+```
+
+
+# Study 3 - Causality for intervention and inference
+
+## Prepare data
+
+### read data
+
+```{r, warnings = FALSE}
+data_path_cf <- paste0(base_path, "/data-study6/pilot1")
+
+desired_order <- c("see something", "hear something", "choose what to do", 
+                   "remember something", "think about something", "reach for something", 
+                   "sit down", "jump up and down", "kick something", "take a walk", 
+                   "get tired", "become hungry", "feel scared", "experience pain", "get sick")
+
+file_paths <- list.files(path = data_path_cf, pattern = "^2025-", full.names = TRUE)
+
+d <- imap_dfr(file_paths, ~ {
+  read_csv(.x, col_types = cols(response = col_character())) %>%
+    mutate(
+      filename = basename(.x),
+      subject_id = paste0("subj_", str_pad(.y, 2, pad = "0"))
+    )}) %>%
+  select(-c(mturk_participant_id, mturk_assignment_id, mturk_project_id)) %>%
+  relocate(subject_id, .before = "success")
+
+d %>% 
+  filter(condition == "causal")
+
+```
+
+### wrangle data
+
+initial: 30 trials per subject * 48 subjects = 1440 rows.
+dat: (30 trials / 2 trials per row) * 48 subjects = 720 rows.
+
+(after filtering to only relevant trials)
+initial: 15 trials per subject * 2 subjects = 30 rows
+
+TODO: rename itemB to target item.
+
+```{r}
+subjects_to_exclude <- d %>%
+  filter(grepl("attention_check", condition)) %>% 
+  mutate(attn_correct = correct_response_attn == selected_choice) %>% 
+  filter(attn_correct == FALSE) %>%
+  pull(subject_id) %>% 
+  unique()
+
+
+dat <- d %>% 
+  filter(!subject_id %in% subjects_to_exclude) %>% #exclude 1 subject who failed attn check
+  filter(condition %in% c("causal", "similar")) %>%
+  mutate(response = as.factor(response)) %>% 
+  mutate(condition = as.factor(condition)) %>% 
+  rowwise() %>%
+  mutate(response = case_when(
+    grepl(causal_itemA, selected_choice) ~ "causal",
+    grepl(similarity_itemA, selected_choice) ~ "similar",
+    TRUE ~ "other"
+  )) %>% 
+  ungroup() %>% 
+  select(subject_id, condition, itemB, causal_itemA, similarity_itemA, response) %>% 
+  mutate(causal_itemA = factor(causal_itemA, levels = desired_order),
+         similarity_itemA = factor(similarity_itemA, levels = desired_order),
+         itemB = factor(itemB, levels = desired_order)) %>% 
+  mutate(domain_itemB = case_when(itemB == "hear something" ~ "mind", #labels for first item of pair
+                                 itemB == "choose what to do" ~ "mind",
+                                 itemB == "remember something" ~ "mind",
+                                 itemB == "think about something" ~ "mind",
+                                 itemB == "see something" ~ "mind",
+                                 itemB == "reach for something" ~ "action",
+                                 itemB == "sit down" ~ "action", 
+                                 itemB == "jump up and down" ~ "action",
+                                 itemB == "kick something" ~ "action",
+                                 itemB == "take a walk" ~ "action",
+                                 itemB == "get tired" ~ "bio", 
+                                 itemB == "become hungry" ~ "bio",
+                                 itemB == "feel scared"~ "bio",
+                                 itemB == "experience pain"~ "bio",
+                                 itemB == "get sick"~ "bio"),
+         domain_causalitemA = case_when(causal_itemA == "hear something" ~ "mind", 
+                                 causal_itemA == "choose what to do" ~ "mind",
+                                 causal_itemA == "remember something" ~ "mind",
+                                 causal_itemA == "think about something" ~ "mind",
+                                 causal_itemA == "see something" ~ "mind",
+                                 causal_itemA == "reach for something" ~ "action",
+                                 causal_itemA == "sit down" ~ "action", 
+                                 causal_itemA == "jump up and down" ~ "action",
+                                 causal_itemA == "kick something" ~ "action",
+                                 causal_itemA == "take a walk" ~ "action",
+                                 causal_itemA == "get tired" ~ "bio", 
+                                 causal_itemA == "become hungry" ~ "bio",
+                                 causal_itemA == "feel scared"~ "bio",
+                                 causal_itemA == "experience pain"~ "bio",
+                                 causal_itemA == "get sick"~ "bio"),
+          domain_similarityitemA = case_when(similarity_itemA == "hear something" ~ "mind", 
+                                 similarity_itemA == "choose what to do" ~ "mind",
+                                 similarity_itemA == "remember something" ~ "mind",
+                                 similarity_itemA == "think about something" ~ "mind",
+                                 similarity_itemA == "see something" ~ "mind",
+                                 similarity_itemA == "reach for something" ~ "action",
+                                 similarity_itemA == "sit down" ~ "action", 
+                                 similarity_itemA == "jump up and down" ~ "action",
+                                 similarity_itemA == "kick something" ~ "action",
+                                 similarity_itemA == "take a walk" ~ "action",
+                                 similarity_itemA == "get tired" ~ "bio", 
+                                 similarity_itemA == "become hungry" ~ "bio",
+                                 similarity_itemA == "feel scared"~ "bio",
+                                 similarity_itemA == "experience pain"~ "bio",
+                                 similarity_itemA == "get sick"~ "bio")) 
+
+
+
+
+```
+
+
+```{r}
+dat_summarized <- dat %>%
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  group_by(condition) %>%
+  mutate(total = n()) %>% 
+  group_by(condition, response) %>%
+  summarize(
+    count = n(),  
+    total = first(total), 
+    mean_proportion = count / total, 
+    se = sqrt(mean_proportion * (1 - mean_proportion) / total),  
+    .groups = "drop")
+
+#stacked
+(fig_result_summary <- ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  labs(y = "Proportion"))
+
+#visualize bar heights for writeup
+(fig_result_summary <- ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + # Customize bar colors
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), 
+                aes(ymax = mean_proportion + se, ymin = mean_proportion - se), 
+                stat = "identity", position = "identity", width = 0.3) +
+  geom_text(aes(label = round(mean_proportion, 2), 
+                y = mean_proportion + 0.02), # Adjust the y position slightly above the bar
+            position = position_dodge(width = 0.9), 
+            vjust = 0,
+            color = "white") + # Adjust vertical alignment
+  theme_cowplot())
+
+
+#fig_result_summary <- 
+ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_point() +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  labs(y = "Proportion")
+
+ dat %>%
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  group_by(condition) %>%
+  mutate(total = n()) %>% 
+  group_by(condition, response) %>%
+  summarize(
+    count = n(),  
+    total = first(total))
+ 
+ 
+```
+
+
+
+

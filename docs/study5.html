@@ -51,7 +51,7 @@
             participant_id = 'test_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
         } else {
             participant_id = jsPsych.data.getURLVariable('participantId'); 
-            var assignment_id = jsPsych.data.getURLVariable('assignm entId');
+            var assignment_id = jsPsych.data.getURLVariable('assignmentId');
             var project_id = jsPsych.data.getURLVariable('projectId');
         }
 
@@ -70,139 +70,211 @@
         const filename = `${dateString}_${timeString}_${participant_id}.csv`;
         //---------------------------------------------------------------------------------------------------------------------------------------
 
-
     // Preload step
     var preload = {
       type: jsPsychPreload,
       auto_preload: true
     };
 
-    var instruction = {
-      type: jsPsychInstructions,
-      pages: [
-        '<div style="font-size: 25px; text-align: center;">' +
-        '<br>Welcome! <br>In this game you will be asked to consider a sequence of three events that occurred. ' +
-        '<br>The events are connected, such that the first event made the second event happen, ' +
-        '<br>which made the third event happen.' +
-        '<br>For example you might be shown: someone <u> did X </u> , which made them <u> do Y </u> , which made them <u> do Z </u>.' +
-        //'<div style="font-size: 25px; text-align: center;">' +
-        '<p>On each, trial you will see events in the first and third positions.' +
-        '<br>Your job is to indicate the most likely middle event that will complete the chain.</p>'
-      ],
-      show_clickable_nav: true
-    };
-
-    // Define the item lists
-    var causal_itemB = [ 
-      "see something", "hear something", "experience pain", 
-      "get tired", "see something", "choose what to do",
-      "choose what to do"
-    ];
-    var similar_itemB = [ 
-      "jump up and down", "jump up and down", "take a walk",
-      "take a walk", "experience pain", "sit down",
-      "see something"
-    ];
-    var itemC = [
-      "reach for something", "sit down", "jump up and down",
-      "sit down", "get sick", "jump up and down",
-      "get tired"
-    ];
-    var itemA = [
-      "take a walk", "take a walk", "sit down", 
-      "jump up and down", "hear something", "get tired", 
-      "hear something",
-    ];
-    var itemA_past_tense = [
-      "took a walk", "took a walk", "sat down",
-      "jumped up and down", "reached for something", "got tired",
-      "heard something"
-    ];
-    var itemC_past_tense = [
-      "reached for something", "sat down", "jumped up and down",
-      "sat down", "got sick", "jumped up and down",
-      "got tired"
-    ];
-    var causal_itemB_past_tense = [ 
-      "saw something", "heard something", "experienced pain", 
-      "got tired", "saw something", "chose what to do",
-      "chose what to do"
-    ];
-    var similar_itemB_past_tense = [ 
-      "jumped up and down", "jumped up and down", "took a walk",
-      "took a walk", "experienced pain", "sat down",
-      "saw something"
-    ];
-
-var main_trials = itemA.map(function(item, index) {
-  var choices = [
-    `<p style="font-size: 25px;"><strong>${causal_itemB[index]}</strong></p>`,
-    `<p style="font-size: 25px;"><strong>${similar_itemB[index]}</strong></p>`
-  ];
-  choices = jsPsych.randomization.shuffle(choices);
-
-  return {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `
-    <p style="font-size: 25px;">Which second event best completes this causal chain?</p>
-    <br>
-    <p style="font-size: 25px;">Someone <strong>${itemA_past_tense[index]}</strong>,
-    which made them ____________ , which made them <strong>${itemC[index]}</strong>.</p>
-    <br>
-    `,
-    prompt: ' ',
-    choices: choices
-
+  const duration_minutes = 4;
+  const hourly_rate = 15; 
+  const payment = (duration_minutes / 60) * hourly_rate;
+  const duration = `${duration_minutes} minutes`;
+  const amount = `$${payment.toFixed(2)}`;
+  var consent = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p><b>Consent Form</b></p> <div style="text-align:left;' +
+          'background-color:lightblue; padding:2vw; max-width:80vw;">' +
+          '<p><b>Purpose:</b> The purpose of this study is to understand ' +
+          'how people think about the physical and social world.</p>' +
+          '<p><b>Procedures:</b> In this study, you will watch videos, ' +
+          'read sentences, or see pictures, and answer simple questions ' +
+          'about them. This study should take approximately ' + duration + 
+          '</p><p><b>Participation:</b> Participation in this study is ' +
+          'voluntary. If you decide to join now, you can change your mind ' +
+          'later. ' +
+          '</p><p><b>Payment:</b> You will be paid $15.00/hour ' +
+          'for participating in this study. Given the estimated duration of ' +
+          duration + ', your payment will amount to ' + amount + '.</p>' +
+          '<p><b>Risks and benefits:</b> There are no risks associated ' +
+          'with participating in this study. There are no direct benefits ' +
+          'associated with participating in this study. </p><p><b>Use of ' +
+          'data by study researchers:</b> The research team led by Shari ' +
+          'Liu at JHU will have access to your answers. ' +
+          '</p><p><b>Publication of results:</b> The results of the research ' +
+          'may be presented at scientific meetings or published in scientific ' +
+          'journals. Your individual responses may be published. We will ' +
+          'never publish your name, the date that you participated, and any other ' +
+          'information that could be used to identify you. </p><p><b>' +
+          'Researcher contact information:</b> This study is run by Dr. ' +
+          'Shari Liu at JHU. If you have any questions or concerns about ' +
+          'this study, or in the very unlikely event of a research-related ' +
+          'injury, please contact sliu199@jhu.edu. ' +
+          '</p><p><b>Research rights information:</b> If you have questions about ' +
+          'your rights as a research participant or feel that you have not ' +
+          'been treated fairly, please call the Homewood Institutional Review ' +
+          'Board at Johns Hopkins University at (410) 516-6580. If you have ' +
+          'any questions or issues completing the survey, please email Shari ' +
+          'Liu at sliu199@jhu.edu. </p> </div>' +
+          '<p> Do you consent to participate? </p>',
+      choices: ['Yes', 'No'],
+      data: {trial_id: 'consent'},
+      on_finish: function(data) {
+      if (data.response === 1) {  // If 'No' is chosen 
+      jsPsych.abortExperiment('You did not consent to participate. The study will now end. Thank you for your time.');  
+      }
+      }
   };
-});
 
-var attention_check_trial = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "<strong>choose what to do</strong>"</p>
-    <br>
-    <p style="font-size: 25px;">Someone <strong>reached for something</strong>,
-    which made them _________ , which made them <strong>get sick</strong>.</p>
-    <br>
-  `,
-  choices: [
-    `<p style="font-size: 25px;"><strong>choose what to do</strong></p>`,
-    `<p style="font-size: 25px;"><strong>sit down</strong></p>`
-  ],
-  button_layout: "flex",
-  data: {
-    condition: "attention_check",
-    correct_response_attn: "choose what to do"
-  },
-  on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "choose what to do" : "sit down";
+  var instruction = {
+    type: jsPsychInstructions,
+    pages: [
+      '<div style="font-size: 25px; text-align: center;">' +
+      '<br>Welcome! <br>In this game you will be asked to consider a sequence of three events that occurred. ' +
+      '<br>The events are connected, such that the first event made the second event happen, ' +
+      '<br>which made the third event happen.' +
+      '<br>For example you might be shown: someone <u> did X </u> , which made them <u> do Y </u> , which made them <u> do Z </u>.' +
+      '<p>On each, trial you will see events in the first and third positions.' +
+      '<br>Your job is to indicate the most likely middle event that will complete the chain.</p>'
+    ],
+    show_clickable_nav: true
+  };
+
+  // Define the item lists
+  var causal_itemB = [ 
+    "see something", "hear something", "experience pain", 
+    "get tired", "see something", "choose what to do",
+    "choose what to do"
+  ];
+  var similar_itemB = [ 
+    "jump up and down", "jump up and down", "take a walk",
+    "take a walk", "experience pain", "sit down",
+    "see something"
+  ];
+  var itemC = [
+    "reach for something", "sit down", "jump up and down",
+    "sit down", "get sick", "jump up and down",
+    "get tired"
+  ];
+  var itemA = [
+    "take a walk", "take a walk", "sit down", 
+    "jump up and down", "hear something", "get tired", 
+    "hear something",
+  ];
+  var itemA_past_tense = [
+    "took a walk", "took a walk", "sat down",
+    "jumped up and down", "reached for something", "got tired",
+    "heard something"
+  ];
+  var itemC_past_tense = [
+    "reached for something", "sat down", "jumped up and down",
+    "sat down", "got sick", "jumped up and down",
+    "got tired"
+  ];
+  var causal_itemB_past_tense = [ 
+    "saw something", "heard something", "experienced pain", 
+    "got tired", "saw something", "chose what to do",
+    "chose what to do"
+  ];
+  var similar_itemB_past_tense = [ 
+    "jumped up and down", "jumped up and down", "took a walk",
+    "took a walk", "experienced pain", "sat down",
+    "saw something"
+  ];
+
+  // Combine items into a single array of objects
+  var combined_items = [];
+  for (var i = 0; i < itemA.length; i++) {
+    combined_items.push({
+      itemA: itemA[i],
+      itemC: itemC[i],
+      causal_itemB: causal_itemB[i],
+      similar_itemB: similar_itemB[i],
+      //past tense
+      itemA_past_tense: itemA_past_tense[i],
+    });
   }
-};
 
-function insertAttentionCheck(trials, attentionCheck) {
-  var randomIndex = Math.floor(Math.random() * trials.length);
-  trials.splice(randomIndex, 0, attentionCheck);
-  return trials;
-}
+  combined_items = jsPsych.randomization.shuffle(combined_items);
 
-// Insert attention check into intervention trials
-main_trials = insertAttentionCheck(main_trials, attention_check_trial);
+  var main_trials = combined_items.map(function(item) {
+    var choices = [
+      `<p style="font-size: 25px;"><strong>${item.causal_itemB}</strong></p>`,
+      `<p style="font-size: 25px;"><strong>${item.similar_itemB}</strong></p>`
+    ];
+    choices = jsPsych.randomization.shuffle(choices);
 
+    return {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
+      <p style="font-size: 25px;">Which second event best completes this causal chain?</p>
+      <br>
+      <p style="font-size: 25px;">Someone <strong>${item.itemA_past_tense}</strong>,
+      which made them ____________ , which made them <strong>${item.itemC}</strong>.</p>
+      <br>
+      `,
+      prompt: ' ',
+      choices: choices,
+      data: {
+        condition: "main",
+        itemA: item.itemA,
+        itemC: item.itemC,
+        causal_itemB: item.causal_itemB,
+        similar_itemB: item.similar_itemB
+      },
+      on_finish: function(data) {
+      data.selected_choice = choices[data.response]; 
+      }
+    };
+  });
 
-var debrief = {
+  var attention_check_trial = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<p style="font-size: 25px;">For this question, please select "<strong>choose what to do</strong>"</p>
+      <br>
+      <p style="font-size: 25px;">Someone <strong>reached for something</strong>,
+      which made them _________ , which made them <strong>get sick</strong>.</p>
+      <br>
+    `,
+    choices: [
+      `<p style="font-size: 25px;"><strong>choose what to do</strong></p>`,
+      `<p style="font-size: 25px;"><strong>sit down</strong></p>`
+    ],
+    button_layout: "flex",
+    data: {
+      condition: "attention_check",
+      correct_response_attn: "choose what to do"
+    },
+    on_finish: function(data) {
+      data.selected_choice = data.response === 0 ? "choose what to do" : "sit down";
+    }
+  };
+
+  function insertAttentionCheck(trials, attentionCheck) {
+    var randomIndex = Math.floor(Math.random() * trials.length);
+    trials.splice(randomIndex, 0, attentionCheck);
+    return trials;
+  }
+
+  // Insert attention check into intervention trials
+  main_trials = insertAttentionCheck(main_trials, attention_check_trial);
+
+  var debrief = {
     type: jsPsychInstructions,
     pages: [
         '<p style="font-size: 25px;"><strong>Debrief</strong></p>' +
-        '<p>Thank you so much for helping us with this study!</p>' +
-        '<p>In this game, we asked you questions about what actions ' +
-        'you think would best complete a causal chain.' +
-        '<br>Our goal was to study whether people expect causally unrelated events to nevertheless be causally related ' +
-        'through a third event.' +
-        '<br>This shows us how you think various mental and bodily abilities relate to each other.</p>' +
-        '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
+        '<p style="font-size: 25px;">Thank you so much for helping us with this study!</p>' +
+        '<p style="font-size: 25px;">In this game, we asked you questions about which actions ' +
+        'you think would best complete <br>a causal chain of three events.' +
+        '<br>We selected the first and third event to be intentionally not causally related.' +
+        '<br>We are studying whether people think two events which are unrelated can nevertheless ' +
+        '<br>be connected via a third event.' +
+        '<br>This reveals insights into how our understanding of mental, physical, and bodily events is organized in the mind.</p>' +
+        '<p style="font-size: 25px;">Next up, we have a few final questions about yourself and your experience today.</p>'
     ],
     show_clickable_nav: true,
     button_label_next: 'Next'
-    };
+  };
 
   var feedback_demographics = {
           type: jsPsychSurveyHtmlForm,
@@ -280,13 +352,25 @@ var debrief = {
           if (typeof data.ethnicity == "undefined") {
               data.ethnicity = ""}
           }
-      };
+  };
 
-var timeline = [preload];
+  var timeline = [preload];
 
-timeline.push(instruction, ...main_trials, debrief, feedback_demographics);
+  timeline.push(consent, instruction, ...main_trials, debrief, feedback_demographics);
 
-jsPsych.run(timeline);
+  const save_data = {
+              type: jsPsychPipe,
+              action: "save",
+              experiment_id: "SO63gxlALpE9",
+              filename: filename,
+              data_string: () => jsPsych.data.get().csv()
+          };
+
+  if (data_collection) {
+        timeline.push(save_data); 
+  }
+
+  jsPsych.run(timeline);
 
   </script>
 </html>
