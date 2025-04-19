@@ -46,7 +46,7 @@ freesort_and_causal_distances_df_path <- paste0(base_path, "/data-explanation_1/
 ### read data
 
 ```{r, warnings = FALSE}
-data_path_cf <- paste0(base_path, "/data-study5/pilot1")
+data_path_cf <- paste0(base_path, "/data-study5/pilot2")
 
 desired_order <- c("see something", "hear something", "choose what to do", 
                    "remember something", "think about something", "reach for something", 
@@ -161,6 +161,8 @@ dat <- d %>%
   
   
 
+dat %>% 
+  count(response)
 ```
 
 
@@ -168,7 +170,9 @@ dat <- d %>%
 
 ```{r}
 dat_summarized <- dat %>%
+  mutate(response = as.factor(response)) %>% 
   mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  ungroup() %>% 
   # group_by(condition) %>%
   mutate(total = n()) %>% 
   group_by(response) %>%
@@ -189,40 +193,20 @@ dat_summarized <- dat %>%
   theme_cowplot() +
   labs(y = "Proportion"))
 
-#visualize bar heights for writeup
-(fig_result_summary <- ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
-  geom_bar(stat = "identity", colour = "black") +
-  scale_fill_manual(values = c("grey80", "#000000")) + # Customize bar colors
-  geom_errorbar(data = filter(dat_summarized, response == "causal"), 
-                aes(ymax = mean_proportion + se, ymin = mean_proportion - se), 
-                stat = "identity", position = "identity", width = 0.3) +
-  geom_text(aes(label = round(mean_proportion, 2), 
-                y = mean_proportion + 0.02), # Adjust the y position slightly above the bar
-            position = position_dodge(width = 0.9), 
-            vjust = 0,
-            color = "white") + # Adjust vertical alignment
-  theme_cowplot())
-
 
 #fig_result_summary <- 
 ggplot(dat_summarized, aes(x = response, y = mean_proportion, fill = response)) +
-  geom_point() +
   geom_bar(stat = "identity", colour = "black") +
   scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
-  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
-                                                                         ymin = mean_proportion - se),
+  # geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+  #                                                                        ymin = mean_proportion - se),
+  #               stat = "identity", position = "identity", width = 0.3) +
+  geom_errorbar(aes(ymax = mean_proportion + se, ymin = mean_proportion - se),
                 stat = "identity", position = "identity", width = 0.3) +
   theme_cowplot() +
-  labs(y = "Proportion")
-
- dat %>%
-  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
-  group_by(condition) %>%
-  mutate(total = n()) %>% 
-  group_by(condition, response) %>%
-  summarize(
-    count = n(),  
-    total = first(total))
+  geom_hline(yintercept = .5, linetype = "dashed") +
+  labs(y = "Proportion selecting middle item",
+       x = "Middle item in Causal Chain",) 
  
  
 ```
