@@ -46,7 +46,7 @@ freesort_and_causal_distances_df_path <- paste0(base_path, "/data-explanation_1/
 ### read data
 
 ```{r, warnings = FALSE}
-data_path_cf <- paste0(base_path, "/data-study6/pilot1")
+data_path_cf <- paste0(base_path, "/data-study6/pilot2")
 
 desired_order <- c("see something", "hear something", "choose what to do", 
                    "remember something", "think about something", "reach for something", 
@@ -65,7 +65,7 @@ d <- imap_dfr(file_paths, ~ {
   relocate(subject_id, .before = "success")
 
 d %>% 
-  filter(condition == "causal")
+  distinct(subject_id)
 
 ```
 
@@ -96,13 +96,13 @@ dat <- d %>%
   rowwise() %>%
   mutate(response = case_when(
     grepl(causal_itemA, selected_choice) ~ "causal",
-    grepl(similarity_itemA, selected_choice) ~ "similar",
+    grepl(similar_itemA, selected_choice) ~ "similar",
     TRUE ~ "other"
   )) %>% 
   ungroup() %>% 
-  select(subject_id, condition, itemB, causal_itemA, similarity_itemA, response) %>% 
+  select(subject_id, condition, itemB, causal_itemA, similar_itemA, response) %>% 
   mutate(causal_itemA = factor(causal_itemA, levels = desired_order),
-         similarity_itemA = factor(similarity_itemA, levels = desired_order),
+         similar_itemA = factor(similar_itemA, levels = desired_order),
          itemB = factor(itemB, levels = desired_order)) %>% 
   mutate(domain_itemB = case_when(itemB == "hear something" ~ "mind", #labels for first item of pair
                                  itemB == "choose what to do" ~ "mind",
@@ -134,21 +134,21 @@ dat <- d %>%
                                  causal_itemA == "feel scared"~ "bio",
                                  causal_itemA == "experience pain"~ "bio",
                                  causal_itemA == "get sick"~ "bio"),
-          domain_similarityitemA = case_when(similarity_itemA == "hear something" ~ "mind", 
-                                 similarity_itemA == "choose what to do" ~ "mind",
-                                 similarity_itemA == "remember something" ~ "mind",
-                                 similarity_itemA == "think about something" ~ "mind",
-                                 similarity_itemA == "see something" ~ "mind",
-                                 similarity_itemA == "reach for something" ~ "action",
-                                 similarity_itemA == "sit down" ~ "action", 
-                                 similarity_itemA == "jump up and down" ~ "action",
-                                 similarity_itemA == "kick something" ~ "action",
-                                 similarity_itemA == "take a walk" ~ "action",
-                                 similarity_itemA == "get tired" ~ "bio", 
-                                 similarity_itemA == "become hungry" ~ "bio",
-                                 similarity_itemA == "feel scared"~ "bio",
-                                 similarity_itemA == "experience pain"~ "bio",
-                                 similarity_itemA == "get sick"~ "bio")) 
+          domain_similarityitemA = case_when(similar_itemA == "hear something" ~ "mind", 
+                                 similar_itemA == "choose what to do" ~ "mind",
+                                 similar_itemA == "remember something" ~ "mind",
+                                 similar_itemA == "think about something" ~ "mind",
+                                 similar_itemA == "see something" ~ "mind",
+                                 similar_itemA == "reach for something" ~ "action",
+                                 similar_itemA == "sit down" ~ "action", 
+                                 similar_itemA == "jump up and down" ~ "action",
+                                 similar_itemA == "kick something" ~ "action",
+                                 similar_itemA == "take a walk" ~ "action",
+                                 similar_itemA == "get tired" ~ "bio", 
+                                 similar_itemA == "become hungry" ~ "bio",
+                                 similar_itemA == "feel scared"~ "bio",
+                                 similar_itemA == "experience pain"~ "bio",
+                                 similar_itemA == "get sick"~ "bio")) 
 
 
 
@@ -158,7 +158,8 @@ dat <- d %>%
 
 ```{r}
 dat_summarized <- dat %>%
-  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>%
+  mutate(condition = ifelse(condition == "causal", "Making Someone do Something", "Giving Creature Ability")) %>%
   group_by(condition) %>%
   mutate(total = n()) %>% 
   group_by(condition, response) %>%
@@ -179,23 +180,9 @@ dat_summarized <- dat %>%
   theme_cowplot() +
   labs(y = "Proportion"))
 
-#visualize bar heights for writeup
-(fig_result_summary <- ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
-  geom_bar(stat = "identity", colour = "black") +
-  scale_fill_manual(values = c("grey80", "#000000")) + # Customize bar colors
-  geom_errorbar(data = filter(dat_summarized, response == "causal"), 
-                aes(ymax = mean_proportion + se, ymin = mean_proportion - se), 
-                stat = "identity", position = "identity", width = 0.3) +
-  geom_text(aes(label = round(mean_proportion, 2), 
-                y = mean_proportion + 0.02), # Adjust the y position slightly above the bar
-            position = position_dodge(width = 0.9), 
-            vjust = 0,
-            color = "white") + # Adjust vertical alignment
-  theme_cowplot())
 
-
-#fig_result_summary <- 
-ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+dat_summarized %>%
+  ggplot(aes(x = condition, y = mean_proportion, fill = response)) +
   geom_point() +
   geom_bar(stat = "identity", colour = "black") +
   scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
@@ -203,16 +190,11 @@ ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response))
                                                                          ymin = mean_proportion - se),
                 stat = "identity", position = "identity", width = 0.3) +
   theme_cowplot() +
-  labs(y = "Proportion")
+  geom_hline(yintercept = .5, linetype = "dashed") +
+  labs(y = "Proportion",
+       x = "Intervention Type")
 
- dat %>%
-  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
-  group_by(condition) %>%
-  mutate(total = n()) %>% 
-  group_by(condition, response) %>%
-  summarize(
-    count = n(),  
-    total = first(total))
+
  
  
 ```
