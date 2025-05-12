@@ -45,7 +45,7 @@
 
     //-------------------------------------------------------------------------------------------------------------------------------------
         //experiment variables
-        const mturk_pilot_mode = test
+        const mturk_pilot_mode = false
         const data_collection = false
 
             // capture info from mturk/connect, except in test mode
@@ -85,7 +85,7 @@
         type: jsPsychHtmlButtonResponse,
         stimulus: '<p><b>Consent Form</b></p> <div style="text-align:left;' +
             'background-color:lightblue; padding:2vw; max-width:80vw;">' +
-            '<p><b>Purpose:</b> This is a study demo; the purpose of the study is to understand ' +
+            '<p><b>Purpose:</b> The purpose of this study is to understand ' +
             'how people think about the physical and social world.</p>' +
             '<p><b>Procedures:</b> In this study, you will watch videos, ' +
             'read sentences, or see pictures, and answer simple questions ' +
@@ -93,15 +93,29 @@
             '</p><p><b>Participation:</b> Participation in this study is ' +
             'voluntary. If you decide to join now, you can change your mind ' +
             'later. ' +
+            '</p><p><b>Payment:</b> You will be paid $15.00/hour ' +
+            'for participating in this study. Given the estimated duration of ' +
+            duration + ', your payment will amount to ' + amount + '.</p>' +
             '<p><b>Risks and benefits:</b> There are no risks associated ' +
             'with participating in this study. There are no direct benefits ' +
             'associated with participating in this study. </p><p><b>Use of ' +
             'data by study researchers:</b> The research team led by Shari ' +
             'Liu at JHU will have access to your answers. ' +
+            '</p><p><b>Publication of results:</b> The results of the research ' +
+            'may be presented at scientific meetings or published in scientific ' +
+            'journals. Your individual responses may be published. We will ' +
+            'never publish your name, the date that you participated, and any other ' +
+            'information that could be used to identify you. </p><p><b>' +
             'Researcher contact information:</b> This study is run by Dr. ' +
             'Shari Liu at JHU. If you have any questions or concerns about ' +
             'this study, or in the very unlikely event of a research-related ' +
             'injury, please contact sliu199@jhu.edu. ' +
+            '</p><p><b>Research rights information:</b> If you have questions about ' +
+            'your rights as a research participant or feel that you have not ' +
+            'been treated fairly, please call the Homewood Institutional Review ' +
+            'Board at Johns Hopkins University at (410) 516-6580. If you have ' +
+            'any questions or issues completing the survey, please email Shari ' +
+            'Liu at sliu199@jhu.edu. </p> </div>' +
             '<p> Do you consent to participate? </p>',
         choices: ['Yes', 'No'],
         data: {trial_id: 'consent'},

@@ -130,7 +130,7 @@ dat_plot %>%
   stat_summary(fun = mean, geom = "point", size = 5, color = "red") +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = .2) +
   geom_hline(yintercept = 50, linetype = "dashed") +
-  labs(y = "Likelihood of Occurring", x = "Counterfactual type") +
+  labs(y = "Likelihood of Counterfactual", x = "Preceding Item type") +
   scale_x_discrete(labels = c("counterfactual" = "Causal", "similarity" = "Similar")) +
   theme_bw() +
   theme(axis.text.x = element_text(size = 12),
