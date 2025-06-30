@@ -1,0 +1,493 @@
+---
+title: "study1 preprocessing"
+output: 
+  html_document:
+      toc: true
+      toc_float: true
+      toc_depth: 3
+      number_sections: true
+date: "2024-12-10"
+author: anonymous
+---
+
+This script does the following:  
+1. Takes raw data `study1_data_raw.csv`. The codebook for the raw data is available at `data/study1_data_raw_codebook`.  
+2. Parses it into a combined (i.e. freesort + causation) data frame and saves into csv `data_processed_step1.csv`. The codebook for this data frame is available at `/snapshots_study1_preprocessing_analysis/data_processed_step1_codebook`.  
+3. Generates model predictions (aka theoretical RDM data) and saves into csv `data_model_predictions.csv`.  
+4. Plots RDMs and saves them into `figures/theoretical-rdms`. 
+
+Study description:    
+- Study 1 was ran on 12/13/24 on Connect CloudResearch, N = 50 participants.  
+- Subject selection criteria: 95% approval rate, minimum 10 previous submissions, and fluent in English. 
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+pacman::p_load(tidyverse, here, corrplot, jsonlite)
+sessionInfo()
+
+library(jsonlite)
+```
+
+# Read data
+
+```{r}
+base_path <- here("code", "study1")
+data_path <- paste0(base_path, "/data/study1_data_raw.csv")
+d <- read_csv(data_path)
+```
+
+# Set variables
+
+```{r}
+items <- c("choose what to do", "reach for something", "feel scared",  #items in exact order of img1.png to img15.png used in sort task
+           "experience pain", "get sick", "get tired", "become hungry", 
+           "see something", "think about something", "hear something", 
+           "remember something", "jump up and down", "kick something", 
+           "take a walk", "sit down")
+
+desired_order <- c("see something", "hear something", "choose what to do", #ordering by domain
+                   "remember something", "think about something", "reach for something", 
+                   "sit down", "jump up and down", "kick something", "take a walk", 
+                   "get tired", "become hungry", "feel scared", "experience pain", "get sick")
+
+#paths: data outputs
+rdm_figures_outputs_path <- paste0(base_path, "/figures/theoretical-rdms/")
+combined_output_csv <- "data_processed_step1"
+snapshots_path <- paste0(base_path, "/snapshots_study1_preprocessing_analysis")
+combined_output_path <- paste0(snapshots_path, "/", combined_output_csv, ".csv") 
+model_predictions_output_path <- paste0(snapshots_path, "/data_model_predictions.csv") 
+
+```
+
+
+# Parse data frames
+
+## Parse Sorting Task data
+
+```{r}
+data_freesort <- d %>%
+  filter(trial_type == "free-sort") %>% 
+  select(subject_id, trial_index, final_locations) %>% 
+  mutate(parsed_location = map(final_locations, ~ fromJSON(.))) %>% #parse JSON
+  unnest(parsed_location) %>% #unnest the list column
+  mutate(
+    img_number = as.numeric(str_extract(src, "\\d+")), #etract image numbers from `src`
+    item = items[img_number] #map image numbers to item labels
+  ) %>%
+  select(-c("final_locations", "src", "img_number")) %>% 
+  mutate(trial_type = "free_sort") %>% 
+  relocate(trial_type, .after = subject_id) %>% 
+  rename(original_trial_index = trial_index)
+
+#write.csv(data_freesort, file = freesort_output_path, row.names = F)
+```
+
+## Parse Causal Task data
+
+```{r}
+response_data <- d %>%
+  filter(trial_type == "survey-slider") %>% 
+  select(subject_id, trial_index, response) %>%
+  mutate(response = map(response, ~ tryCatch(
+    fromJSON(.) %>%
+      enframe(name = "question_id", value = "response"),
+    error = function(e) tibble(question_id = character(), response = character())
+  ))) %>%
+  unnest(response) %>% 
+  mutate(
+    response = unlist(response), 
+    response = as.numeric(response), 
+    question_index = str_remove(question_id, "Q") 
+  ) %>%
+  select(subject_id, trial_index, question_index, response)
+
+metadata_data <- d %>%
+  select(subject_id, trial_index, `0`:`14`, `15`) %>% 
+  pivot_longer(
+    cols = -c(subject_id, trial_index),  
+    names_to = "question_index",      
+    values_to = "metadata"            
+  ) %>% 
+  mutate(
+    parsed_metadata = map(metadata, ~ {
+      if (is.na(.x)) {
+        tibble() # Handle NA metadata
+      } else {
+        fromJSON(.x, simplifyVector = FALSE) %>%
+          map(~ if (is.null(.)) NA else .) %>%  #replace NULL with NA
+          as_tibble()
+      }
+    })
+  ) %>% 
+  unnest(parsed_metadata) %>%    
+  select(-metadata)           
+
+#merge the response_data and metadata_data into data_causation
+data_causation <- response_data %>%
+  inner_join(metadata_data, by = c("subject_id", "trial_index", "question_index")) %>% 
+  mutate(trial_type = "causation") %>% 
+  relocate(trial_type, .after = subject_id) %>%
+  rename(original_trial_index = trial_index, 
+         original_question_index = question_index) %>% 
+  group_by(subject_id, trial_type) %>%
+  mutate(trial_index = dense_rank(original_trial_index),
+         question_index = row_number()) %>%
+  ungroup() %>% 
+  relocate(c("trial_index", "question_index"), .after = "trial_type") %>% 
+  relocate(c("original_trial_index", "original_question_index"), .after = "correct_response")
+
+```
+
+## Exclusions
+
+- In Causal Task we have 4 attention checks at pages 4, 8, 10 and 13. No attention checks in Sorting Task 
+- We are excluding subjects who fail at least 2 attention checks (Other possible criteria: time taken to complete study)
+
+```{r}
+data_causation <- data_causation %>%
+  mutate(attention_check_id = case_when(
+    attention_check == TRUE & trial_index == 4  ~ 1, 
+    attention_check == TRUE & trial_index == 8  ~ 2, 
+    attention_check == TRUE & trial_index == 10 ~ 3, 
+    attention_check == TRUE & trial_index == 13 ~ 4, 
+    TRUE ~ NA_integer_ #non-attention check rows
+  )) %>%
+  mutate(correct_response = case_when(
+    attention_check == TRUE & trial_index == 4  ~ 0, #"Move slider all the way to left"
+    attention_check == TRUE & trial_index == 8  ~ 75,  #"Move slider to 'Maybe yes'"
+    attention_check == TRUE & trial_index == 10 ~ 100, #"Move slider all the way to right"
+    attention_check == TRUE & trial_index == 13 ~ 0,   #"Move slider to 'Definitely not'"
+    TRUE ~ correct_response # Retain existing values for non-attention check rows
+  )) %>%
+  mutate(correct = case_when(
+    attention_check == TRUE & trial_index == 4  & response >= 0 & response <= 5   ~ TRUE, 
+    attention_check == TRUE & trial_index == 8  & response >= 70 & response <= 80 ~ TRUE, 
+    attention_check == TRUE & trial_index == 10 & response >= 0 & response <= 5 ~ TRUE, #3 and 4 are switched for some reason
+    attention_check == TRUE & trial_index == 13 & response >= 95 & response <= 100   ~ TRUE,
+    attention_check == TRUE ~ FALSE, #outside acceptable range
+    TRUE ~ NA #non-attn check rows
+  ))
+
+excluded_participants <- data_causation %>%
+  filter(attention_check == TRUE) %>% 
+  group_by(subject_id) %>% 
+  summarize(
+    num_incorrect = sum(correct == FALSE, na.rm = TRUE), 
+    .groups = "drop"
+  ) %>%
+  filter(num_incorrect >= 2) %>% #identify participants with x or more incorrect (4 subjects had 1 incorrect attn check)
+  pull(subject_id) 
+
+data_causation <- data_causation %>%
+  filter(!subject_id %in% excluded_participants)
+
+```
+
+## Add trial order column
+
+```{r}
+#Combine trial types to compare their starting original_trial_index
+trial_order_info <- bind_rows(
+  data_causation %>% distinct(subject_id, trial_type, original_trial_index),
+  data_freesort %>% distinct(subject_id, trial_type, original_trial_index)
+) %>%
+  group_by(subject_id) %>%
+  summarize(
+    trial_type_order = case_when(
+      min(original_trial_index[trial_type == "causation"]) < min(original_trial_index[trial_type == "free_sort"]) ~ 
+        list(c(causation = "first", free_sort = "second")),
+      TRUE ~ list(c(causation = "second", free_sort = "first"))
+    )
+  ) %>%
+  unnest_wider(trial_type_order)
+
+#Add trial_type_order to data_causation
+data_causation <- data_causation %>%
+  left_join(
+    trial_order_info %>% select(subject_id, causation),
+    by = "subject_id"
+  ) %>%
+  rename(trial_type_order = causation) %>%
+  relocate(trial_type_order, .after = trial_type)
+
+# Add trial_type_order to data_freesort
+data_freesort <- data_freesort %>%
+  left_join(
+    trial_order_info %>% select(subject_id, free_sort),
+    by = "subject_id"
+  ) %>%
+  rename(trial_type_order = free_sort) %>%
+  relocate(trial_type_order, .after = trial_type)
+
+```
+
+## Create combined data frame
+
+```{r}
+data_combined <- bind_rows(
+  data_causation,
+  data_freesort
+)
+
+assign(combined_output_csv, data_combined)
+
+write.csv(data_combined, combined_output_path, row.names = F)
+
+```
+
+# Generate theoretical RDM data 
+
+These are the model predictions for the 4 hypotheses
+
+```{r}
+d_theories_first3 <- expand.grid(itemA = desired_order, itemB = desired_order) %>% 
+  filter(itemA != itemB) %>%  # Remove self-pairs
+  
+  #theory 1: mind, body, action
+  mutate(MindBodyAction_itemA = case_when(itemA == "hear something" ~ "mind", #labels for first item of pair
+                               itemA == "choose what to do" ~ "mind",
+                               itemA == "remember something" ~ "mind",
+                               itemA == "think about something" ~ "mind",
+                               itemA == "see something" ~ "mind",
+                               itemA == "reach for something" ~ "act",
+                               itemA == "sit down" ~ "act", 
+                               itemA == "jump up and down" ~ "act",
+                               itemA == "kick something" ~ "act",
+                               itemA == "take a walk" ~ "act",
+                               itemA == "get tired" ~ "bio", 
+                               itemA == "become hungry" ~ "bio",
+                               itemA == "feel scared"~ "bio",
+                               itemA == "experience pain"~ "bio",
+                               itemA == "get sick"~ "bio"),
+         MindBodyAction_itemB = case_when(itemB == "hear something" ~ "mind", #labels for second item of pair
+                               itemB == "choose what to do" ~ "mind",
+                               itemB == "remember something" ~ "mind",
+                               itemB == "think about something" ~ "mind",
+                               itemB == "see something" ~ "mind",
+                               itemB == "reach for something" ~ "act",
+                               itemB == "sit down" ~ "act", 
+                               itemB == "jump up and down" ~ "act",
+                               itemB == "kick something" ~ "act",
+                               itemB == "take a walk" ~ "act",
+                               itemB == "get tired" ~ "bio", 
+                               itemB == "become hungry" ~ "bio",
+                               itemB == "feel scared"~ "bio",
+                               itemB == "experience pain"~ "bio",
+                               itemB == "get sick"~ "bio")) %>% 
+  
+  #theory 2: fine-grained, mba: perceptual, cognition, object & non-object directed, phasic & non phasic changes
+   mutate(PerCogOdActSpActBstimBnstim_itemA = case_when(itemA == "hear something" ~ "per",
+                               itemA == "see something" ~ "per",
+                               itemA == "choose what to do" ~ "cog",
+                               itemA == "remember something" ~ "cog",
+                               itemA == "think about something" ~ "cog",
+                               itemA == "reach for something" ~ "odAct",
+                               itemA == "sit down" ~ "SpAct", 
+                               itemA == "jump up and down" ~ "SpAct",
+                               itemA == "kick something" ~ "odAct",
+                               itemA == "take a walk" ~ "SpAct",
+                               itemA == "get tired" ~ "BnS", 
+                               itemA == "become hungry" ~ "BnS",
+                               itemA == "feel scared"~ "BS",
+                               itemA == "experience pain"~ "BS",
+                               itemA == "get sick"~ "BnS",),
+         PerCogOdActSpActBstimBnstim_itemB = case_when(itemB == "hear something" ~ "per",
+                               itemB == "see something" ~ "per",
+                               itemB == "choose what to do" ~ "cog",
+                               itemB == "remember something" ~ "cog",
+                               itemB == "think about something" ~ "cog",
+                               itemB == "reach for something" ~ "odAct",
+                               itemB == "sit down" ~ "SpAct", 
+                               itemB == "jump up and down" ~ "SpAct",
+                               itemB == "kick something" ~ "odAct",
+                               itemB == "take a walk" ~ "SpAct",
+                               itemB == "get tired" ~ "BnS", 
+                               itemB == "become hungry" ~ "BnS",
+                               itemB == "feel scared"~ "BS",
+                               itemB == "experience pain"~ "BS",
+                               itemB == "get sick"~ "BnS")) %>% 
+
+      #theory 3: (2 groups) physical and non-physical/psychological events:
+      mutate(PhysicalEthereal_itemA = case_when(itemA == "hear something" ~ "ethereal",
+                               itemA == "see something" ~ "ethereal",
+                               itemA == "choose what to do" ~ "ethereal",
+                               itemA == "remember something" ~ "ethereal",
+                               itemA == "think about something" ~ "ethereal",
+                               itemA == "reach for something" ~ "phys",
+                               itemA == "sit down" ~ "phys", 
+                               itemA == "jump up and down" ~ "phys",
+                               itemA == "kick something" ~ "phys",
+                               itemA == "take a walk" ~ "phys",
+                               itemA == "get tired" ~ "phys", 
+                               itemA == "become hungry" ~ "phys",
+                               itemA == "feel scared"~ "phys",
+                               itemA == "experience pain"~ "phys",
+                               itemA == "get sick"~ "phys"),
+             PhysicalEthereal_itemB = case_when(itemB == "hear something" ~ "ethereal",
+                               itemB == "see something" ~ "ethereal",
+                               itemB == "choose what to do" ~ "ethereal",
+                               itemB == "remember something" ~ "ethereal",
+                               itemB == "think about something" ~ "ethereal",
+                               itemB == "reach for something" ~ "phys",
+                               itemB == "sit down" ~ "phys", 
+                               itemB == "jump up and down" ~ "phys",
+                               itemB == "kick something" ~ "phys",
+                               itemB == "take a walk" ~ "phys",
+                               itemB == "get tired" ~ "phys", 
+                              itemB == "become hungry" ~ "phys",
+                               itemB == "feel scared"~ "phys",
+                               itemB == "experience pain"~ "phys",
+                               itemB == "get sick"~ "phys")) %>% 
+  
+  #scoring the items
+  mutate("theor1_Mind-Body-Action" = ifelse(MindBodyAction_itemA == MindBodyAction_itemB, 0, 1),
+         "theor2_PerCog-OdActSpAct-BodyStimBodynoStim" = ifelse(PerCogOdActSpActBstimBnstim_itemA == PerCogOdActSpActBstimBnstim_itemB, 0, 1),
+         "theor3_Physical-Ethereal" = ifelse(PhysicalEthereal_itemA == PhysicalEthereal_itemB, 0, 1)) 
+
+# write.csv(d_theories_first3, theories_output_path, row.names = F)
+
+```
+
+## Add USE embeddings
+
+```{r}
+#load USE embeddings
+embedding_df <- readRDS(here(base_path, "embeddings", "item_embeddings.rds")) 
+
+d_theories <- d_theories_first3 %>% 
+  select(-c("MindBodyAction_itemA", "MindBodyAction_itemB", 
+            "PerCogOdActSpActBstimBnstim_itemA","PerCogOdActSpActBstimBnstim_itemB", 
+            "PhysicalEthereal_itemA", "PhysicalEthereal_itemB"))
+
+#merge embeddings to original data frame
+d_theories_with_embeddings <- d_theories %>%
+  left_join(embedding_df, by = c("itemA" = "item")) %>%
+  rename(embeddingA = embedding) %>%
+  left_join(embedding_df, by = c("itemB" = "item")) %>%
+  rename(embeddingB = embedding)
+
+#compute cosine similarity for each row
+d_all_theories <- d_theories_with_embeddings %>%
+  rowwise() %>% 
+  mutate(cosine_similarity = sum(unlist(embeddingA) * unlist(embeddingB)) /
+                 (sqrt(sum(unlist(embeddingA)^2)) * sqrt(sum(unlist(embeddingB)^2)))) %>%
+  ungroup() %>% 
+  rowwise() %>% 
+  mutate(cosine_similarity = (1 - cosine_similarity) / 2) %>% #turn c.s. to a disimilarity measure
+  ungroup() %>% 
+  select(-c("embeddingA", "embeddingB")) %>% 
+  rename("theor4_cosine_similarity" = cosine_similarity) %>% 
+  ungroup() 
+
+write.csv(d_all_theories, model_predictions_output_path, row.names = F)
+
+```
+
+# Plot theoretical RDMS
+
+```{r}
+plot_rdm_theory <- function(data, column_name, desired_order, plot_title) {
+
+  df_matrix <- data %>%
+    mutate(
+      itemA = factor(itemA, levels = desired_order),
+      itemB = factor(itemB, levels = desired_order)
+    ) %>%
+    select(itemA, itemB, all_of(column_name)) %>%
+    pivot_wider(names_from = itemB, values_from = all_of(column_name)) %>%
+    column_to_rownames("itemA")
+  
+  df_matrix <- df_matrix[desired_order, desired_order]
+  diag(df_matrix) <- NA 
+  
+  #min-max normalize
+  min_val <- min(df_matrix, na.rm = TRUE)
+  max_val <- max(df_matrix, na.rm = TRUE)
+  df_matrix <- (df_matrix - min_val) / (max_val - min_val)
+
+  custom_palette <- colorRampPalette(c("red", "white", "blue"))
+
+  corrplot(
+    as.matrix(df_matrix), method = "color", is.corr = FALSE,
+    col = custom_palette(200),
+    tl.col = "black", 
+    #title = plot_title,
+    title = "",
+    cex.main = 3, #title text size
+    tl.pos = "n", #remove labels
+    mar = c(0, 0, 2, 0), addgrid.col = "darkgray",
+    na.label = "square",       
+    na.label.col = "darkgrey",
+    cl.offset = 1.0,  
+    cl.cex = 2, #legend label text size
+    cl.ratio = 0.22, #widen the legend bar: change this to push words far away
+  )
+}
+
+mba_order <- c("see something", "hear something", "choose what to do", 
+               "remember something", "think about something", "reach for something", 
+               "sit down", "jump up and down", "kick something", "take a walk", 
+               "get tired", "become hungry", "feel scared", "experience pain", "get sick")
+
+perccog_order <- c("see something", "hear something", "choose what to do", 
+                   "remember something", "think about something", "reach for something", 
+                   "kick something", "sit down", "jump up and down",  "take a walk", 
+                   "get tired", "become hungry", "get sick", "feel scared", "experience pain")
+
+physethereal_order <- c("see something", "hear something", "choose what to do", 
+                        "remember something", "think about something", "reach for something", 
+                        "kick something", "sit down", "jump up and down",  "take a walk", 
+                        "get tired", "become hungry", "get sick", "feel scared", "experience pain")
+
+plot_rdm_theory(d_all_theories, "theor4_cosine_similarity", mba_order, "Cosine Distance")
+plot_rdm_theory(d_all_theories, "theor1_Mind-Body-Action", mba_order, "3 categories: MBA")
+plot_rdm_theory(d_all_theories, "theor2_PerCog-OdActSpAct-BodyStimBodynoStim", perccog_order, "6 categories: PCOS")
+plot_rdm_theory(d_all_theories, "theor3_Physical-Ethereal", physethereal_order, "2 categories: PE")
+
+# save them
+#output_folder <- paste0(here(rdm_outputs_path), "/figures/theoretical-rdms/") -> delete this
+
+theories <- list(
+  list(column_name = "theor4_cosine_similarity", order = mba_order, title = "Cosine Distance"),
+  list(column_name = "theor1_Mind-Body-Action", order = mba_order, title = "3 categories: MBA"),
+  list(column_name = "theor2_PerCog-OdActSpAct-BodyStimBodynoStim", order = perccog_order, title = "6 categories: PCOS"),
+  list(column_name = "theor3_Physical-Ethereal", order = physethereal_order, title = "2 categories: PE")
+)
+
+for (i in seq_along(theories)) {
+  theory <- theories[[i]]
+  output_file <- paste0(rdm_figures_outputs_path, "theory_", i, ".pdf")
+  pdf(file = output_file, width = 8, height = 6) #open PDF device
+  plot_rdm_theory(
+    data = d_all_theories,
+    column_name = theory$column_name,
+    desired_order = theory$order,
+    plot_title = theory$title
+  )
+  dev.off() #close PDF device
+}
+
+```
+
+# Demographics
+
+```{r}
+df_demographics <- d %>% 
+  filter(trial_id == "demographics_survey") %>% 
+  select("subject_id", "trial_id","feedback", "age", "ethnicity", "gender", "race") 
+
+summary(df_demographics$age)
+table(df_demographics$gender)
+table(df_demographics$ethnicity)
+table(df_demographics$race)
+
+```
+
+
+
+```{r}
+
+```
+
+

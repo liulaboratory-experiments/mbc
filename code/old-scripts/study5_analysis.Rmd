@@ -1,0 +1,319 @@
+---
+title: "study 2"
+output: html_document
+date: "2024-10-28"
+---
+
+# ReadMe
+
+This is the analysis for study 5 of the MBC project, alias the causal chain study.  
+The question: 
+
+# Set options
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+pacman::p_load(
+               lme4, 
+               here, 
+               patchwork, 
+               cowplot, 
+               viridis, 
+               effects, 
+               gt,
+               webshot2,
+               knitr,
+               performance,
+               tidyverse)
+sessionInfo()
+
+```
+
+# Global variables
+
+```{r}
+base_path <- here("code")
+freesort_and_causal_distances_df_path <- paste0(base_path, "/data-explanation_1/freesort_minus_causals.csv")
+
+```
+
+
+# Study 5 - Causal chain
+
+## Prepare data
+
+### read data
+
+```{r, warnings = FALSE}
+data_path_cf <- paste0(base_path, "/data-study5-causal-chains/pilot2")
+
+desired_order <- c("see something", "hear something", "choose what to do", 
+                   "remember something", "think about something", "reach for something", 
+                   "sit down", "jump up and down", "kick something", "take a walk", 
+                   "get tired", "become hungry", "feel scared", "experience pain", "get sick")
+
+file_paths <- list.files(path = data_path_cf, pattern = "^2025-", full.names = TRUE)
+
+d <- imap_dfr(file_paths, ~ {
+  read_csv(.x, col_types = cols(response = col_character())) %>%
+    mutate(
+      filename = basename(.x),
+      subject_id = paste0("subj_", str_pad(.y, 2, pad = "0"))
+    )}) %>%
+  select(-c(mturk_participant_id, mturk_assignment_id, mturk_project_id)) %>%
+  relocate(subject_id, .before = "success")
+
+```
+
+### wrangle data
+
+initial: 30 trials * 48 subjects = 1440 rows.
+dat: (30 trials / 2 trials per row) * 48 subjects = 720 rows.
+
+TODO: rename itemB to target item.
+
+```{r}
+subjects_to_exclude <- d %>%
+  filter(grepl("attention_check", condition)) %>% 
+  mutate(attn_correct = correct_response_attn == selected_choice) %>% 
+  filter(attn_correct == FALSE) %>%
+  pull(subject_id) %>% 
+  unique()
+
+dat <- d %>% 
+  # filter(!subject_id %in% subjects_to_exclude) %>% ##===== Do not exclude for now
+  filter(condition %in% c("main")) %>% 
+  mutate(response = as.factor(response)) %>% 
+  mutate(condition = as.factor(condition)) %>% 
+  rowwise() %>%
+  mutate(response = case_when(
+    grepl(causal_itemB, selected_choice) ~ "causal",
+    grepl(similar_itemB, selected_choice) ~ "similar",
+    TRUE ~ "other"
+  )) %>% 
+  select(-condition) %>% 
+  select(subject_id, itemA, itemC, causal_itemB, similar_itemB, response) %>% 
+  mutate(causal_itemB = factor(causal_itemB, levels = desired_order),
+         similar_itemB = factor(similar_itemB, levels = desired_order),
+         itemA = factor(itemA, levels = desired_order),
+         itemC = factor(itemC, levels = desired_order)) %>% 
+  mutate(domain_itemA= case_when(itemA == "hear something" ~ "mind", 
+                                 itemA == "choose what to do" ~ "mind",
+                                 itemA == "remember something" ~ "mind",
+                                 itemA == "think about something" ~ "mind",
+                                 itemA == "see something" ~ "mind",
+                                 itemA == "reach for something" ~ "action",
+                                 itemA == "sit down" ~ "action", 
+                                 itemA == "jump up and down" ~ "action",
+                                 itemA == "kick something" ~ "action",
+                                 itemA == "take a walk" ~ "action",
+                                 itemA == "get tired" ~ "bio", 
+                                 itemA == "become hungry" ~ "bio",
+                                 itemA == "feel scared"~ "bio",
+                                 itemA == "experience pain"~ "bio",
+                                 itemA == "get sick"~ "bio"),
+         domain_itemC= case_when(itemC == "hear something" ~ "mind", 
+                                 itemC == "choose what to do" ~ "mind",
+                                 itemC == "remember something" ~ "mind",
+                                 itemC == "think about something" ~ "mind",
+                                 itemC == "see something" ~ "mind",
+                                 itemC == "reach for something" ~ "action",
+                                 itemC == "sit down" ~ "action", 
+                                 itemC == "jump up and down" ~ "action",
+                                 itemC == "kick something" ~ "action",
+                                 itemC == "take a walk" ~ "action",
+                                 itemC == "get tired" ~ "bio", 
+                                 itemC == "become hungry" ~ "bio",
+                                 itemC == "feel scared"~ "bio",
+                                 itemC == "experience pain"~ "bio",
+                                 itemC == "get sick"~ "bio"),
+         domain_causalitemB = case_when(causal_itemB == "hear something" ~ "mind", 
+                                 causal_itemB == "choose what to do" ~ "mind",
+                                 causal_itemB == "remember something" ~ "mind",
+                                 causal_itemB == "think about something" ~ "mind",
+                                 causal_itemB == "see something" ~ "mind",
+                                 causal_itemB == "reach for something" ~ "action",
+                                 causal_itemB == "sit down" ~ "action", 
+                                 causal_itemB == "jump up and down" ~ "action",
+                                 causal_itemB == "kick something" ~ "action",
+                                 causal_itemB == "take a walk" ~ "action",
+                                 causal_itemB == "get tired" ~ "bio", 
+                                 causal_itemB == "become hungry" ~ "bio",
+                                 causal_itemB == "feel scared"~ "bio",
+                                 causal_itemB == "experience pain"~ "bio",
+                                 causal_itemB == "get sick"~ "bio"),
+          domain_similaritemB = case_when(similar_itemB == "hear something" ~ "mind", 
+                                 similar_itemB == "choose what to do" ~ "mind",
+                                 similar_itemB == "remember something" ~ "mind",
+                                 similar_itemB == "think about something" ~ "mind",
+                                 similar_itemB == "see something" ~ "mind",
+                                 similar_itemB == "reach for something" ~ "action",
+                                 similar_itemB == "sit down" ~ "action", 
+                                 similar_itemB == "jump up and down" ~ "action",
+                                 similar_itemB == "kick something" ~ "action",
+                                 similar_itemB == "take a walk" ~ "action",
+                                 similar_itemB == "get tired" ~ "bio", 
+                                 similar_itemB == "become hungry" ~ "bio",
+                                 similar_itemB == "feel scared"~ "bio",
+                                 similar_itemB == "experience pain"~ "bio",
+                                 similar_itemB == "get sick"~ "bio")) 
+  
+dat %>% 
+  count(response)
+```
+
+### demographics
+
+```{r}
+# demographics
+df_demographics <- d %>% 
+  filter(trial_type == "survey-html-form") %>% 
+  select("trial_id", "filename", 
+         "feedback", "age", "ethnicity", "gender", "race") 
+
+summary(df_demographics$age)
+table(df_demographics$gender)
+table(df_demographics$ethnicity)
+table(df_demographics$race)
+
+
+```
+
+main figure
+
+```{r}
+
+```
+
+
+
+```{r}
+dat_summarized <- dat %>%
+  mutate(response = as.factor(response)) %>% 
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  ungroup() %>% 
+  # group_by(condition) %>%
+  mutate(total = n()) %>% 
+  group_by(response) %>%
+  summarize(
+    count = n(),  
+    total = first(total), 
+    mean_proportion = count / total, 
+    se = sqrt(mean_proportion * (1 - mean_proportion) / total),  
+    .groups = "drop")
+
+#stacked
+(fig_result_summary <- ggplot(dat_summarized, aes(x = response, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  labs(y = "Proportion"))
+
+
+#fig_result_summary <- 
+ggplot(dat_summarized, aes(x = response, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  # geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+  #                                                                        ymin = mean_proportion - se),
+  #               stat = "identity", position = "identity", width = 0.3) +
+  geom_errorbar(aes(ymax = mean_proportion + se, ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  geom_hline(yintercept = .5, linetype = "dashed") +
+  labs(y = "Proportion selecting middle item",
+       x = "Middle item in Causal Chain",) 
+ 
+
+
+
+ 
+```
+
+## figure
+
+not this
+
+```{r}
+dat_summarized %>% 
+  ggplot( aes(x = response, y = mean_proportion, fill = response)) +
+    geom_bar(stat = "identity", position = "stack", colour = "black") +
+    scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+    geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                           ymin = mean_proportion - se),
+                  stat = "identity", position = "identity", width = 0.3) +
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+    theme_cowplot() +
+    # labs(y = "Proportion") +
+  labs(y = "Proportion Middle Item", 
+       x = "Middle Item in Causal Chain",
+       fill = "Middle Item") +
+    ylim(0, 1) +
+  theme(axis.text.x = element_text(size = 25),
+        axis.text.y = element_text(size = 25),
+        axis.title.x = element_text(size = 25),
+        axis.title.y = element_text(size = 25),
+        legend.text = element_text(size = 25),
+        legend.title = element_text(size = 25),
+
+        panel.background = element_rect(fill='transparent', color=NA),
+        plot.background = element_rect(fill='transparent', color=NA),
+        legend.background = element_rect(fill='transparent', color = NA),
+        legend.box.background = element_rect(fill='transparent', color = NA),
+        legend.position = "top",
+        legend.justification = "center",
+        legend.key.size = unit(1, "cm"),
+        legend.spacing.x = unit(1, "cm")
+        ) 
+
+```
+
+## stacked figure for spp
+
+```{r}
+main_fig <- dat_summarized %>%
+  ggplot(aes(x = "Middle Item in Causal Chain", y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", position = "stack", colour = "black") +
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  scale_fill_manual(values = c("grey80", "#000000")) +
+  labs(y = "Proportion", x = NULL, fill = "Middle Item") +
+  theme_cowplot() +
+  theme(
+    axis.text.x = element_text(size = 30),
+    axis.text.y = element_text(size = 30),
+    axis.title.y = element_text(size = 30),
+    legend.text = element_text(size = 30),
+    legend.title = element_text(size = 30),
+    panel.background = element_rect(fill='transparent', color=NA),
+    plot.background = element_rect(fill='transparent', color=NA),
+    legend.background = element_rect(fill='transparent', color = NA),
+    legend.box.background = element_rect(fill='transparent', color = NA),
+    legend.position = "top",
+    legend.justification = "center",
+    legend.key.size = unit(1, "cm"),
+    legend.spacing.x = unit(1, "cm")
+  ) +
+  geom_hline(yintercept = .5, linetype = "dashed") +
+  ylim(0, 1)
+
+main_fig
+
+main_fig <- ggsave("spp_study5.png", width = 4, height = 5, plot = main_fig, bg = "transparent")
+
+```
+
+
+
+```{r}
+
+```
+
+
+
+

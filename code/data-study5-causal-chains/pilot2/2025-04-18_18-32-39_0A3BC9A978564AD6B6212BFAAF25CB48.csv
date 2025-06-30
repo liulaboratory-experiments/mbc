@@ -1,0 +1,61 @@
+"success","timeout","failed_images","failed_audio","failed_video","trial_type","trial_index","plugin_version","time_elapsed","mturk_participant_id","mturk_assignment_id","mturk_project_id","trial_id","rt","stimulus","response","view_history","condition","correct_response_attn","selected_choice","itemA","itemC","causal_itemB","similar_itemB","feedback","age","ethnicity","gender","race"
+"true","false","[]","[]","[]","preload","0","2.1.0","5","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","","","","","","","","","","","","","","","",""
+"","","","","","html-button-response","1","2.1.0","2461","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","consent","2455","<p><b>Consent Form</b></p> <div style=""text-align:left;background-color:lightblue; padding:2vw; max-width:80vw;""><p><b>Purpose:</b> The purpose of this study is to understand how people think about the physical and social world.</p><p><b>Procedures:</b> In this study, you will watch videos, read sentences, or see pictures, and answer simple questions about them. This study should take approximately 4 minutes</p><p><b>Participation:</b> Participation in this study is voluntary. If you decide to join now, you can change your mind later. </p><p><b>Payment:</b> You will be paid $15.00/hour for participating in this study. Given the estimated duration of 4 minutes, your payment will amount to $1.00.</p><p><b>Risks and benefits:</b> There are no risks associated with participating in this study. There are no direct benefits associated with participating in this study. </p><p><b>Use of data by study researchers:</b> The research team led by Shari Liu at JHU will have access to your answers. </p><p><b>Publication of results:</b> The results of the research may be presented at scientific meetings or published in scientific journals. Your individual responses may be published. We will never publish your name, the date that you participated, and any other information that could be used to identify you. </p><p><b>Researcher contact information:</b> This study is run by Dr. Shari Liu at JHU. If you have any questions or concerns about this study, or in the very unlikely event of a research-related injury, please contact sliu199@jhu.edu. </p><p><b>Research rights information:</b> If you have questions about your rights as a research participant or feel that you have not been treated fairly, please call the Homewood Institutional Review Board at Johns Hopkins University at (410) 516-6580. If you have any questions or issues completing the survey, please email Shari Liu at sliu199@jhu.edu. </p> </div><p> Do you consent to participate? </p>","0","","","","","","","","","","","","",""
+"","","","","","instructions","2","2.1.0","21578","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","19117","","","[{""page_index"":0,""viewing_time"":19117}]","","","","","","","","","","","",""
+"","","","","","html-button-response","3","2.1.0","24867","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","3288","<p style=""font-size: 25px;"">For this question, please select ""<strong>choose what to do</strong>""</p>
+      <br>
+      <p style=""font-size: 25px;"">Someone <strong>reached for something</strong>,
+      which made them _________ , which made them <strong>get sick</strong>.</p>
+      <br>
+    ","0","","attention_check","choose what to do","choose what to do","","","","","","","","",""
+"","","","","","html-button-response","4","2.1.0","48071","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","23203","
+      <p style=""font-size: 25px;"">Which second event best completes this causal chain?</p>
+      <br>
+      <p style=""font-size: 25px;"">Someone <strong>heard something</strong>,
+      which made them ____________ , which made them <strong>get tired</strong>.</p>
+      <br>
+      ","0","","main","","<p style=""font-size: 25px;""><strong>choose what to do</strong></p>","hear something","get tired","choose what to do","see something","","","","",""
+"","","","","","html-button-response","5","2.1.0","61697","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","13626","
+      <p style=""font-size: 25px;"">Which second event best completes this causal chain?</p>
+      <br>
+      <p style=""font-size: 25px;"">Someone <strong>took a walk</strong>,
+      which made them ____________ , which made them <strong>sit down</strong>.</p>
+      <br>
+      ","0","","main","","<p style=""font-size: 25px;""><strong>hear something</strong></p>","take a walk","sit down","hear something","jump up and down","","","","",""
+"","","","","","html-button-response","6","2.1.0","77309","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","15611","
+      <p style=""font-size: 25px;"">Which second event best completes this causal chain?</p>
+      <br>
+      <p style=""font-size: 25px;"">Someone <strong>got tired</strong>,
+      which made them ____________ , which made them <strong>jump up and down</strong>.</p>
+      <br>
+      ","1","","main","","<p style=""font-size: 25px;""><strong>choose what to do</strong></p>","get tired","jump up and down","choose what to do","sit down","","","","",""
+"","","","","","html-button-response","7","2.1.0","99305","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","21996","
+      <p style=""font-size: 25px;"">Which second event best completes this causal chain?</p>
+      <br>
+      <p style=""font-size: 25px;"">Someone <strong>reached for something</strong>,
+      which made them ____________ , which made them <strong>get sick</strong>.</p>
+      <br>
+      ","1","","main","","<p style=""font-size: 25px;""><strong>see something</strong></p>","hear something","get sick","see something","experience pain","","","","",""
+"","","","","","html-button-response","8","2.1.0","103292","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","3986","
+      <p style=""font-size: 25px;"">Which second event best completes this causal chain?</p>
+      <br>
+      <p style=""font-size: 25px;"">Someone <strong>sat down</strong>,
+      which made them ____________ , which made them <strong>jump up and down</strong>.</p>
+      <br>
+      ","1","","main","","<p style=""font-size: 25px;""><strong>experience pain</strong></p>","sit down","jump up and down","experience pain","take a walk","","","","",""
+"","","","","","html-button-response","9","2.1.0","132405","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","29113","
+      <p style=""font-size: 25px;"">Which second event best completes this causal chain?</p>
+      <br>
+      <p style=""font-size: 25px;"">Someone <strong>jumped up and down</strong>,
+      which made them ____________ , which made them <strong>sit down</strong>.</p>
+      <br>
+      ","1","","main","","<p style=""font-size: 25px;""><strong>get tired</strong></p>","jump up and down","sit down","get tired","take a walk","","","","",""
+"","","","","","html-button-response","10","2.1.0","136166","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","3760","
+      <p style=""font-size: 25px;"">Which second event best completes this causal chain?</p>
+      <br>
+      <p style=""font-size: 25px;"">Someone <strong>took a walk</strong>,
+      which made them ____________ , which made them <strong>reach for something</strong>.</p>
+      <br>
+      ","1","","main","","<p style=""font-size: 25px;""><strong>see something</strong></p>","take a walk","reach for something","see something","jump up and down","","","","",""
+"","","","","","instructions","11","2.1.0","141504","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","","5338","","","[{""page_index"":0,""viewing_time"":5338}]","","","","","","","","","","","",""
+"","","","","","survey-html-form","12","2.1.0","266678","0A3BC9A978564AD6B6212BFAAF25CB48","61dea7e9-3992-4024-af8f-71d8c3db1c22","0da135ee-7737-47bb-a29b-08c9c71d0ae2","demographics_survey","125172","","{""feedback"":""Nothing influenced me, it's just a practical sequence of events based on human behavior. Most people commit to basic behaviors when meeting needs."",""age"":""40"",""gender"":""Male"",""other_gender"":"""",""race"":""White"",""other_race"":"""",""ethnicity"":""Non-Hispanic""}","","","","","","","","","Nothing influenced me, it's just a practical sequence of events based on human behavior. Most people commit to basic behaviors when meeting needs.","40","Non-Hispanic","Male","White"

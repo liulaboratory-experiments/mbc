@@ -380,7 +380,7 @@ all_trials.splice(21, 0, attention_check_trial_2); // Insert at trial 22 (index 
 
 var timeline = [preload];
 
-timeline.push(consent, instructions_explanation, ...all_trials, debrief);
+timeline.push(consent, instructions_explanation, ...all_trials, debrief); //NB: did not include feedback_demographics in actual survey. only included it  on 6/9/25 after noticing the error
 
 if (data_collection) {
       timeline.push(save_data); 

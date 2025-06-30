@@ -1,0 +1,871 @@
+---
+title: "study 2"
+output: html_document
+date: "2024-10-28"
+---
+
+# ReadMe
+
+This is the analysis for study 2 of the MBC project, alias the intervention study.  
+The study had N = 100, with random assignment to two conditions: Intervention and Similarity, with 15 trials per condition.
+The question: are subjects in the Intervention condition more likely to select the causal item, and subjects in the Similarity condition likely to select the similar item.
+
+# Set options
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+pacman::p_load(tidyverse, 
+               lme4, 
+               here, 
+               patchwork, 
+               cowplot, 
+               viridis, 
+               effects, 
+               gt,
+               webshot2,
+               knitr,
+               performance)
+sessionInfo()
+
+```
+
+# Read data
+
+TODO save this out into an intermediate csv? --> the input data, right? Done. I made a separate preprocessing script for reading and fixing ids (which I did locally), moving the ConnectID data to /VAST/ and retaining the randomized subject ids. 
+
+TODO reassign subject IDs - I'm pretty sure mTurk IDs are identifiable data, please check. At least, they could be used to link data from the same person across multiple experiments, which is not good.
+
+```{r, warnings = FALSE}
+base_path <- here("code")
+data_path <- paste0(base_path, "/data-intervention/pilot06_11425_n100-intervention-100")
+snapshots_input_path <- paste0(base_path, "/study1/snapshots_study1_final_analysis")
+snapshots_output_path <- paste0(base_path, "/snapshots_study2_preprocessing")
+
+desired_order <- c("see something", "hear something", "choose what to do", 
+                   "remember something", "think about something", "reach for something", 
+                   "sit down", "jump up and down", "kick something", "take a walk", 
+                   "get tired", "become hungry", "feel scared", "experience pain", "get sick")
+
+d <- read.csv(paste0(snapshots_output_path, "/study2_raw_data.csv"))
+
+```
+
+
+# Wrangle data
+
+```{r}
+ subjects_to_exclude <- d %>%
+  filter(condition == "attention_check") %>% 
+  rowwise() %>% 
+  mutate(correct_attn_check = case_when(
+    grepl(correct_response_attn, selected_choice) ~ "yes",
+    TRUE ~ "no"
+  )) %>% 
+  filter(correct_attn_check == "no") %>% 
+  pull(subject_id) #1 subject: subject 11
+
+dat <- d %>% 
+  filter(!subject_id %in% subjects_to_exclude) %>% #exclude 1 subject who failed attn check
+  filter(condition %in% c("intervention", "similarity")) %>%
+  mutate(response = as.factor(response)) %>% 
+  mutate(condition = as.factor(condition)) %>% 
+  rowwise() %>%
+  mutate(response = case_when(
+    grepl(causal_itemA, selected_choice) ~ "causal",
+    grepl(similarity_itemA, selected_choice) ~ "similar",
+    TRUE ~ "other"
+  )) %>% 
+  mutate(condition = case_when(
+    condition == "similarity" ~ "inference",
+    TRUE ~ condition
+  )) %>% 
+  ungroup() %>% 
+  select(subject_id, condition, itemB, causal_itemA, similarity_itemA, response) %>% 
+  mutate(causal_itemA = factor(causal_itemA, levels = desired_order),
+         similarity_itemA = factor(similarity_itemA, levels = desired_order),
+         itemB = factor(itemB, levels = desired_order)) %>% 
+  mutate(domain_itemB = case_when(itemB == "hear something" ~ "mind", #labels for first item of pair
+                                 itemB == "choose what to do" ~ "mind",
+                                 itemB == "remember something" ~ "mind",
+                                 itemB == "think about something" ~ "mind",
+                                 itemB == "see something" ~ "mind",
+                                 itemB == "reach for something" ~ "action",
+                                 itemB == "sit down" ~ "action", 
+                                 itemB == "jump up and down" ~ "action",
+                                 itemB == "kick something" ~ "action",
+                                 itemB == "take a walk" ~ "action",
+                                 itemB == "get tired" ~ "bio", 
+                                 itemB == "become hungry" ~ "bio",
+                                 itemB == "feel scared"~ "bio",
+                                 itemB == "experience pain"~ "bio",
+                                 itemB == "get sick"~ "bio"),
+         domain_causalitemA = case_when(causal_itemA == "hear something" ~ "mind", 
+                                 causal_itemA == "choose what to do" ~ "mind",
+                                 causal_itemA == "remember something" ~ "mind",
+                                 causal_itemA == "think about something" ~ "mind",
+                                 causal_itemA == "see something" ~ "mind",
+                                 causal_itemA == "reach for something" ~ "action",
+                                 causal_itemA == "sit down" ~ "action", 
+                                 causal_itemA == "jump up and down" ~ "action",
+                                 causal_itemA == "kick something" ~ "action",
+                                 causal_itemA == "take a walk" ~ "action",
+                                 causal_itemA == "get tired" ~ "bio", 
+                                 causal_itemA == "become hungry" ~ "bio",
+                                 causal_itemA == "feel scared"~ "bio",
+                                 causal_itemA == "experience pain"~ "bio",
+                                 causal_itemA == "get sick"~ "bio"),
+          domain_similarityitemA = case_when(similarity_itemA == "hear something" ~ "mind", 
+                                 similarity_itemA == "choose what to do" ~ "mind",
+                                 similarity_itemA == "remember something" ~ "mind",
+                                 similarity_itemA == "think about something" ~ "mind",
+                                 similarity_itemA == "see something" ~ "mind",
+                                 similarity_itemA == "reach for something" ~ "action",
+                                 similarity_itemA == "sit down" ~ "action", 
+                                 similarity_itemA == "jump up and down" ~ "action",
+                                 similarity_itemA == "kick something" ~ "action",
+                                 similarity_itemA == "take a walk" ~ "action",
+                                 similarity_itemA == "get tired" ~ "bio", 
+                                 similarity_itemA == "become hungry" ~ "bio",
+                                 similarity_itemA == "feel scared"~ "bio",
+                                 similarity_itemA == "experience pain"~ "bio",
+                                 similarity_itemA == "get sick"~ "bio")) 
+
+
+```
+
+# Plot
+
+## table of choices
+
+TODO add mean causal and sim distances between A and B? --> done
+```{r}
+# design_pairs <- dat %>%
+#   select(itemB, causal_itemA, similarity_itemA) %>%
+#   unique() %>%
+#   relocate(itemB, .after = last_col()) %>%
+#   rename(target_item = itemB, causal_choice = causal_itemA, similar_choice = similarity_itemA)
+
+design_pairs <- dat %>% #start with raw data containing items
+  select(itemB, causal_itemA, similarity_itemA) %>%
+  unique() %>%
+  left_join(
+    read.csv(paste0(snapshots_input_path, "/diffs.csv")) %>% #grab causal item distances
+      mutate(
+        itemB = factor(itemB, levels = desired_order),
+        itemA = factor(itemA, levels = desired_order)
+      ) %>%
+      select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean),
+    by = c("itemB", "causal_itemA" = "itemA")
+  ) %>%
+  left_join(
+    read.csv(paste0(snapshots_input_path, "/diffs.csv")) %>% #grab similar item distances
+      mutate(
+        itemB = factor(itemB, levels = desired_order),
+        itemA = factor(itemA, levels = desired_order)
+      ) %>%
+      select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean),
+    by = c("itemB", "similarity_itemA" = "itemA"),
+    suffix = c("_causal", "_similar")
+  ) %>%
+  distinct(itemB, .keep_all = TRUE) %>%
+  mutate(
+    mean_causal_dissimilarity_causal = round(mean_causal_dissimilarity_causal, 2),
+    mean_emp_euclidean_causal = round(mean_emp_euclidean_causal, 2),
+    mean_causal_dissimilarity_similar = round(mean_causal_dissimilarity_similar, 2),
+    mean_emp_euclidean_similar = round(mean_emp_euclidean_similar, 2)
+  ) %>%
+  select(
+    target_item = itemB,
+    causal_choice = causal_itemA,
+    causal_distance_causal_choice = mean_causal_dissimilarity_causal,
+    freesort_distance_causal_choice = mean_emp_euclidean_causal,
+    similar_choice = similarity_itemA,
+    causal_distance_similar_choice = mean_causal_dissimilarity_similar,
+    freesort_distance_similar_choice = mean_emp_euclidean_similar
+  ) %>%
+  arrange(target_item)
+
+```
+
+## table plotting with gt
+
+```{r}
+#table with line breaks
+pairs_table <- design_pairs %>%
+  mutate(
+    causal_choice = paste0(causal_choice, "<br>(", causal_distance_causal_choice, ", ", freesort_distance_causal_choice, ")"),
+    similar_choice = paste0(similar_choice, "<br>(", causal_distance_similar_choice, ", ", freesort_distance_similar_choice, ")"),
+    group = case_when(
+      row_number() %in% 1:5 ~ "mind",
+      row_number() %in% 6:10 ~ "action",
+      row_number() %in% 11:15 ~ "body"
+    )
+  ) %>%
+  select(target_item, causal_choice, similar_choice, group)
+
+# Generate GT table with markdown rendering
+df_table <- pairs_table %>%
+  gt() %>%
+  tab_header(
+    title = "Target and Choice Items",
+    subtitle = "Distances Between Target, Causal, and Similar Choices"
+  ) %>%
+  cols_label(
+    target_item = "Target Item",
+    causal_choice = md("Causal Choice<br>(Causal D., Freesort D.)"),
+    similar_choice = md("Similar Choice<br>(Causal D., Freesort D.)")
+  ) %>%
+  fmt_markdown(columns = c(causal_choice, similar_choice)) %>%  # Interpret markdown for line breaks
+  tab_style(
+    style = cell_fill(color = "#f7bf2a"),  # Highlight for 'mind'
+    locations = cells_body(rows = group == "mind")
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "#69ad44"),  # Highlight for 'action'
+    locations = cells_body(rows = group == "action")
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "#f36b2d"),  # Highlight for 'body'
+    locations = cells_body(rows = group == "body")
+  ) %>%
+  cols_hide(columns = group) %>%   # Optionally hide the helper column
+  tab_options(
+    table.font.names = "Baskerville"
+  )
+
+# Save
+# gtsave(df_table, "pairs-table.html")  # Save as HTML for viewing with color
+gtsave(df_table, "pairs-table.png")   # Save as PNG for use in presentations or documents
+```
+
+## table without line breaks
+
+```{r}
+#==============omitting line breaks
+pairs_table <- design_pairs %>%
+  mutate(
+    causal_choice = paste0(causal_choice, " (", causal_distance_causal_choice, ", ", freesort_distance_causal_choice, ")"),
+    similar_choice = paste0(similar_choice, " (", causal_distance_similar_choice, ", ", freesort_distance_similar_choice, ")"),
+    group = case_when(
+      row_number() %in% 1:5 ~ "mind",
+      row_number() %in% 6:10 ~ "action",
+      row_number() %in% 11:15 ~ "body"
+    )
+  ) %>%
+  select(target_item, causal_choice, similar_choice, group)
+
+# Generate GT table with markdown rendering
+df_table <- pairs_table %>%
+  gt() %>%
+  tab_header(
+    title = "Target and Choice Items" #,
+    # subtitle = "Distances Between Target, Causal, and Similar Choices"
+  ) %>%
+  cols_label(
+    target_item = "Target Item",
+    causal_choice = md("Causal Choice<br>(Causal D., Freesort D.)"),
+    similar_choice = md("Similar Choice<br>(Causal D., Freesort D.)")
+  ) %>%
+  fmt_markdown(columns = c(causal_choice, similar_choice)) %>%  # Interpret markdown for line breaks
+  tab_style(
+    style = cell_fill(color = "#f7bf2a"),  # Highlight for 'mind'
+    locations = cells_body(rows = group == "mind")
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "#69ad44"),  # Highlight for 'action'
+    locations = cells_body(rows = group == "action")
+  ) %>%
+  tab_style(
+    style = cell_fill(color = "#f36b2d"),  # Highlight for 'body'
+    locations = cells_body(rows = group == "body")
+  ) %>%
+  cols_hide(columns = group) %>%   # Optionally hide the helper column
+  tab_options(
+    table.font.names = "Baskerville"
+  )
+
+gtsave(df_table, "pairs-table-2.png")   # Save as PNG for use in presentations or documents
+
+```
+
+
+
+## overall barplot
+
+TODO add error bars to stacked barplot? --> added
+TODO decide what to call conditions and responses - conditions = intervention vs inference? and response = similar vs causal? --> yup, changed
+TODO make causal responses at bottom since that's the unique contribution? --> done
+```{r}
+dat_summarized <- dat %>%
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  group_by(condition) %>%
+  mutate(total = n()) %>% 
+  group_by(condition, response) %>%
+  summarize(
+    count = n(),  
+    total = first(total), 
+    mean_proportion = count / total, 
+    se = sqrt(mean_proportion * (1 - mean_proportion) / total),  
+    .groups = "drop")
+
+#stacked
+(fig_result_summary <- ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  labs(y = "Proportion"))
+
+#visualize bar heights for writeup
+(fig_result_summary <- ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + # Customize bar colors
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), 
+                aes(ymax = mean_proportion + se, ymin = mean_proportion - se), 
+                stat = "identity", position = "identity", width = 0.3) +
+  geom_text(aes(label = round(mean_proportion, 2), 
+                y = mean_proportion + 0.02), # Adjust the y position slightly above the bar
+            position = position_dodge(width = 0.9), 
+            vjust = 0,
+            color = "white") + # Adjust vertical alignment
+  theme_cowplot())
+
+
+#fig_result_summary <- 
+ggplot(dat_summarized, aes(x = condition, y = mean_proportion, fill = response)) +
+  geom_point() +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  geom_errorbar(data = filter(dat_summarized, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  theme_cowplot() +
+  labs(y = "Proportion")
+
+ dat %>%
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  group_by(condition) %>%
+  mutate(total = n()) %>% 
+  group_by(condition, response) %>%
+  summarize(
+    count = n(),  
+    total = first(total))
+
+```
+
+violin plots
+
+```{r}
+
+```
+
+
+## modelling barplot
+
+```{r}
+dat_prepped <- dat %>%
+  mutate(
+    response_binary = ifelse(response == "causal", 1, 0), # Binary outcome (1 = causal)
+    condition = as.factor(condition) # Ensure condition is a factor
+  )
+
+model <- glmer(response_binary ~ condition + (1 | subject_id), 
+               data = dat_prepped, 
+               family = binomial)
+
+# Summary of the model
+summary(model)
+
+```
+
+
+## item level, stacked
+
+```{r, fig.width = 12}
+dat_summarized_by_item <- dat %>% 
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>% 
+  group_by(condition, itemB) %>%
+  mutate(total = n()) %>%  # Total responses per condition
+  group_by(condition, itemB, response) %>%
+  mutate(
+    count = n(),  # Count responses for each response type
+    total = first(total),  # Total responses for the condition
+    mean_proportion = count / total,  # Proportion of response within condition
+    se = sqrt(mean_proportion * (1 - mean_proportion) / total)) %>% 
+  distinct(condition, itemB, .keep_all = TRUE) %>% 
+  ungroup()
+
+#set x axis colors
+itemB_colors <- dat_summarized_by_item %>%
+  distinct(itemB, domain_itemB) %>%
+  mutate(color = case_when(
+    domain_itemB == "bio" ~ "darkgreen",
+    domain_itemB == "mind" ~ "blue",
+    domain_itemB == "action" ~ "red"
+  )) %>%
+  pull(color, name = itemB)
+
+p <- dat_summarized_by_item %>% 
+  ggplot(aes(x =itemB, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity", colour = "black") +
+  geom_errorbar(data = filter(dat_summarized_by_item, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  theme_cowplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(dat_summarized_by_item$itemB)])) +
+  facet_wrap(~condition) 
+
+p
+
+p_alt <- dat_summarized_by_item %>% 
+  ggplot(aes(x =condition, y = mean_proportion, fill = response)) +
+  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity", colour = "black") +
+  geom_errorbar(data = filter(dat_summarized_by_item, response == "causal"), aes(ymax = mean_proportion + se,
+                                                                         ymin = mean_proportion - se),
+                stat = "identity", position = "identity", width = 0.3) +
+  scale_fill_manual(values = c("grey80", "#000000")) + #or whatever you'd like!
+  theme_cowplot() +
+  # theme(axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(dat_summarized_by_item$itemB)])) +
+  facet_wrap(~itemB, nrow = 3) 
+
+p_alt
+
+ggsave(
+  filename = "figures/study2/p_study2_item-level_stacked.pdf",
+  plot = p,          
+  device = "pdf",           
+  #path = "path/to/directory", #Optional: specify a directory
+  width = 12,               
+  height = 6,             
+  units = "in"              
+)
+
+```
+
+
+
+# Modelling
+
+## effect of condition
+
+Todo: rename mean_emp_euclidean and mean_causal_dissimilarity to causal and freesort distance in all scripts!
+
+```{r}
+d_model <- dat %>% 
+  mutate(response = as.factor(response)) %>% 
+  mutate(subject_id = as.factor(subject_id)) %>% 
+  mutate(responses = ifelse(response == "causal", 1, 0)) %>% 
+  mutate(condition = as.factor(condition)) %>%
+  unite(col = "trial_ID", c(itemB, similarity_itemA, causal_itemA), sep = "_", remove = FALSE)
+  
+#model
+overall_model <- glmer(responses ~ condition + (1|subject_id), data = d_model, family = binomial(link = 'logit'))
+summary(overall_model)
+plot(allEffects(overall_model))
+check_model(overall_model) # TODO figure out binned resisual issue?
+
+```
+
+## effect of causal and freesort distance in causal condition
+
+TODO convert CIs into probs too?
+TODO give models unique names
+
+```{r}
+d_freesort_and_causal_distances <- read.csv(paste0(snapshots_input_path, "/diffs.csv")) %>% 
+  mutate(itemB = factor(itemB, levels = desired_order)) %>% 
+  mutate(itemA = factor(itemA, levels = desired_order)) 
+
+causal_condition <- d_model %>% 
+  # select(-similarity_itemA) %>% # why - let's study both?
+    filter(condition == "intervention") %>%
+    left_join(d_freesort_and_causal_distances %>% 
+                select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean, euclidean_minus_causal) %>% 
+                rename("causal_itemA" = itemA,
+                       "causal_itemA_causal_distance" = mean_causal_dissimilarity,
+                       "causal_itemA_freesort_distance" = mean_emp_euclidean,
+                       "causal_itemA_freesort_minus_causal" = euclidean_minus_causal),
+              by = c("itemB", "causal_itemA")) %>%
+    left_join(d_freesort_and_causal_distances %>% 
+                select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean, euclidean_minus_causal) %>% 
+                rename("similarity_itemA" = itemA,
+                       "similarity_itemA_causal_distance" = mean_causal_dissimilarity,
+                       "similarity_itemA_freesort_distance" = mean_emp_euclidean, 
+                       "similar_itemA_freesort_minus_causal" = euclidean_minus_causal),
+              by = c("itemB", "similarity_itemA"))
+
+  
+similarity_condition <- d_model %>% 
+  # select(-causal_itemA) %>% 
+  filter(condition == "similarity") %>% 
+    left_join(d_freesort_and_causal_distances %>% 
+                select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean, euclidean_minus_causal) %>% 
+                rename("causal_itemA" = itemA,
+                       "causal_itemA_causal_distance" = mean_causal_dissimilarity,
+                       "causal_itemA_freesort_distance" = mean_emp_euclidean,
+                       "causal_itemA_freesort_minus_causal" = euclidean_minus_causal),
+              by = c("itemB", "causal_itemA")) %>%
+    left_join(d_freesort_and_causal_distances %>% 
+                select(itemA, itemB, mean_causal_dissimilarity, mean_emp_euclidean, euclidean_minus_causal) %>% 
+                rename("similarity_itemA" = itemA,
+                       "similarity_itemA_causal_distance" = mean_causal_dissimilarity,
+                       "similarity_itemA_freesort_distance" = mean_emp_euclidean, 
+                       "similar_itemA_freesort_minus_causal" = euclidean_minus_causal),
+              by = c("itemB", "similarity_itemA"))
+
+
+#Modelling both predictors 
+both_predictors_model <- glmer(responses ~ causal_itemA_freesort_minus_causal + similar_itemA_freesort_minus_causal + (1|subject_id), data = causal_condition, family = binomial(link = "logit"))
+summary(both_predictors_model)
+plot(allEffects(both_predictors_model))
+check_model(both_predictors_model)
+
+fixed_effects <- fixef(both_predictors_model) #log odds
+odds_ratios <- exp(fixed_effects)  #convert log-odds to odds ratios
+probabilities <- 1 / (1 + exp(-fixed_effects)) #convert log odds to probability
+
+cat("\nBoth predictors model [intercept] [causal_distance] [freesort_distance]:\n ")
+cat("Fixed effects (log odds): ", fixed_effects, "\n")
+cat("Fixed effects (odds ratios): ", odds_ratios, "\n")
+cat("Fixed effects (probabilities, causal_distance = 0):", probabilities, "\n")
+#nb: fixed effects are intercept and slope. slope is change log odds of outcome for a unit increase in predictor
+
+```
+
+
+## plotting effects combined graph
+
+```{r, fig.width = 8, fig.height = 8}
+effects_data <- allEffects(both_predictors_model)
+
+causal_effect <- as.data.frame(effects_data$`causal_itemA_freesort_minus_causal`)
+similar_effect <- as.data.frame(effects_data$`similar_itemA_freesort_minus_causal`)
+
+causal_effect$Predictor <- "Intervention"
+similar_effect$Predictor <- "Inference"
+
+colnames(causal_effect)[1] <- "PredictorValue"
+colnames(similar_effect)[1] <- "PredictorValue"
+
+combined_effects <- rbind(causal_effect, similar_effect)
+
+base_plot <- ggplot(combined_effects, aes(x = PredictorValue, y = fit, color = Predictor)) +
+  geom_line() +
+  geom_hline(yintercept = .5, linetype = "dashed") +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = Predictor), alpha = 0.2) +
+  labs(
+    title = "Probability of Making A Causal Choice",
+    x = "Choice Item Distance to Target Item",
+    y = "Probability",
+    color = "Condition",
+    fill = "Condition"
+  ) +
+  theme_cowplot() +
+  # scale_x_continuous(
+  #   breaks = c(min(combined_effects$PredictorValue), max(combined_effects$PredictorValue)),
+  #   labels = c("More similar, \nless causal", "More causal, \nless similar")
+  # ) +
+  theme(
+    plot.title = element_text(hjust = 0.5),  
+    axis.text.x = element_text(size = 16),  
+    axis.text.y = element_text(size = 16),  
+    axis.title.y = element_text(size = 16),  
+    axis.title.x = element_text(size = 16),  
+    # legend.position = "bottom", 
+    legend.title = element_text(size = 16), 
+    legend.text = element_text(size = 16),
+    plot.margin = margin(20, 20, 50, 20)   
+  )
+
+
+# Add annotations below the x-axis using cowplot's ggdraw
+ggdraw(base_plot) +
+  draw_label(
+    label = "More similar,\nless causal",
+    x = 0.1, y = 0.02, hjust = 0, vjust = 0, size = 16
+  ) +
+  draw_label(
+    label = " More causal,\nless similar",
+    x = 0.8, y = 0.02, hjust = 1, vjust = 0, size = 16
+  )
+
+
+```
+
+
+
+## effect of causal and freesort distance in similarity condition
+
+TODO check the sign of the coefficients / order of DV levels here?
+```{r}
+# Modelling predictors jointly
+both_predictors_model <- glmer(responses ~ causal_itemA_freesort_minus_causal + similar_itemA_freesort_minus_causal + (1|subject_id), data = similarity_condition, family = binomial(link = "logit")) # TODO figure out failure to converge here
+summary(both_predictors_model)
+plot(allEffects(both_predictors_model))
+check_model(both_predictors_model)
+
+fixed_effects <- fixef(both_predictors_model) #log odds
+odds_ratios <- exp(fixed_effects)  #convert log-odds to odds ratios
+probabilities <- 1 / (1 + exp(-fixed_effects)) #convert log odds to probability
+
+cat("\nBoth predictors model [intercept] [causal_distance] [freesort_distance]:\n ")
+cat("Fixed effects (log odds): ", fixed_effects, "\n")
+cat("Fixed effects (odds ratios): ", odds_ratios, "\n")
+cat("Fixed effects (probabilities, causal_distance = 0):", probabilities, "\n")
+
+```
+
+## predicting effect sizes (i.e. proportion differences) based on differences in rating scores
+
+### first get predicted score differences
+
+```{r}
+#getting predictions for causal condition (most causal item)
+diffs_causal <-d_freesort_and_causal_distances %>%
+  group_by(itemB, domain_itemA) %>%
+  slice(which.max(euclidean_minus_causal)) %>% 
+  ungroup() %>% 
+  group_by(itemB) %>% 
+  slice(which.max(euclidean_minus_causal)) %>% 
+  ungroup() %>% 
+  rename("causal_itemA" = itemA,
+         "domain_causal_itemA" = domain_itemA,
+         "causal_item_euc_minus_causal" = euclidean_minus_causal) %>%
+  select(causal_itemA, itemB, domain_causal_itemA, domain_itemB, causal_item_euc_minus_causal)
+
+#get predictions for causal condition (most causal item) 
+diffs_similarity <- d_freesort_and_causal_distances %>%
+  group_by(itemB, domain_itemA) %>%
+  slice(which.min(euclidean_minus_causal)) %>% #least causal item??
+  ungroup() %>% 
+  mutate(same_domain = ifelse(domain_itemA == domain_itemB, TRUE, FALSE)) %>% 
+  filter(same_domain == TRUE) %>% 
+  ungroup() %>% 
+  rename("similarity_itemA" = itemA,
+       "domain_similarity_itemA" = domain_itemA,
+       "similarity_item_euc_minus_causal" = euclidean_minus_causal) %>% 
+  select(similarity_itemA, itemB, domain_similarity_itemA, domain_itemB, similarity_item_euc_minus_causal)
+
+d_diffs <- diffs_causal %>% 
+  left_join(diffs_similarity %>% 
+              select(everything()), 
+              by = c("itemB", "domain_itemB")) %>% 
+  mutate(diff = causal_item_euc_minus_causal - similarity_item_euc_minus_causal)
+
+```
+
+### then plot predicted score differences
+
+```{r}
+dat_combined <- dat_summarized_by_item %>%
+  group_by(condition, itemB) %>%
+  reframe(
+    prop_causal = mean(mean_proportion[response == "causal"], na.rm = TRUE),
+    prop_similar = mean(mean_proportion[response == "similarity"], na.rm = TRUE),
+    prop_causal = replace_na(prop_causal, 0),  #fill missing values with 0: (for some items all subj choose 0, causing NaNs or their proportions)
+    prop_similar = replace_na(prop_similar, 0), 
+    observed_diff = case_when(
+      condition == "intervention" ~ prop_causal - prop_similar,  
+      condition == "similarity" ~ prop_similar - prop_causal  
+    )
+  ) %>%
+  left_join(d_diffs %>% select(itemB, diff), by = "itemB")  # merge in predicted differences
+
+```
+
+## correlation bar plot
+
+```{r}
+itemB_colors <- dat_summarized_by_item %>%
+  distinct(itemB, domain_itemB) %>%
+  mutate(color = case_when(
+    domain_itemB == "bio" ~ "green",
+    domain_itemB == "mind" ~ "blue",
+    domain_itemB == "action" ~ "red"
+  )) %>%
+  pull(color, name = itemB)
+
+barplot <- dat_combined %>%
+  ggplot(aes(x = itemB)) +
+  geom_bar(aes(y = observed_diff), stat = "identity", fill = "blue", alpha = 0.6) +
+  geom_point(aes(y = diff), color = "red", size = 3) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, color = itemB_colors[levels(diffs_causal$itemB)])
+  ) +
+  labs(
+    title = "Observed vs Predicted Proportion Differences by Item",
+    x = "Item B",
+    y = "observed proportion differences"
+  ) +
+  facet_wrap(~condition)
+
+barplot
+
+```
+
+
+## correlation scatter plot 
+
+```{r}
+# Scatter plot with correlation for each condition
+scatter_plot <- dat_combined %>%
+  ggplot(aes(x = diff, y = observed_diff, color = condition)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
+  theme_bw() +
+  facet_wrap(~condition) +
+  labs(
+    title = "Observed vs Predicted Differences by Condition",
+    x = "Predicted proportion difference",
+    y = "Observed proportion difference",
+    color = "Condition"
+  )
+
+scatter_plot
+```
+
+### quantitative correlations 
+
+```{r}
+overall_correlation <- dat_combined %>%
+  summarize(
+    correlation = cor(diff, observed_diff, use = "complete.obs"),
+    p_value = cor.test(diff, observed_diff, use = "complete.obs")$p.value,
+    .groups = "drop"
+  )
+
+print(overall_correlation)
+
+condition_level_correlations <- dat_combined %>%
+  group_by(condition) %>%
+  summarize(
+    correlation = cor(diff, observed_diff, use = "complete.obs"),
+    p_value = cor.test(diff, observed_diff, use = "complete.obs")$p.value,
+    .groups = "drop"
+  )
+
+print(condition_level_correlations)
+
+```
+
+
+# Plotting logistic regression models
+
+## Intervention condition
+
+```{r}
+#create a new dataset for prediction
+prediction_data <- data.frame(
+  causal_distance = seq(min(causal_condition$causal_distance), 
+                        max(causal_condition$causal_distance), 
+                        length.out = 100)
+)
+
+#add predicted probabilities to the dataset
+prediction_data$predicted_prob <- predict(
+  glm(formula = responses ~ causal_distance, family = binomial(link = "logit"), data = causal_condition),
+  newdata = prediction_data,
+  type = "response"
+)
+
+#plot 1: causal distance
+ggplot(data = causal_condition, aes(x = causal_distance, y = responses)) +
+  geom_point(aes(color = factor(responses)), alpha = 0.5, position = position_jitter(height = 0.02)) +
+  geom_smooth(
+    method = "glm",
+    method.args = list(family = "binomial"),
+    se = TRUE,  # Add confidence interval
+    color = "blue",
+    size = 1.2
+  ) +
+  labs(
+    title = "Probability of Giving a Causal Response in Intervention Condition",
+    y = "Probability",
+    color = "Actual Response"
+  ) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(legend.position = "top")
+
+#plot 2: freesort distance
+ggplot(data = causal_condition, aes(x = freesort_distance, y = responses)) +
+  geom_point(aes(color = factor(responses)), alpha = 0.5, position = position_jitter(height = 0.02)) +
+  geom_smooth(
+    method = "glm",
+    method.args = list(family = "binomial"),
+    se = TRUE,  # Add confidence interval
+    color = "blue",
+    size = 1.2
+  ) +
+  labs(
+    title = "Probability of Giving a Causal Response in Intervention Condition",
+    y = "Probability",
+    color = "Actual Response"
+  ) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(legend.position = "top")
+
+```
+
+## similarity condition
+
+```{r}
+#plot 1: freesort distance
+ggplot(data = similarity_condition, aes(x = freesort_distance, y = responses)) +
+  geom_point(aes(color = factor(responses)), alpha = 0.5, position = position_jitter(height = 0.02)) +
+  geom_smooth(
+    method = "glm",
+    method.args = list(family = "binomial"),
+    se = TRUE,  # Add confidence interval
+    color = "blue",
+    size = 1.2
+  ) +
+  labs(
+    title = "Probability of Giving Causal Response in Similarity Condition",
+    y = "Prob",
+    color = "observed response"
+  ) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(legend.position = "top")
+
+#plot 2: causal distance
+ggplot(data = similarity_condition, aes(x = causal_distance, y = responses)) +
+  geom_point(aes(color = factor(responses)), alpha = 0.5, position = position_jitter(height = 0.02)) +
+  geom_smooth(
+    method = "glm",
+    method.args = list(family = "binomial"),
+    se = TRUE,  # Add confidence interval
+    color = "blue",
+    size = 1.2
+  ) +
+  labs(
+    title = "Probability of Giving Causal Response in Similarity Condition",
+    y = "Prob",
+    color = "observed responses"
+  ) +
+  theme_bw() +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(legend.position = "top")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
