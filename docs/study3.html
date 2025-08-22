@@ -41,7 +41,7 @@
 
         //-------------------------------------------------------------------------------------------------------------------------------------
         //experiment variables
-        const mturk_pilot_mode = false
+        const mturk_pilot_mode = true
         const data_collection = false
 
             // capture info from mturk/connect, except in test mode
@@ -141,14 +141,14 @@
 
     // Define the item lists
     var causal_itemA = [ //all top items already in another domain
-      "take a walk", "take a walk", "feel scared", "take a walk", "take a walk", 
-      "become hungry", "experience pain", "think about something", "think about something", "think about something", 
+      "take a walk", "take a walk", "experience pain", "take a walk", "get sick", 
+      "become hungry", "experience pain", "see something", "think about something", "think about something", 
       "jump up and down", "take a walk", "see something", "kick something", "see something" 
     ];
     var similarity_itemA = [ //some items were not in same domain, but selected ones in same domain
       "hear something", "see something", "remember something", "think about something", "remember something",
-      "kick something", "jump up and down", "sit down", "jump up and down", "jump up and down",
-      "feel scared", "experience pain", "become hungry", "feel scared", "get tired"
+      "kick something", "jump up and down", "sit down", "sit down", "sit down",
+      "feel scared", "feel scared", "get tired", "get tired", "get tired"
     ];
     var itemB = [
       "see something", "hear something", "choose what to do", "remember something", "think about something", 
@@ -158,37 +158,20 @@
 
     //past tense
       var causal_itemA_past_tense = [ 
-      "took a walk", "took a walk", "felt scared", "took a walk", "took a walk", 
-      "became hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
+      "took a walk", "took a walk", "experienced pain", "took a walk", "got sick", 
+      "became hungry", "experienced pain", "saw something", "thought about something", "thought about something", 
       "jumped up and down", "took a walk", "saw something", "kicked something", "saw something" 
   ];
 
     var similarity_itemA_past_tense = [ 
       "heard something", "saw something", "remembered something", "thought about something", "remembered something",
-      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jumped up and down",
-      "felt scared", "experienced pain", "became hungry", "felt scared", "got tired"
+      "kicked something", "jumped up and down", "sat down", "sat down", "sat down",
+      "felt scared", "felt scared", "got tired", "got tired", "got tired"
     ];
     var itemB_past_tense = [
       "saw something", "heard something", "chose what to do", "remembered something", "thought about something", 
       "reached for something", "sat down", "jumped up and down", "kicked something", "took a walk",
       "got tired", "became hungry", "felt scared", "experienced pain", "got sick"
-    ];
-
-    //past participle
-      var causal_itemA_participle = [ 
-      "taken a walk", "taken a walk", "felt scared", "taken a walk", "taken a walk", 
-      "become hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
-      "jumped up and down", "taken a walk", "seen something", "kicked something", "seen something" 
-    ];
-    var similarity_itemA_participle = [ 
-      "heard something", "seen something", "remembered something", "thought about something", "remembered something",
-      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jumped up and down",
-      "felt scared", "experienced pain", "become hungry", "felt scared", "gotten tired"
-    ];
-    var itemB_participle = [
-      "seen something", "heard something", "chosen what to do", "remembered something", "thought about something", 
-      "reached for something", "sat down", "jumped up and down", "kicked something", "taken a walk",
-      "gotten tired", "become hungry", "felt scared", "experienced pain", "gotten sick"
     ];
 
     //itemB "the same thing"
@@ -210,13 +193,10 @@
       combined_items.push({
         itemB: itemB[i],
         itemB_past_tense: itemB_past_tense[i], // Add past-tense version
-        itemB_participle: itemB_participle[i], // Add participle version
         causal_itemA: causal_itemA[i],
         causal_itemA_past_tense: causal_itemA_past_tense[i], // Add past-tense version
-        causal_itemA_participle: causal_itemA_participle[i], // Add participle version
         similarity_itemA: similarity_itemA[i],
         similarity_itemA_past_tense: similarity_itemA_past_tense[i], // Add past-tense version
-        similarity_itemA_participle: similarity_itemA_participle[i] // Add participle version
       });
     }
 

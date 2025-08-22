@@ -25,8 +25,12 @@ pacman::p_load(
                webshot2,
                knitr,
                performance,
-               tidyverse)
+               tidyverse,
+               simr,
+               conflicted)
 sessionInfo()
+
+walk(c("select", "filter", "rename", "mutate", "summarise", "summarize"), ~ conflict_prefer(.x, "dplyr"))
 
 ```
 
@@ -39,7 +43,7 @@ freesort_and_causal_distances_df_path <- paste0(base_path, "/data-explanation_1/
 ```
 
 
-# Study 3 - Causality for intervention and inference
+# Study 6 - Magical and ordinary intervention
 
 ## Prepare data
 
@@ -268,9 +272,155 @@ main_fig <- ggsave("spp_study6.png", width = 5, height = 5, plot = main_fig, bg 
 ```
 
 
+# Analysis
+
+## Logistic regression
+
+```{r}
+d_model <- dat %>%
+  mutate(response = fct_relevel(response, c("similar", "causal"))) %>%
+  mutate(condition = ifelse(condition == "causal", "ordinary", 
+                            "magical")) %>% 
+  mutate(condition = factor(condition, levels = c("magical", "ordinary")),
+         subject_id = factor(subject_id))
+
+model_effect_of_intervention <- glmer(response ~ condition + (1 | subject_id), 
+      family = binomial(link = 'logit'), 
+      data = d_model)
+
+summary(model_effect_of_intervention)
+
+```
+
+## Get specific probabilities
+
+```{r}
+effects_data <- allEffects(model_effect_of_intervention)
+effects_df <- as.data.frame(effects_data$condition)
+effects_df
+
+```
+
+
+## Power analysis with simr
+
+
+### load packages
+
+```{r}
+library(simr)
+library(conflicted)
+conflicts_prefer(simr::fixed)
+
+```
+
+
+### run power analysis
+
+```{r}
+# 
+#suppose we want a study with 100 participants..
+model_sim <- extend(model_effect_of_intervention, along = "subject_id", n = 150)
+length(unique(simr::getData(model_sim)$subject_id)) #confirm that N is now 100
+
+# #and we want to replicate the lower limit effect size, assuming pilot is inflated..
+# ## fixef(model_sim)["(Intercept)"] <- 0.202
+# 
+# #what would the power be?
+# sim_inercept <- powerSim(model_sim, fixed("(Intercept)", "t"), nsim = 100)
+# sim_inercept
+# 
+# 
+# #2
+curve_magical_vs_ordinary <- powerCurve(model_sim, fixed("conditionordinary",
+                                               "z"),
+                    along = "subject_id", breaks = c(1, 5, 10, 20, 30, 40, 50,
+                                                     60, 70, 80, 90, 100,
+                                                     110, 120, 130, 140, 150), nsim = 100)
+plot(curve_magical_vs_ordinary)
+print(curve_magical_vs_ordinary)
+
+
+fixef(model_sim)
+
+```
+
+
+The rest
+
+```{r}
+#ord
+model_ordinary_intervention <- glmer(response ~ 1 + (1|subject_id),
+                            data = filter(d_model, condition == "ordinary"),
+                            family = binomial(link = "logit"))
+model_sim_ord <- extend(model_ordinary_intervention, along = "subject_id", n = 150)
+curve_ord <- powerCurve(model_sim_ord, fixed("(Intercept)",
+                                               "z"),
+                    along = "subject_id", breaks = c(1, 5, 10, 20, 30, 40, 50,
+                                                     60, 70, 80), nsim = 100)
+plot(curve_ord)
+print(curve_ord)
+
+#mag
+
+model_magical_intervention <- glmer(response ~ 1 + (1|subject_id),
+                            data = filter(d_model, condition == "magical"),
+                            family = binomial(link = "logit"))
+
+model_sim_mag <- extend(model_ordinary_intervention, along = "subject_id", n = 150)
+curve_mag <- powerCurve(model_sim_mag, fixed("(Intercept)",
+                                               "z"),
+                    along = "subject_id", breaks = c(1, 5, 10, 20, 30, 40, 50,
+                                                     60, 70, 80), nsim = 100)
+plot(curve_mag)
+print(curve_mag)
+
+
+```
+
+
+### target comparison to chance
 
 ```{r}
 
+model_intervention <- glmer(responses ~ 1 + (1|subject_id),
+                            data = filter(d_model, condition == "intervention"),
+                            family = binomial(link = "logit"))
+
+powerSim(model_intervention, test = fixed("(Intercept)", method = "z"))
+
+model_effect_of_intervention <- glmer(response ~ condition + (1 | subject_id), 
+      family = binomial(link = 'logit'), 
+      data = d_model)
+
+
+model_ordinary_intervention <- glmer(response ~ 1 + (1|subject_id),
+                            data = filter(d_model, condition == "ordinary"),
+                            family = binomial(link = "logit"))
+
+model_magical_intervention <- glmer(response ~ 1 + (1|subject_id),
+                            data = filter(d_model, condition == "magical"),
+                            family = binomial(link = "logit"))
+
+summary(model_magical_intervention)
+
+plogis(fixef(model_intervention))  # inverse logit
+
+allEffects(model_effect_of_intervention)
+
+se <- sqrt(vcov(model_magical_intervention)[1, 1])
+logit_est <- fixef(model_magical_intervention)[1]
+ci_logit <- logit_est + c(-1.96, 1.96) * se
+ci_prob <- plogis(ci_logit)
+
+data.frame(
+  prob = plogis(logit_est),
+  lower = ci_prob[1],
+  upper = ci_prob[2]
+)
+allEffects(model_effect_of_intervention)
+
 ```
+
 
 

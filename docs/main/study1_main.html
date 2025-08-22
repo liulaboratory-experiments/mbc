@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/jspsych"></script>
+    <script src="jspsych/dist/plugin-preload.js"></script>
+    <script src="jspsych/dist/plugin-instructions.js"></script>
+    <script src="jspsych/dist/plugin-free-sort.js"></script>
+    <script src="jspsych/dist/plugin-survey-html-form.js"></script>
+    <script src="jspsych/dist/plugin-video-button-response.js"></script>
+    <script src="jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-survey-slider@1.0.0"></script>
+    <link href="https://unpkg.com/jspsych/css/jspsych.css" rel="stylesheet" />
+    <style>
+      #quitButton {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: lightgray;
+        color: black;
+        border: 2px solid black;
+        cursor: pointer;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body></body>
+
+  <button id="quitButton">Quit</button>
+
+  <script>
+
+    document.getElementById('quitButton').addEventListener('click', function() {
+            jsPsych.abortExperiment('The participant chose to quit the experiment.');
+        });
+
+    var jsPsych = initJsPsych({
+      on_finish: function() {
+         window.location = "https://connect.cloudresearch.com/participant/project/02D275ECAA/complete";
+        //jsPsych.data.displayData();
+      },
+      show_progress_bar: true
+    });
+
+    //-------------------------------------------------------------------------------------------------------------------------------------
+        //experiment variables
+        const mturk_pilot_mode = false
+        const data_collection = true
+
+            // capture info from mturk/connect, except in test mode
+        if(mturk_pilot_mode) { 
+            var study_id = 'test';
+            var session_id = 'test';
+            participant_id = 'test_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
+        } else {
+            participant_id = jsPsych.data.getURLVariable('participantId'); 
+            var assignment_id = jsPsych.data.getURLVariable('assignmentId');
+            var project_id = jsPsych.data.getURLVariable('projectId');
+        }
+
+        jsPsych.data.addProperties({
+            mturk_participant_id: participant_id,
+            mturk_assignment_id: assignment_id,
+            mturk_project_id: project_id
+        })
+
+        // Get the current date and time
+        const now = new Date();
+        const dateString = now.toISOString().slice(0, 10); // Format as YYYY-MM-DD
+        const timeString = now.toTimeString().slice(0, 8).replace(/:/g, '-'); // Format as HH-MM-SS
+
+        // Create the filename with the current date and time
+        const filename = `${dateString}_${timeString}_${participant_id}.csv`;
+    //-------------------------------------------------------------------------------------------------------------------------------------
+    
+    var preload = {
+            type: jsPsychPreload,
+            auto_preload: true
+        };
+
+    var duration = '30 minutes';
+    var amount = '$7.50';
+    var consent = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<p><b>Consent Form</b></p> <div style="text-align:left;' +
+            'background-color:lightblue; padding:2vw; max-width:80vw;">' +
+            '<p><b>Purpose:</b> The purpose of this study is to understand ' +
+            'how people think about the physical and social world.</p>' +
+            '<p><b>Procedures:</b> In this study, you will watch videos, ' +
+            'read sentences, or see pictures, and answer simple questions ' +
+            'about them. This study should take approximately ' + duration + 
+            '</p><p><b>Participation:</b> Participation in this study is ' +
+            'voluntary. If you decide to join now, you can change your mind ' +
+            'later. ' +
+            '</p><p><b>Payment:</b> You will be paid $15.00/hour ' +
+            'for participating in this study. Given the estimated duration of ' +
+            duration + ', your payment will amount to ' + amount + '.</p>' +
+            '<p><b>Risks and benefits:</b> There are no risks associated ' +
+            'with participating in this study. There are no direct benefits ' +
+            'associated with participating in this study. </p><p><b>Use of ' +
+            'data by study researchers:</b> The research team led by Shari ' +
+            'Liu at JHU will have access to your answers. ' +
+            '</p><p><b>Publication of results:</b> The results of the research ' +
+            'may be presented at scientific meetings or published in scientific ' +
+            'journals. Your individual responses may be published. We will ' +
+            'never publish your name, the date that you participated, and any other ' +
+            'information that could be used to identify you. </p><p><b>' +
+            'Researcher contact information:</b> This study is run by Dr. ' +
+            'Shari Liu at JHU. If you have any questions or concerns about ' +
+            'this study, or in the very unlikely event of a research-related ' +
+            'injury, please contact sliu199@jhu.edu. ' +
+            '</p><p><b>Research rights information:</b> If you have questions about ' +
+            'your rights as a research participant or feel that you have not ' +
+            'been treated fairly, please call the Homewood Institutional Review ' +
+            'Board at Johns Hopkins University at (410) 516-6580. If you have ' +
+            'any questions or issues completing the survey, please email Shari ' +
+            'Liu at sliu199@jhu.edu. </p> </div>' +
+            '<p> Do you consent to participate? </p>',
+        choices: ['Yes', 'No'],
+        data: {trial_id: 'consent'},
+        on_finish: function(data) {
+        if (data.response === 1) {  // If 'No' is chosen 
+        jsPsych.abortExperiment('You did not consent to participate. The study will now end. Thank you for your time.');  
+        }
+        }
+    };
+
+    var general_instructions = {
+        type: jsPsychInstructions,
+        pages: [
+            '<div style="font-size: 22px; text-align: center;">' +
+            '<br>Welcome! In this session you will be presented with two activities. ' +
+            '<br>The activities may feel similar to each other, but they are in fact quite ' +
+            'different, ' +
+            'so please pay extra close attention when reading the instructions. </div>'
+        ],
+        show_clickable_nav: true
+    }; 
+
+    // **FREE SORT TASK**
+    var freesort_instructions = {
+        type: jsPsychInstructions,
+        pages: [
+            '<div style="font-size: 22px; text-align: center;">' +
+            '<br>In this next activity, you will see 15 cards describing different experiences a person can have.<br>' +
+            'Your job is to organize these cards into groups based on how <strong>similar</strong> they are.<br>' +
+            'There are no right or wrong answers; just put them together in ways that make sense to you.<br>' +
+            'When you’re ready, click "Next" to start</div>'
+        ],
+        show_clickable_nav: true
+    };
+
+      var example_video = {
+            type: jsPsychVideoButtonResponse,
+            stimulus: ['video/example-video-circles.mp4'],
+            choices: ['Next'], 
+            // width: 854, //Instead of specifying a fixed width, we're making it relative in videoElement.style.width
+            autoplay: false,
+            response_ends_trial: true,
+            response_allowed_while_playing: false,
+            prompt: `
+                    <button id="playButton" style="margin-top: -1%;">Play</button>
+                    <div style="margin-top: 1%; text-align: center;">
+                    <p>This video shows one possible way to group the events. You can create as many or as few groups as you would like. Hit 'play' to watch.
+                    <br> When you are ready to start the activity, hit 'Next' </p>
+                </div>
+            `,
+            data: {trial_id: 'example_videos'},
+            on_load: function() {
+                // Move the Next button immediately as the trial loads
+                var nextButton = jsPsych.getDisplayElement().querySelector('.jspsych-btn');
+                nextButton.style.position = 'relative';
+                nextButton.style.top = 'auto';
+                nextButton.style.right = 'auto';
+                nextButton.style.bottom = '-300%'; // Adjust this value as needed to position the Next button
+                nextButton.style.left = '50%'; // Center the button horizontally
+                nextButton.style.transform = 'translateX(-50%)'; // Ensure it's centered
+
+                var videoElement = jsPsych.getDisplayElement().querySelector('video');
+                videoElement.style.width = '60vw';  // This makes the video width 80% of the viewport width
+
+                // Add outline and other custom styles to the video
+                videoElement.style.outline = '1px solid gray'; // Outline color and width
+                //videoElement.style.borderRadius = '5px';      // Rounded corners for the outline
+
+                document.getElementById('playButton').addEventListener('click', function(){
+                    videoElement.play();
+                    this.style.visibility = 'hidden'; 
+                });
+        }
+        };
+
+    var trial_sorting_circles = {
+      type: jsPsychFreeSort,
+      stimuli: [
+          'images/items-circles/img1.png', 'images/items-circles/img2.png', 'images/items-circles/img3.png',
+          'images/items-circles/img4.png', 'images/items-circles/img5.png', 'images/items-circles/img6.png',
+          'images/items-circles/img7.png', 'images/items-circles/img8.png', 'images/items-circles/img9.png',
+          'images/items-circles/img10.png', 'images/items-circles/img11.png', 'images/items-circles/img12.png',
+          'images/items-circles/img13.png', 'images/items-circles/img14.png', 'images/items-circles/img15.png'
+      ], 
+      stim_height: 100,
+      stim_width: 100,
+      sort_area_height: 650,
+      sort_area_width: 650,
+      column_spread_factor: 0.75,
+      prompt: '<p style="font-size:20px">Please group similar phrases together. Take as long as you need.</p>',
+      scale_factor: 1.1,
+      border_color_in: "#648fff"
+    };
+  
+    // **CAUSALITY TASK**
+    var causality_instructions = {
+        type: jsPsychInstructions,
+        pages: [
+            '<div style="font-size: 22px; text-align: center;">' +
+            '<br>In the next activity, you will see pairs of events that a person might experience.<br>' +
+            'For example, feeling happy or hearing a noise.<br>' +
+            'Your job is to tell us if experiencing one thing could <strong>make someone</strong> experience the other.<br>' +
+            'When you’re ready, click "Next" to start.</div>'
+        ],
+        show_clickable_nav: true
+    };
+
+    // Define slider labels
+    const slider_labels = ['Definitely not', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'];
+
+    // Define categories and items
+    const categories = {
+      cognitive: ['remember something', 'hear something', 'think about something', 'choose what to do', 'see something'],
+      physical: ['reach for something', 'sit down', 'take a walk', 'kick something', 'jump up and down'],
+      // physiological: ['feel hungry', 'feel tired', 'feel sick', 'feel pain', 'feel scared'],
+      physiological: ['become hungry', 'get tired', 'get sick', 'experience pain', 'feel scared']
+
+    };
+
+    // Add "ing" form for display
+    function addIng(item) {
+      const ingMap = {
+        'remember something': 'remembering something',
+        'hear something': 'hearing something',
+        'think about something': 'thinking about something',
+        'choose what to do': 'choosing what to do',
+        'see something': 'seeing something',
+        'reach for something': 'reaching for something',
+        'sit down': 'sitting down',
+        'take a walk': 'taking a walk',
+        'kick something': 'kicking something',
+        'jump up and down': 'jumping up and down',
+        // 'feel hungry': 'feeling hungry',
+        // 'feel tired': 'feeling tired',
+        // 'feel sick': 'feeling sick',
+        // 'feel pain': 'feeling pain',
+        'become hungry': 'becoming hungry',
+        'get tired': 'getting tired',
+        'get sick': 'getting sick',
+        'experience pain': 'experiencing pain',
+        'feel scared': 'feeling scared',
+      };
+      return ingMap[item] || item;
+    }
+
+    // Generate all possible pairs
+    function createPairs(categories) {
+      const pairs = [];
+      const keys = Object.keys(categories);
+      keys.forEach((keyA) => {
+        keys.forEach((keyB) => {
+          categories[keyA].forEach((itemA) => {
+            categories[keyB].forEach((itemB) => {
+              pairs.push({ itemA, itemB, categoryA: keyA, categoryB: keyB });
+            });
+          });
+        });
+      });
+      return pairs;
+    }
+
+    const pairs = createPairs(categories);
+
+    // Group by cause or effect
+    function groupBy(pairs, groupByType) {
+      const groups = {};
+      pairs.forEach((pair) => {
+        const key = groupByType === 'cause' ? pair.itemA : pair.itemB;
+        if (!groups[key]) {
+          groups[key] = [];
+        }
+        groups[key].push(pair);
+      });
+      return groups;
+    }
+
+    const causeGroups = groupBy(pairs, 'cause');
+    const effectGroups = groupBy(pairs, 'effect');
+
+    // Randomize participant assignment to condition
+    const condition = jsPsych.randomization.sampleWithoutReplacement(['cause', 'effect'], 1)[0];
+    const groups = condition === 'cause' ? causeGroups : effectGroups;
+
+    // Randomize the order of the sole cause/effect
+    const shuffledKeys = jsPsych.randomization.shuffle(Object.keys(groups));
+
+    // Define attention check prompts
+    const attentionPrompts = [
+      { prompt: '<span style="font-size:20px">For this question, please move the slider all the way to <strong>Definitely not</strong>.</span>', correct: 0 },
+      { prompt: '<span style="font-size:20px">For this question, please move the slider all the way to <strong>"Maybe yes"</strong></span>', correct: 75 },
+      { prompt: '<span style="font-size:20px">For this question, please move the slider all the way to <strong>the left</strong>.</span>', correct: 0 },
+      { prompt: '<span style="font-size:20px">For this question, please move the slider all the way to <strong>the right</strong>.</span>', correct: 100 },
+    ];
+
+    // Create pages with shared cause or effect
+    function createPages(groups, keys, itemsPerPage = 15) {
+      const pages = [];
+      keys.forEach((key) => {
+        const groupItems = groups[key];
+        for (let i = 0; i < groupItems.length; i += itemsPerPage) {
+          pages.push(groupItems.slice(i, i + itemsPerPage));
+        }
+      });
+      return pages;
+    }
+
+    const pages = createPages(groups, shuffledKeys);
+
+    // Insert attention checks into specific pages
+    function insertAttentionChecks(pages, attentionPrompts, attentionPages) {
+      attentionPages.forEach((pageIndex, i) => {
+        if (pages[pageIndex]) {
+          const randomPosition = Math.floor(Math.random() * pages[pageIndex].length);
+          const attentionCheck = {
+            prompt: attentionPrompts[i % attentionPrompts.length].prompt,
+            ticks: slider_labels,
+            attention_check: true,
+            correct_response: attentionPrompts[i % attentionPrompts.length].correct,
+          };
+          pages[pageIndex].splice(randomPosition, 0, attentionCheck);
+        }
+      });
+      return pages;
+    }
+
+    const attentionPages = [3, 7, 9, 12]; // Zero-based indexing for pages 4, 8, 10, 13
+    const pagesWithChecks = insertAttentionChecks(pages, attentionPrompts, attentionPages);
+
+    // Shuffle items within each page
+    function shufflePages(pages) {
+      return pages.map((page) => jsPsych.randomization.shuffle(page));
+    }
+
+    const shuffledPages = shufflePages(pagesWithChecks);
+
+    // Create jsPsych trials for each page
+    function createTrialsFromPages(pages) {
+      return pages.map((pageItems, pageIndex) => ({
+        type: jsPsychSurveySlider,
+        preamble: `<p><span style="font-size:25px">To what extent can the first event cause the second event?</span></p>`,
+        questions: pageItems.map((item) => {
+          if (item.attention_check) {
+            return { prompt: item.prompt, ticks: slider_labels }; // Attention check
+          }
+          return {
+            prompt: `<hr style="border: 1px solid #ccc; margin-bottom: 10px;">
+                    <p><span style="font-size:20px">Can <strong>${addIng(item.itemA)}</strong> make someone <strong>${item.itemB}</strong>?</span></p>`,
+            ticks: slider_labels,
+          };
+        }),
+        slider_width: 800,
+        data: pageItems.map((item) => ({
+          itemA: item.itemA || null,
+          itemB: item.itemB || null,
+          categoryA: item.categoryA || null,
+          categoryB: item.categoryB || null,
+          attention_check: !!item.attention_check,
+          correct_response: item.correct_response || null,
+        })),
+
+      }));
+    }
+
+  const trials = createTrialsFromPages(shuffledPages);
+
+// **OUTRO**
+  var debrief = {
+        type: jsPsychInstructions,
+        pages: [
+            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
+            '<p>Thank you so much for helping us with this study!</p>' +
+            '<p>In this game, we asked you questions about different things ' +
+            'a person might experience, such as perceptual and mental experiences.' +
+            '<br>The goal was to study how your judgments about their causal relatedness  ' +
+            '<br>compares to your judgments about their conceptual similarity.' +
+            '<br>Do you think it is only conceptually similar events which can cause each other?</p>' +
+            '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
+        ],
+        show_clickable_nav: true,
+        button_label_next: 'Next'
+        };
+
+
+        var feedback_demographics = {
+            type: jsPsychSurveyHtmlForm,
+            html: '<div style="max-width:700px; text-align:center;"> <p>' +
+                'What factors influenced how you decided to respond? Do you' +
+                ' have any questions or comments regarding the experiment?' +
+                '</p> <textarea name="feedback" cols="40" rows="6"' +
+                ' "autofocus"></textarea> <p> Please provide the following' +
+                ' information to complete the study. </p> <div style="text-' +
+                'align:center;"> <div style="text-align:left; display:' +
+                'inline-block; margin-right:20px; line-height:1.8em;"> <ol>' +
+                    '<li>Age:</li> <br>' +
+                    '<li>Gender:</li> <br><br>' +
+                    '<li>Race:</li> <br><br><br><br><br><br>' +
+                    '<li>Ethnicity:</li>' +
+                '</ol> </div>' +
+                '<div style="text-align:left; display: inline-block;' +
+                ' line-height:1.8em;">' +
+                    // age text box
+                    '<input name="age" type="number"  min="18" max="100" /> <br> <br>' +
+                    // gender options
+                    '<input name="gender" type="radio" id="female" value=' +
+                        '"Female" /> <label for="female"> Female </label>' +
+                    '<input name="gender" type="radio" id="male" value=' +
+                        '"Male" /> <label for="male"> Male </label>' +
+                    '<input name="gender" type="radio" id="nonbinary" value=' +
+                        '"Non-binary" /> <label for="nonbinary"> Non-binary </label> <br>' +
+                    '<input name="gender" type="radio" id="other_gender" value=' +
+                        '"other_gender" /> <label for="other_gender"> Other: <input' +
+                        ' type="text" name="other_gender" /> </label> <br><br>' +
+                    // race options
+                    '<input name="race" type="radio" id="white" value=' +
+                        '"White" /> <label for="white"> White </label> <br>' +
+                    '<input name="race" type="radio" id="black" value=' +
+                        '"Black/African American" /> <label for="black">' +
+                        ' Black/African American </label> <br>' +
+                    '<input name="race" type="radio" id="am_ind" value=' +
+                        '"American Indian/Alaska Native" /> <label for="am_ind">' +
+                        ' American Indian/Alaska Native </label> <br>' +
+                    '<input name="race" type="radio" id="asian" value=' +
+                        '"Asian" /> <label for="asian"> Asian </label> <br>' +
+                    '<input name="race" type="radio" id="pac_isl" value=' +
+                        '"Native Hawaiian/Pacific Islander" /> <label for="pac_isl">' +
+                        ' Native Hawaiian/Pacific Islander </label> <br>' +
+                    '<input name="race" type="radio" id="other_race" value="other_race" />' +
+                        '<label for="other_race"> Other: <input type="text"' +
+                        'name="other_race" /> </label> <br><br>' +
+                    // ethnicity options
+                    '<input name="ethnicity" type="radio" id="hisp" value=' +
+                        '"Hispanic" /> <label for="hisp"> Hispanic </label>' +
+                    '<input name="ethnicity" type="radio" id="nonhisp" value=' +
+                        '"Non-Hispanic" /> <label for="nonhisp"> Non-Hispanic' +
+                        ' </label>' +
+                '</div> </div>' +
+                '<p> Please press the finish button to complete the experiment. </p> </div>',
+            button_label: 'Finish',
+            data: { trial_id: 'demographics_survey'},
+            on_finish: function(data){
+
+            data.feedback = data.response['feedback'];
+            data.age = data.response['age'];
+            data.ethnicity = data.response['ethnicity']
+            data.gender = data.response['gender']
+            data.race = data.response['race']
+
+            //override undefined or other values
+            if (data.gender == "other_gender" || typeof data.gender == "undefined") {
+                data.gender = data.response['other_gender']};
+            delete data.other_gender;
+
+            if (data.race == "other_race" || typeof data.race == "undefined") {
+                data.race = data.response['other_race']};
+            delete data.other_race;
+
+            if (typeof data.ethnicity == "undefined") {
+                data.ethnicity = ""}
+            }
+        };
+
+  const save_data = {
+          type: jsPsychPipe,
+          action: "save",
+          experiment_id: "SO63gxlALpE9",
+          filename: filename,
+          data_string: () => jsPsych.data.get().csv()
+      };
+
+      const timeline = [
+        preload,
+        consent,
+        general_instructions,
+        ...jsPsych.randomization.shuffle([
+                [freesort_instructions, example_video, trial_sorting_circles],
+                [causality_instructions, ...trials]
+            ]).flat(),
+          debrief,
+          feedback_demographics
+        // ...trials
+        ];
+
+    if (data_collection) {
+            timeline.push(save_data); 
+        }
+
+    jsPsych.run(timeline);
+
+  </script>
+</html>

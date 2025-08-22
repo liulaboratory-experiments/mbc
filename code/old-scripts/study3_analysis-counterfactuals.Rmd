@@ -1,0 +1,453 @@
+---
+title: "study 2"
+output: html_document
+date: "2024-10-28"
+---
+
+# ReadMe
+
+This is the analysis for study 3 of the MBC project, alias the counterfactual study.  
+The study had N = 50 (before exclusions), and subjects saw two conditions: Intervention and Similarity, with 15 trials per condition.
+The question: 
+
+# Set options
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+pacman::p_load(
+               lme4, 
+               lmerTest,
+               here, 
+               patchwork, 
+               cowplot, 
+               viridis, 
+               effects, 
+               gt,
+               webshot2,
+               knitr,
+               performance,
+               tidyverse,
+               simr)
+sessionInfo()
+
+```
+
+# Global variables
+
+```{r}
+base_path <- here("code")
+freesort_and_causal_distances_df_path <- paste0(base_path, "/data-explanation_1/freesort_minus_causals.csv")
+
+```
+
+# Study 3 - Counterfactuals
+
+## Prepare data
+
+### read data
+
+```{r, warnings = FALSE}
+data_path_cf <- paste0(base_path, "/data-study3-counterfactuals/pilot3")
+
+desired_order <- c("see something", "hear something", "choose what to do", 
+                   "remember something", "think about something", "reach for something", 
+                   "sit down", "jump up and down", "kick something", "take a walk", 
+                   "get tired", "become hungry", "feel scared", "experience pain", "get sick")
+
+file_paths <- list.files(path = data_path_cf, pattern = "^2025-", full.names = TRUE)
+
+d <- imap_dfr(file_paths, ~ {
+  read_csv(.x, col_types = cols(response = col_character())) %>%
+    mutate(
+      filename = basename(.x),
+      subject_id = paste0("subj_", str_pad(.y, 2, pad = "0"))
+    )}) %>%
+  select(-c(mturk_participant_id, mturk_assignment_id, mturk_project_id)) %>%
+  relocate(subject_id, .before = "success")
+
+```
+
+### demographics
+
+```{r}
+# demographics
+df_demographics <- d %>% 
+  filter(trial_id == "demographics_survey") %>% 
+  select("trial_id", "filename", 
+         "feedback", "age", "ethnicity", "gender", "race") 
+
+summary(df_demographics$age)
+table(df_demographics$gender)
+table(df_demographics$ethnicity)
+table(df_demographics$race)
+
+```
+
+### wrangle data
+
+initial: 30 trials * 48 subjects = 1440 rows.
+dat: (30 trials / 2 trials per row) * 48 subjects = 720 rows.
+
+TODO: rename itemB to target item.
+
+```{r}
+subjects_to_exclude <- d %>%
+  filter(grepl("attention_check", condition)) %>% 
+  filter(attn_correct == "no") %>% 
+  pull(subject_id) %>% 
+  unique()
+
+dat <- d %>% 
+  filter(!subject_id %in% subjects_to_exclude) %>%
+  filter(condition %in% c("counterfactual", "similarity")) %>% 
+  mutate(condition = ifelse(condition == "counterfactual", "causal", condition)) %>% #meant to call it causal (both are counterfactuals)
+  mutate(response = as.factor(response)) %>% 
+  mutate(condition = as.factor(condition)) %>% 
+  select(-condition) %>% 
+  select(subject_id, itemB, causal_itemA, similar_itemA, response_value) %>% 
+  mutate(causal_itemA = factor(causal_itemA, levels = desired_order), #this col has unique values; we're assigning 15 lvls
+         similar_itemA = factor(similar_itemA, levels = desired_order), #this col has unique values; we're assigning 15 lvls
+         itemB = factor(itemB, levels = desired_order)) %>% 
+  # filter(subject_id == "subj_01" & itemB == "see something") %>% 
+  mutate(item_type = case_when(
+        !is.na(causal_itemA) ~ "causal_itemA",
+        !is.na(similar_itemA) ~ "similar_itemA"),
+        item = coalesce(as.character(causal_itemA), as.character(similar_itemA))) %>% 
+  select(-causal_itemA, -similar_itemA) %>% 
+  pivot_wider(names_from = item_type,
+              values_from = c(item, response_value)) %>% 
+  rename("causal_itemA" = item_causal_itemA,
+         "similar_itemA" = item_similar_itemA, 
+         "causal_itemA_counterfactual" = response_value_causal_itemA,
+         "similar_itemA_counterfactual" = response_value_similar_itemA) 
+
+```
+
+## plot dv vs conditions
+
+### prepare to plot
+
+```{r}
+dat_plot <- dat %>% 
+  rename("causal" = causal_itemA_counterfactual,
+         "similar" = similar_itemA_counterfactual) %>% 
+  pivot_longer(cols = c("causal", "similar"), 
+               names_to = "counterfactual_type",
+               values_to = "likelihood") 
+
+```
+
+### plot dv vs counterfactual type
+
+figure for spp poster
+
+```{r, fig.width = 5, fig.height = 5}
+main_fig <- 
+dat_plot %>% 
+  mutate(counterfactual_type = factor(counterfactual_type, levels = c("similar", "causal"))) %>% 
+  ggplot(aes(x = counterfactual_type, y = likelihood, fill = counterfactual_type)) +
+  stat_summary(fun.data = mean_se, geom = "bar", color = "black") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .2) +
+  geom_hline(yintercept = 50, linetype = "dashed") +
+  labs(y = "Likelihood of Counterfactual", 
+       x = "Preceding Item Type",
+       fill = "Preceding Item Type") +
+  scale_x_discrete(labels = c("counterfactual" = "Causal", "similarity" = "Similar")) +
+  theme_cowplot() +
+  scale_fill_manual(values = c("grey80", "#000000")) + 
+  theme(axis.text.x = element_text(size = 25),
+        axis.text.y = element_text(size = 25),
+        axis.title.x = element_text(size = 25),
+        axis.title.y = element_blank(),
+        legend.text = element_text(size = 25),
+        legend.title = element_text(size = 25),
+        
+        panel.background = element_rect(fill='transparent', color=NA),
+        plot.background = element_rect(fill='transparent', color=NA),
+        # panel.grid.major = element_blank(),
+        # panel.grid.minor = element_blank(),
+        legend.background = element_rect(fill='transparent', color = NA),
+        legend.box.background = element_rect(fill='transparent', color = NA),
+        legend.position = "top",
+        legend.justification = "center",
+        legend.key.size = unit(1, "cm"),
+        legend.spacing.x = unit(1, "cm")
+        ) +
+  ylim(0, 100)
+
+main_fig
+
+main_fig <- ggsave("spp_study3.png", width = 5, height = 5, plot = main_fig, bg = "transparent")
+
+```
+
+
+### plot, facet by target items
+
+first prune text labels
+
+```{r, fig.width = 12, fig.height = 12}
+dat_plot_long <- dat_plot %>%
+  pivot_longer(cols = c("causal_itemA", "similar_itemA"),
+               names_to = "item_type",
+               values_to = "item") %>%
+  group_by(subject_id, itemB) %>%
+  slice(-c(2, 3))
+
+label_data <- dat_plot_long %>%
+  ungroup() %>% 
+  distinct(itemB, counterfactual_type, item)
+
+dat_plot_long %>%
+  ggplot(aes(x = counterfactual_type, y = likelihood, color = counterfactual_type)) +
+  geom_violin() +
+  geom_jitter(width = .05, alpha = .1) +
+  stat_summary(fun = mean, geom = "point", size = 4, color = "red") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .2) +
+  geom_hline(yintercept = 50, linetype = "dashed") +
+  geom_text(data = label_data, aes(label = item), y = 95, vjust = 1, size = 3.5) +
+  labs(y = "Likelihood of Occurring", x = "Counterfactual type") +
+  scale_x_discrete(labels = c("counterfactual" = "Causal", "similarity" = "Similar")) +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    legend.position = "none") +
+  facet_wrap(~itemB)
+
+```
+
+### plot single subject
+
+```{r, fig.width = 12, fig.height = 12}
+dat_plot_long %>% 
+  filter(subject_id == "subj_01") %>% 
+  ggplot(aes(x = counterfactual_type, y = likelihood, color = counterfactual_type)) +
+  geom_point() +
+  geom_hline(yintercept = 50, linetype = "dashed") +
+  geom_text(aes(label = item), y = 95, vjust = 1, size = 3.5) +
+  labs(y = "Likelihood of Occurring", x = "Counterfactual type") +
+  theme_bw() +
+  theme(
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12),
+        legend.position = "none") +
+  facet_wrap(~itemB)
+
+```
+
+# Modelling
+
+## Effect of preceding item type
+
+```{r}
+dat_model <- dat_plot %>% 
+  mutate(target_likelihood = likelihood) %>% 
+  mutate(preceding_item_type = factor(counterfactual_type, levels = c("similar", "causal")), 
+         subject_id = as_factor(subject_id),
+         causal_itemA = as_factor(causal_itemA),
+         similar_itemA = as_factor(similar_itemA)) %>% 
+  select(-c("likelihood", "counterfactual_type")) 
+
+#model
+model_effect_of_preceding <- lmerTest::lmer(target_likelihood ~ preceding_item_type +
+                                              (1|subject_id), data = dat_model)
+summary(model_effect_of_preceding)
+plot(allEffects(model_effect_of_preceding))
+#check_model(model_effect_of_condition) #binned residual issue?
+
+#probabilities
+effects_data <- allEffects(model_effect_of_preceding)
+effects_df <- as.data.frame(effects_data$preceding)
+effects_df
+
+```
+
+## Check model
+
+```{r}
+check_model(model_effect_of_preceding)
+```
+
+
+
+## Power analysis with simr
+
+### intercept
+
+
+```{r}
+# First, let's check the model structure and parameter names
+summary(model_effect_of_preceding)
+fixef(model_effect_of_preceding)  # Check the actual parameter names
+
+# Extend the model for power analysis
+model_simulate <- extend(model_effect_of_preceding, along = "subject_id", n = 200)
+
+# Verify the extended model
+length(unique(simr::getData(model_simulate)$subject_id)) #confirm that N is now 200
+
+# Check the parameter name in the extended model
+names(fixef(model_simulate))
+
+# Alternative approach: Use a different test statistic
+# Sometimes the t-test doesn't work well with mixed models
+# Try using the z-test instead:
+curve_intercept_t <- powerCurve(model_simulate, 
+                                  fixed("(Intercept)", "t"), 
+                                  along = "subject_id", 
+                                  breaks = c(2, 3, 4, 5, 10, 20, 30, 40, 50, 
+                                             60, 70, 80, 90, 100, 
+                                             110, 120, 130, 140, 150,
+                                            160, 170, 180, 190, 200),
+                                  nsim = 100)
+
+plot(curve_intercept_t)
+print(curve_intercept_t)
+
+
+```
+
+### fixed effect
+
+```{r}
+# First, let's check the model structure and parameter names
+summary(model_effect_of_preceding)
+fixef(model_effect_of_preceding)  # Check the actual parameter names
+
+# Extend the model for power analysis
+model_simulate <- extend(model_effect_of_preceding, along = "subject_id", n = 200)
+
+# Verify the extended model
+length(unique(simr::getData(model_simulate)$subject_id)) #confirm that N is now 200
+
+# Check the parameter name in the extended model
+names(fixef(model_simulate))
+
+# Alternative approach: Use a different test statistic
+# Sometimes the t-test doesn't work well with mixed models
+# Try using the z-test instead:
+# curve_cond_effect_t <- powerCurve(model_simulate, 
+#                                   fixed("preceding_item_typecausal", "t"), 
+#                                   along = "subject_id", 
+#                                   breaks = c(2, 3, 4, 5, 10, 20, 30, 40, 50, 
+#                                              60, 70, 80, 90, 100, 
+#                                              110, 120, 130, 140, 150,
+#                                             160, 170, 180, 190, 200),
+#                                   nsim = 100)
+
+plot(curve_cond_effect_t)
+print(curve_cond_effect_t)
+
+
+```
+
+## plot dv vs distances
+
+### prepare append distances 
+
+```{r}
+distances <- read.csv(freesort_and_causal_distances_df_path)
+
+dat_distances <- dat_plot_long %>% 
+  ungroup() %>% 
+  rename("itemA" = item) %>% 
+  left_join(distances %>% 
+              select(itemB, itemA, mean_causal_distance, mean_freesort_distance, freesort_minus_causal),
+            by = c("itemB", "itemA")) %>% 
+  mutate(mean_causal_distance = round(mean_causal_distance, 2),
+         mean_freesort_distance = round(mean_freesort_distance, 2),
+         freesort_minus_causal = round(freesort_minus_causal, 2)) %>% 
+  mutate(itemB = factor(itemB, levels = desired_order))
+
+```
+
+### plot difference scores
+
+15 similar item - target item pairs, 15 causal item - target item pairs. 
+The more causal (right of x -axis), the less likely the counterfactual event will occur
+
+```{r, fig.width = 12}
+#make separate data frame with only distances and difference scores?
+#or, get the mean responses and an error bar for it?
+
+#parcel out labels
+label_distances <- dat_distances %>%
+  distinct(itemB, counterfactual_type, itemA, freesort_minus_causal)
+    
+
+#plot
+dat_distances %>% 
+  ggplot(aes(x = freesort_minus_causal, y = likelihood, color = counterfactual_type)) +
+  geom_point(alpha = .2) +
+  geom_text(data = label_distances, aes(label = itemB), y = 95, vjust = .5, size = 3.5, angle = 80) +
+  geom_text(data = label_distances, aes(label = itemA), y = 85, vjust = .5, size = 3.5, angle = 80) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .01, color = "black") +
+  stat_summary(fun = "mean", geom = "point", shape = 1, size = 3, color = "black") +
+  geom_smooth(method = "lm") +
+  geom_hline(yintercept = 50, linetype = "dashed") +
+  theme_bw() +
+  labs(y = "Likelihood of Occurring", x = "Freesort minus Causal Distance") +
+  theme_bw() +
+  theme(
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12))
+```
+
+### itemwise difference scores
+
+```{r, fig.width = 12}
+dat_distances %>% 
+  ggplot(aes(x = freesort_minus_causal, y = likelihood, color = counterfactual_type)) +
+  geom_point(alpha = .2) +
+  geom_text(data = label_distances, aes(label = itemA), y = 90, size = 3.5) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .03, color = "black") +
+  stat_summary(fun = "mean", geom = "point", shape = 1, size = 2, color = "black") +
+  geom_smooth(method = "lm") +
+  geom_hline(yintercept = 50, linetype = "dashed") +
+  theme_bw() +
+  labs(y = "Likelihood of Occurring", x = "Freesort minus Causal Distance") +
+  theme_bw() +
+  theme(
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12)) +
+  facet_wrap(~itemB)
+
+
+```
+
+
+### plot individual distances
+
+```{r, fig.width = 8}
+dat_distances %>% 
+  pivot_longer(cols = c("mean_causal_distance", "mean_freesort_distance"),
+               names_to = "distance_type", 
+               values_to = "distances") %>% 
+  ggplot(aes(x = distances, y = likelihood, color = distance_type)) +
+  geom_jitter(width = .01, alpha = .2) +
+  geom_smooth(method = "lm") +
+  geom_hline(yintercept = 50, linetype = "dashed") +
+  theme_bw() +
+  labs(y = "Likelihood of Occurring", x = "Distance") +
+  theme_bw() +
+  theme(
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12)) +
+  facet_wrap(~item_type)
+
+```
+
+
+
