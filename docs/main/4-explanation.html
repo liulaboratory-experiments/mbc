@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/jspsych"></script>
+    <script src="../jspsych/dist/plugin-preload.js"></script>
+    <script src="../jspsych/dist/plugin-instructions.js"></script>
+    <script src="../jspsych/dist/plugin-html-button-response.js"></script>
+    <script src="../jspsych/dist/plugin-html-slider-response.js"></script>
+    <script src="../jspsych/dist/plugin-survey-html-form.js"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-survey-slider@1.0.0"></script>
+    <link href="https://unpkg.com/jspsych/css/jspsych.css" rel="stylesheet" type="text/css">
+
+    <style>
+      #quitButton {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: lightgray;
+        color: black;
+        border: 2px solid black;
+        cursor: pointer;
+        font-size: 16px;
+      }
+    </style>
+
+  </head>
+  <body></body>
+
+  <button id="quitButton">Quit</button>
+
+  <script>
+
+      var jsPsych = initJsPsych({
+            on_finish: function() {
+                window.location = "https://connect.cloudresearch.com/participant/project/BED0E6503D/complete";
+                //jsPsych.data.displayData();
+            },
+            show_progress_bar: true
+        });
+
+        //experiment variables
+        const mturk_pilot_mode = false
+        const data_collection = true
+
+            // capture info from mturk/connect, except in test mode
+        if(mturk_pilot_mode) { 
+            var study_id = 'test';
+            var session_id = 'test';
+            participant_id = 'test_' + String(jsPsych.randomization.randomID(10)) //overwrite the participant id
+        } else {
+            participant_id = jsPsych.data.getURLVariable('participantId'); 
+            var assignment_id = jsPsych.data.getURLVariable('assignm entId');
+            var project_id = jsPsych.data.getURLVariable('projectId');
+        }
+
+        jsPsych.data.addProperties({
+            mturk_participant_id: participant_id,
+            mturk_assignment_id: assignment_id,
+            mturk_project_id: project_id
+        })
+
+        // Get the current date and time
+        const now = new Date();
+        const dateString = now.toISOString().slice(0, 10); // Format as YYYY-MM-DD
+        const timeString = now.toTimeString().slice(0, 8).replace(/:/g, '-'); // Format as HH-MM-SS
+
+        // Create the filename with the current date and time
+        const filename = `${dateString}_${timeString}_${participant_id}.csv`;
+        //---------------------------------------------------------------------------------------------------------------------------------------
+
+
+    // Preload step
+    var preload = {
+      type: jsPsychPreload,
+      auto_preload: true
+    };
+
+    var duration = '5 minutes'; 
+    var amount = '$1.25';
+    var consent = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p><b>Consent Form</b></p> <div style="text-align:left;' +
+        'background-color:lightblue; padding:2vw; max-width:80vw;">' +
+        '<p><b>Purpose:</b> The purpose of this study is to understand ' +
+        'how people think about the physical and social world.</p>' +
+        '<p><b>Procedures:</b> In this study, you will watch videos, ' +
+        'read sentences, or see pictures, and answer simple questions ' +
+        'about them. This study should take approximately ' + duration + 
+        '</p><p><b>Participation:</b> Participation in this study is ' +
+        'voluntary. If you decide to join now, you can change your mind ' +
+        'later. ' +
+        '</p><p><b>Payment:</b> You will be paid $15.00/hour ' +
+        'for participating in this study. Given the estimated duration of ' +
+        duration + ', your payment will amount to ' + amount + '.</p>' +
+        '<p><b>Risks and benefits:</b> There are no risks associated ' +
+        'with participating in this study. There are no direct benefits ' +
+        'associated with participating in this study. </p><p><b>Use of ' +
+        'data by study researchers:</b> The research team led by Shari ' +
+        'Liu at JHU will have access to your answers. ' +
+        '</p><p><b>Publication of results:</b> The results of the research ' +
+        'may be presented at scientific meetings or published in scientific ' +
+        'journals. Your individual responses may be published. We will ' +
+        'never publish your name, the date that you participated, and any other ' +
+        'information that could be used to identify you. </p><p><b>' +
+        'Researcher contact information:</b> This study is run by Dr. ' +
+        'Shari Liu at JHU. If you have any questions or concerns about ' +
+        'this study, or in the very unlikely event of a research-related ' +
+        'injury, please contact sliu199@jhu.edu. ' +
+        '</p><p><b>Research rights information:</b> If you have questions about ' +
+        'your rights as a research participant or feel that you have not ' +
+        'been treated fairly, please call the Homewood Institutional Review ' +
+        'Board at Johns Hopkins University at (410) 516-6580. If you have ' +
+        'any questions or issues completing the survey, please email Shari ' +
+        'Liu at sliu199@jhu.edu. </p> </div>' +
+        '<p> Do you consent to participate? </p>',
+    choices: ['Yes', 'No'],
+    data: {trial_id: 'consent'},
+    on_finish: function(data) {
+    if (data.response === 1) {  // If 'No' is chosen 
+    jsPsych.abortExperiment('You did not consent to participate. The study will now end. Thank you for your time.');  
+    }
+  }
+};
+
+    var instructions_explanation = {
+      type: jsPsychInstructions,
+      pages: [
+        '<div style="font-size: 22px; text-align: center;">' +
+        '<br>Welcome! <br>In this game you will be asked to consider different explanations ' +
+        'for an event. <br>You will be presented with a target event (i.e. someone reached for something)' +
+        ' and asked to evaluate <br>how well another event explains why the target event happened (i.e. the person saw the thing, or the person was tired). '
+      ],
+      show_clickable_nav: true
+    };
+
+    // Define the item lists
+    var causal_itemA = [ //all top items already in another domain
+      "take a walk", "take a walk", "feel scared", "take a walk", "take a walk", 
+      "become hungry", "experience pain", "think about something", "think about something", "think about something", 
+      "jump up and down", "take a walk", "see something", "kick something", "see something" 
+    ];
+    var similarity_itemA = [ //some items were not in same domain, but selected ones in same domain
+      "hear something", "see something", "remember something", "think about something", "remember something",
+      "kick something", "jump up and down", "sit down", "jump up and down", "jump up and down",
+      "feel scared", "experience pain", "become hungry", "feel scared", "get tired"
+    ];
+    var itemB = [
+      "see something", "hear something", "choose what to do", "remember something", "think about something", 
+      "reach for something", "sit down", "jump up and down", "kick something", "take a walk",
+      "get tired", "become hungry", "feel scared", "experience pain", "get sick"
+    ];
+
+    //past tense
+    var causal_itemA_past_tense = [ //all top items already in another domain
+      "took a walk", "took a walk", "felt scared", "took a walk", "took a walk", 
+      "became hungry", "experienced pain", "thought about something", "thought about something", "thought about something", 
+      "jumped up and down", "took a walk", "saw something", "kicked something", "saw something" 
+    ];
+    var similarity_itemA_past_tense = [ //some items were not in same domain, but selected ones in same domain
+      "heard something", "saw something", "remembered something", "thought about something", "remembered something",
+      "kicked something", "jumped up and down", "sat down", "jumped up and down", "jumped up and down",
+      "felt scared", "experienced pain", "became hungry", "felt scared", "got tired"
+    ];
+    var itemB_past_tense = [
+      "saw something", "heard something", "chose what to do", "remembered something", "thought about something", 
+      "reached for something", "sat down", "jumped up and down", "kicked something", "took a walk",
+      "got tired", "became hungry", "felt scared", "experienced pain", "got sick"
+    ];
+
+    const slider_labels = ['Definitely no', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'];
+    const slider_width = 800;
+
+    // Combine items into a single array of objects
+    var combined_items = [];
+    for (var i = 0; i < itemB.length; i++) {
+      combined_items.push({
+        itemB: itemB[i],
+        itemB_past_tense: itemB_past_tense[i],
+        causal_itemA: causal_itemA[i],
+        causal_itemA_past_tense: causal_itemA_past_tense[i],
+        similarity_itemA: similarity_itemA[i],
+        similarity_itemA_past_tense: similarity_itemA_past_tense[i],
+
+      });
+    }
+
+    // Shuffle the combined array
+    combined_items = jsPsych.randomization.shuffle(combined_items);
+
+//-----------------------------------
+// Causal trials
+var explanation_trials_causal = combined_items.map(function(item, index) {
+  return {
+    type: jsPsychHtmlSliderResponse,
+    stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
+               <p style="font-size: 25px;">Someone <strong>${item.itemB_past_tense}</strong> because they <strong>${item.causal_itemA_past_tense}</strong>.</p>
+               <p style="font-size: 25px;">To what extent is this a satisfactory explanation?</p>`,
+    labels: slider_labels,
+    slider_width: slider_width,
+    require_movement: true, 
+    data: {
+      condition: "causal",
+      itemB: item.itemB,
+      causal_itemA: item.causal_itemA
+    }
+  };
+});
+
+// Similarity trials
+var explanation_trials_similar = combined_items.map(function(item, index) {
+  return {
+    type: jsPsychHtmlSliderResponse,
+    stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
+               <p style="font-size: 25px;">Someone <strong>${item.itemB_past_tense}</strong> because they <strong>${item.similarity_itemA_past_tense}</strong>.</p>
+               <p style="font-size: 25px;">To what extent is this a satisfactory explanation?</p>`,
+    labels: slider_labels,
+    slider_width: slider_width,
+    require_movement: true, 
+    data: {
+      condition: "similar",
+      itemB: item.itemB,
+      similar_itemA: item.similarity_itemA
+    }
+  };
+});
+
+var all_trials = [...explanation_trials_causal, ...explanation_trials_similar];
+
+all_trials = jsPsych.randomization.shuffle(all_trials);
+
+//--------------------------------------------------------------------
+// Define attention check trials
+var attention_check_trial_1 = {
+  type: jsPsychHtmlSliderResponse,  
+  stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
+             <p style="font-size: 25px;">Someone <strong>took a walk</strong>. </p>
+             <p style="font-size: 25px;">For this question, please move the slider to <strong>"definitely yes"</strong></p>`,
+  labels: slider_labels,
+  slider_width: slider_width,
+  require_movement: true,
+  data: {
+    condition: "attention_check_1",
+    //correct_response_attn: "100"
+  },
+  on_finish: function(data) {
+    data.attn_response = data.response;
+    data.attn_correct = data.response  > 90 ? "yes" : "no";  
+  }
+};
+
+var attention_check_trial_2 = {
+  type: jsPsychHtmlSliderResponse,  
+  stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
+             <p style="font-size: 25px;">Someone <strong>chose what to do</strong>. </p>
+             <p style="font-size: 25px;">For this question, please move the slider to <strong>"definitely no"</strong></p>`,
+  labels: slider_labels,
+  slider_width: slider_width,
+  require_movement: true,
+  data: {
+    condition: "attention_check_2",
+    //correct_response_attn: "0"
+  },
+  on_finish: function(data) {
+    data.attn_response = data.response;
+    data.attn_correct = data.response  < 10 ? "yes" : "no";  
+  }
+};
+
+// Insert attention check trials at specific positions
+all_trials.splice(6, 0, attention_check_trial_1); // Insert at trial 7 (index 6)
+all_trials.splice(21, 0, attention_check_trial_2); // Insert at trial 22 (index 21)
+
+  var debrief = {
+        type: jsPsychInstructions,
+        pages: [
+            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
+            '<p>Thank you so much for helping us with this study!</p>' +
+            '<p>In this game, we asked you questions about which events ' +
+            'best explain a selection of events of the mind, body and actions.' +
+            '<br>Our goal was to study which kinds of explanations people prefer:  ' +
+            'do people explain outcomes in terms of other events which cause them, <br>or in terms of events which are similar to the observed outcomes. ' +
+            '<br>This research helps us understand the role of causal reasoning in explanation. ' +
+            '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
+        ],
+        show_clickable_nav: true,
+        button_label_next: 'Next'
+        };
+
+
+  var feedback_demographics = {
+      type: jsPsychSurveyHtmlForm,
+      html: '<div style="max-width:700px; text-align:center;"> <p>' +
+          'What factors influenced how you decided to respond? Do you' +
+          ' have any questions or comments regarding the experiment?' +
+          '</p> <textarea name="feedback" cols="40" rows="6"' +
+          ' "autofocus"></textarea> <p> Please provide the following' +
+          ' information to complete the study. </p> <div style="text-' +
+          'align:center;"> <div style="text-align:left; display:' +
+          'inline-block; margin-right:20px; line-height:1.8em;"> <ol>' +
+              '<li>Age:</li> <br>' +
+              '<li>Gender:</li> <br><br>' +
+              '<li>Race:</li> <br><br><br><br><br><br>' +
+              '<li>Ethnicity:</li>' +
+          '</ol> </div>' +
+          '<div style="text-align:left; display: inline-block;' +
+          ' line-height:1.8em;">' +
+              // age text box
+              '<input name="age" type="number"  min="18" max="100" /> <br> <br>' +
+              // gender options
+              '<input name="gender" type="radio" id="female" value=' +
+                  '"Female" /> <label for="female"> Female </label>' +
+              '<input name="gender" type="radio" id="male" value=' +
+                  '"Male" /> <label for="male"> Male </label>' +
+              '<input name="gender" type="radio" id="nonbinary" value=' +
+                  '"Non-binary" /> <label for="nonbinary"> Non-binary </label> <br>' +
+              '<input name="gender" type="radio" id="other_gender" value=' +
+                  '"other_gender" /> <label for="other_gender"> Other: <input' +
+                  ' type="text" name="other_gender" /> </label> <br><br>' +
+              // race options
+              '<input name="race" type="radio" id="white" value=' +
+                  '"White" /> <label for="white"> White </label> <br>' +
+              '<input name="race" type="radio" id="black" value=' +
+                  '"Black/African American" /> <label for="black">' +
+                  ' Black/African American </label> <br>' +
+              '<input name="race" type="radio" id="am_ind" value=' +
+                  '"American Indian/Alaska Native" /> <label for="am_ind">' +
+                  ' American Indian/Alaska Native </label> <br>' +
+              '<input name="race" type="radio" id="asian" value=' +
+                  '"Asian" /> <label for="asian"> Asian </label> <br>' +
+              '<input name="race" type="radio" id="pac_isl" value=' +
+                  '"Native Hawaiian/Pacific Islander" /> <label for="pac_isl">' +
+                  ' Native Hawaiian/Pacific Islander </label> <br>' +
+              '<input name="race" type="radio" id="other_race" value="other_race" />' +
+                  '<label for="other_race"> Other: <input type="text"' +
+                  'name="other_race" /> </label> <br><br>' +
+              // ethnicity options
+              '<input name="ethnicity" type="radio" id="hisp" value=' +
+                  '"Hispanic" /> <label for="hisp"> Hispanic </label>' +
+              '<input name="ethnicity" type="radio" id="nonhisp" value=' +
+                  '"Non-Hispanic" /> <label for="nonhisp"> Non-Hispanic' +
+                  ' </label>' +
+          '</div> </div>' +
+          '<p> Please press the finish button to complete the experiment. </p> </div>',
+      button_label: 'Finish',
+      data: { 
+        trial_id: 'demographics_survey'
+      },
+      on_finish: function(data){
+
+      data.feedback = data.response['feedback'];
+      data.age = data.response['age'];
+      data.ethnicity = data.response['ethnicity']
+      data.gender = data.response['gender']
+      data.race = data.response['race']
+
+      //override undefined or other values
+      if (data.gender == "other_gender" || typeof data.gender == "undefined") {
+          data.gender = data.response['other_gender']};
+      delete data.other_gender;
+
+      if (data.race == "other_race" || typeof data.race == "undefined") {
+          data.race = data.response['other_race']};
+      delete data.other_race;
+
+      if (typeof data.ethnicity == "undefined") {
+          data.ethnicity = ""}
+      }
+  };
+
+
+  const save_data = {
+      type: jsPsychPipe,
+      action: "save",
+      experiment_id: "SO63gxlALpE9",
+      filename: filename,
+      data_string: () => jsPsych.data.get().csv()
+  };
+
+var timeline = [preload];
+
+timeline.push(consent, instructions_explanation, ...all_trials, debrief); //NB: did not include feedback_demographics in actual survey. only included it  on 6/9/25 after noticing the error
+
+if (data_collection) {
+      timeline.push(save_data); 
+}
+
+// Run the experiment
+jsPsych.run(timeline);
+
+  </script>
+</html>
