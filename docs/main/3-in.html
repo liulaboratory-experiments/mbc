@@ -28,11 +28,11 @@
 
   <button id="quitButton">Quit</button>
 
-  <script>
+  <script>iujio
 
       var jsPsych = initJsPsych({
             on_finish: function() {
-                window.location = "https://connect.cloudresearch.com/participant/project/647A422B9C/complete";
+                window.location = "https://connect.cloudresearch.com/participant/project/CEEA945F9E/complete";
                 //jsPsych.data.displayData();
             },
             show_progress_bar: true
@@ -141,7 +141,7 @@
       "become hungry", "experience pain", "see something", "think about something", "think about something", 
       "jump up and down", "take a walk", "see something", "kick something", "see something" 
     ];
-    var similarity_itemA = [ //some items were not in same domain, but selected ones in same domain
+    var similar_itemA = [ //some items were not in same domain, but selected ones in same domain
       "hear something", "see something", "remember something", "think about something", "remember something",
       "kick something", "jump up and down", "sit down", "sit down", "sit down",
       "feel scared", "feel scared", "get tired", "get tired", "get tired"
@@ -158,7 +158,7 @@
       combined_items.push({
         itemB: itemB[i],
         causal_itemA: causal_itemA[i],
-        similarity_itemA: similarity_itemA[i]
+        similar_itemA: similar_itemA[i]
       });
     }
 
@@ -169,7 +169,7 @@
   var intervention_trials = combined_items.map(function(item) {
   var choices = [
     `<p style="font-size: 20px;">I would make them <strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 20px;">I would make them <strong>${item.similarity_itemA}</strong></p>`
+    `<p style="font-size: 20px;">I would make them <strong>${item.similar_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
@@ -182,7 +182,7 @@
       condition: "intervention",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
-      similarity_itemA: item.similarity_itemA
+      similar_itemA: item.similar_itemA
     },
     on_finish: function(data) {
       data.selected_choice = choices[data.response]; // Capture the specific choice text
@@ -194,7 +194,7 @@
   var similarity_trials = combined_items.map(function(item) {
   var choices = [
     `<p style="font-size: 20px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 20px;">The ability to <strong>${item.similarity_itemA}</strong></p>`
+    `<p style="font-size: 20px;">The ability to <strong>${item.similar_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
@@ -207,7 +207,7 @@
       condition: "similarity",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
-      similarity_itemA: item.similarity_itemA
+      similar_itemA: item.similar_itemA
     },
     on_finish: function(data) {
       data.selected_choice = choices[data.response]; // Capture the specific choice text
