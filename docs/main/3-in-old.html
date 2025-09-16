@@ -32,7 +32,7 @@
 
       var jsPsych = initJsPsych({
             on_finish: function() {
-                window.location = "https://connect.cloudresearch.com/participant/project/D210F3AA29/complete";
+                window.location = "https://connect.cloudresearch.com/participant/project/CEEA945F9E/complete";
                 //jsPsych.data.displayData();
             },
             show_progress_bar: true
@@ -109,27 +109,28 @@
             }
         };
 
-    var instructions_ordinary = {
+    var instructions_intervention = {
       type: jsPsychInstructions,
       pages: [
         '<div style="font-size: 22px; text-align: center;">' +
-        '<br>Welcome! <br>In this game you will be asked to imagine that you are ' +
-        'trying to make another person do something. <br>On each trial, there will be an intended outcome (for example, ' +
+        '<br>Welcome! <br>In this game you will be asked to imagine what you would do ' +
+        'in different scenarios. <br>On each trial, there will be an intended outcome (for example, ' +
         '"choose what to do"), <br>and two possible actions (for example "see something" and "jump up and down")' +
-        '. <br>Please read carefully and respond with the action you would choose in the given scenario. '
+        '. <br>Your job is to choose the action that you think will best lead to the outcome - ' +
+        '<br>the one most likely to succeed, and to succeed immediately.'
       ],
       show_clickable_nav: true
     };
 
-    var instructions_magical = {
+    var instructions_similarity = {
       type: jsPsychInstructions,
       pages: [
         '<div style="font-size: 22px; text-align: center;">' +
-        '<br>Welcome! <br>In this game you will be asked to imagine that you are a ' +
-        'wizard who casts spells to give creatures the ability to do things. <br>On each trial, there will be an outcome you want to produce (for example, ' +
-        'giving a creature the ability to "choose what to do"), <br> and two possible spells (for example, ' +
-        '"see something" and "jump up and down"). <br> Please read carefully and respond with ' +
-        'the magic spell you would use in the given scenario.'
+        '<br>Welcome! <br>In this game you will be asked to imagine abilities a ' +
+        'creature might have. <br>On each trial, the creature will have a target ability (for example, ' +
+        '"the capacity to choose what to do"), <br> and two other possible abilities (for example, ' +
+        '"the capacity to see something" and "the capacity to get tired"). <br> Your job is to choose which of the two ' +
+        'abilities the creature would also have. '
       ],
       show_clickable_nav: true
     }
@@ -164,96 +165,89 @@
     // Shuffle the combined array
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
-    // Ordinary Intervention trials
-  var ordinary_trials = combined_items.map(function(item) {
+    // Intervention study trials
+  var intervention_trials = combined_items.map(function(item) {
   var choices = [
-    `<p style="font-size: 25px;"><strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 25px;"><strong>${item.similar_itemA}</strong></p>`
+    `<p style="font-size: 20px;">I would make them <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 20px;">I would make them <strong>${item.similar_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Choose the action that you think will best lead to the 
-                outcome - the one most likely to succeed. <br><br>Suppose that you wanted to make someone 
-                else <strong>${item.itemB}</strong>. <br>Which of these two actions would most likely
-                accomplish your goal? Making them ... </p>`,
+    stimulus: `<p style="font-size: 25px;">Which of these actions would you do to make someone <strong>${item.itemB}</strong>?</p>`,
     choices: choices,
     button_layout: "flex",
     data: {
-      condition: "ordinary",
+      condition: "intervention",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similar_itemA: item.similar_itemA
     },
     on_finish: function(data) {
-      data.selected_choice = choices[data.response]; 
+      data.selected_choice = choices[data.response]; // Capture the specific choice text
     }
   };
 });
 
-  // Magical Intervention trials
-  var magical_trials = combined_items.map(function(item) {
+  // Similarity study trials
+  var similarity_trials = combined_items.map(function(item) {
   var choices = [
-    `<p style="font-size: 25px;"><strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 25px;"><strong>${item.similar_itemA}</strong></p>`
+    `<p style="font-size: 20px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 20px;">The ability to <strong>${item.similar_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Choose the spell that you think will best lead to the
-              outcome - the one most likely to succeed. <br><br>Suppose you wanted to give a creature the 
-              ability to <strong>${item.itemB}</strong>. <br>However, you ran out of that specific spell.
-               <br>Which of these two other spells would most likely accomplish your goal? <br>Granting the 
-               creature the ability to ... </p>`,
+    stimulus: `<p style="font-size: 25px;">Suppose someone told you about a creature that could <strong>${item.itemB}</strong>. <br>Which of these two other abilities do you think the creature would also have?</p>`,
     choices: choices,
     button_layout: "flex",
     data: {
-      condition: "magical",
+      condition: "similarity",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similar_itemA: item.similar_itemA
     },
     on_finish: function(data) {
-      data.selected_choice = choices[data.response]; 
+      data.selected_choice = choices[data.response]; // Capture the specific choice text
     }
   };
 });
 
 
   // Attention check trials
-  var attention_check_trial_ordinary = {
+  var attention_check_trial_intervention = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "<strong>choose what to do</strong>"</p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "I would make them <strong>"choose what to do"</strong>"</p>`,
   choices: [
-    `<p style="font-size: 25px;"><strong>choose what to do</strong></p>`,
-    `<p style="font-size: 25px;"><strong>sit down</strong></p>`
+    `<p style="font-size: 20px;">I would make them <strong>choose what to do</strong></p>`,
+    `<p style="font-size: 20px;">I would make them <strong>sit down</strong></p>`
   ],
   button_layout: "flex",
   data: {
-    condition: "attention_check_ordinary",
-    correct_response_attn: "choose what to do"
+    condition: "attention_check",
+    correct_response_attn: "I would make them choose what to do"
   },
   on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "choose what to do" : "sit down";
+    data.selected_choice = data.response === 0 ? "I would make them choose what to do" : "I would make them sit down";
   }
 };
 
-var attention_check_trial_magical = {
+var attention_check_trial_similarity = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "<strong>choose what to do</strong>"</p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select "The ability to <strong>choose what to do</strong>"</p>`,
   choices: [
-    `<p style="font-size: 25px;"><strong>choose what to do</strong></p>`,
-    `<p style="font-size: 25px;"><strong>sit down</strong></p>`
+    `<p style="font-size: 20px;">The ability to <strong>choose what to do</strong></p>`,
+    `<p style="font-size: 20px;">The ability to <strong>sit down</strong></p>`
   ],
   button_layout: "flex",
   data: {
-    condition: "attention_check_magical",
-    correct_response_attn: "choose what to do"
+    condition: "attention_check",
+    correct_response_attn: "The ability to choose what to do"
   },
   on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "choose what to do" : "sit down";
+    data.selected_choice = data.response === 0 ? "The ability to choose what to do" : "The ability to sit down";
   }
 };
 
@@ -265,16 +259,16 @@ function insertAttentionCheck(trials, attentionCheck) {
 }
 
 // Insert attention check into intervention trials
-magical_trials = insertAttentionCheck(magical_trials, attention_check_trial_ordinary);
+intervention_trials = insertAttentionCheck(intervention_trials, attention_check_trial_intervention);
 
 // Insert attention check into similarity trials
-ordinary_trials = insertAttentionCheck(ordinary_trials, attention_check_trial_magical);
+similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
 
 
-  var debrief_ordinary = {
+  var debrief_intervention = {
         type: jsPsychInstructions,
         pages: [
-            '<p style="font-size: 25px;"><strong>Debrief</strong></p>' +
+            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
             '<p>Thank you so much for helping us with this study!</p>' +
             '<p>In this game, we asked you questions about what actions ' +
             'you would take to achieve various outcomes.' +
@@ -288,10 +282,10 @@ ordinary_trials = insertAttentionCheck(ordinary_trials, attention_check_trial_ma
         button_label_next: 'Next'
         };
       
-      var debrief_magical = {
+      var debrief_similarity = {
         type: jsPsychInstructions,
         pages: [
-            '<p style="font-size: 25px;"><strong>Debrief</strong></p>' +
+            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
             '<p>Thank you so much for helping us with this study!</p>' +
             '<p>In this game, we asked you questions about which other abilities ' +
             'a creature might have, <br>given that they have a target ability.' +
@@ -393,15 +387,15 @@ ordinary_trials = insertAttentionCheck(ordinary_trials, attention_check_trial_ma
 
 
         // Random assignment to a task
-var task_assignment = Math.random() < 0.5 ? "ordinary" : "magical";
+var task_assignment = Math.random() < 0.5 ? "intervention" : "similarity";
 
 // Define the timeline based on the assigned task
 var timeline = [preload, consent];
 
-if (task_assignment === "ordinary") {
-  timeline.push(instructions_ordinary, ...ordinary_trials, debrief_ordinary, feedback_demographics);
+if (task_assignment === "intervention") {
+  timeline.push(instructions_intervention, ...intervention_trials, debrief_intervention, feedback_demographics);
 } else {
-  timeline.push(instructions_magical, ...magical_trials, debrief_magical, feedback_demographics);
+  timeline.push(instructions_similarity, ...similarity_trials, debrief_similarity, feedback_demographics);
 }
 
 if (data_collection) {
