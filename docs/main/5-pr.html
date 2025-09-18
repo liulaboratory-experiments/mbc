@@ -40,7 +40,7 @@
 
         //-------------------------------------------------------------------------------------------------------------------------------------
         //experiment variables
-        const mturk_pilot_mode = true
+        const mturk_pilot_mode = false
         const data_collection = true
 
             // capture info from mturk/connect, except in test mode
@@ -109,20 +109,20 @@
             }
         };
 
-    var instructions_intervention = {
+    var instructions_forward_prediction = {
       type: jsPsychInstructions,
       pages: [
         '<div style="font-size: 22px; text-align: center;">' +
-        '<br>Welcome! <br>In this game you will be asked to imagine what you would do ' +
-        'in different scenarios. <br>On each trial, there will be an intended outcome (for example, ' +
-        '"choose what to do"), <br>and two possible actions (for example "see something" and "jump up and down")' +
-        '. <br>Your job is to choose the action that you think will best lead to the outcome - ' +
-        '<br>the one most likely to succeed, and to succeed immediately.'
+        '<br>Welcome! <br>In this game you will be asked to prediction what will happen ' +
+        'in different scenarios. <br>On each trial, there will be a target event that occurs (for example, ' +
+        '"a person chose what to do"), <br>and two possible events which could follow (for example ' +
+        '"the person saw something" and "the person jumped up and down")' +
+        '. <br>Your job is to choose the event that you think most likely follows from the target event.'
       ],
       show_clickable_nav: true
     };
 
-    var instructions_similarity = {
+    var instructions_capacity_prediction = {
       type: jsPsychInstructions,
       pages: [
         '<div style="font-size: 22px; text-align: center;">' +
@@ -137,14 +137,14 @@
 
     // Define the item lists
     var causal_itemA = [ //all top items already in another domain
-      "take a walk", "take a walk", "experience pain", "take a walk", "get sick", 
-      "become hungry", "experience pain", "see something", "think about something", "think about something", 
-      "jump up and down", "take a walk", "see something", "kick something", "see something" 
+      "feel scared", "feel scared", "feel scared", "feel scared", "feel scared", 
+      "experience pain", "think about something", "get tired", "experience pain", "get tired", 
+      "sit down", "think about something", "think about something", "sit down", "sit down" 
     ];
     var similar_itemA = [ //some items were not in same domain, but selected ones in same domain
-      "hear something", "see something", "remember something", "think about something", "remember something",
-      "kick something", "jump up and down", "sit down", "sit down", "sit down",
-      "feel scared", "feel scared", "get tired", "get tired", "get tired"
+      "hear something", "see something", "hear something", "hear something", "hear something",
+      "take a walk", "jump up and down", "take a walk", "take a walk", "jump up and down",
+      "become hungry", "feel scared", "become hungry", "become hungry", "become hungry"
     ];
     var itemB = [
       "see something", "hear something", "choose what to do", "remember something", "think about something", 
@@ -165,46 +165,46 @@
     // Shuffle the combined array
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
-    // Intervention study trials
-  var intervention_trials = combined_items.map(function(item) {
+    // Forward prediction trials
+  var forward_trials = combined_items.map(function(item) {
   var choices = [
-    `<p style="font-size: 20px;">I would make them <strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 20px;">I would make them <strong>${item.similar_itemA}</strong></p>`
+    `<p style="font-size: 20px;"> <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 20px;"> <strong>${item.similar_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Which of these actions would you do to make someone <strong>${item.itemB}</strong>?</p>`,
+    stimulus: `<p style="font-size: 25px;">Suppose that someone <strong>${item.itemB}</strong>. Which of these two will the person do next?</p>`,
     choices: choices,
     button_layout: "flex",
     data: {
-      condition: "intervention",
+      condition: "forward_prediction",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similar_itemA: item.similar_itemA
     },
     on_finish: function(data) {
-      data.selected_choice = choices[data.response]; // Capture the specific choice text
+      data.selected_choice = choices[data.response]; 
     }
   };
 });
 
-  // Similarity study trials
-  var similarity_trials = combined_items.map(function(item) {
+  // Capacity prediction study trials
+  var capacity_trials = combined_items.map(function(item) {
   var choices = [
-    `<p style="font-size: 20px;">The ability to <strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 20px;">The ability to <strong>${item.similar_itemA}</strong></p>`
+    `<p style="font-size: 20px;"> <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 20px;"> <strong>${item.similar_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Suppose someone told you about a creature that could <strong>${item.itemB}</strong>. <br>Which of these two other abilities do you think the creature would also have?</p>`,
+    stimulus: `<p style="font-size: 25px;">Suppose that someone has the capacity to <strong>${item.itemB}</strong>. <br>Which of these two capacities would the person also have?</p>`,
     choices: choices,
     button_layout: "flex",
     data: {
-      condition: "similarity",
+      condition: "capacity_prediction",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similar_itemA: item.similar_itemA
@@ -217,26 +217,26 @@
 
 
   // Attention check trials
-  var attention_check_trial_intervention = {
+  var attention_check_trial_forward_prediction = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "I would make them <strong>"choose what to do"</strong>"</p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong></p>`,
   choices: [
-    `<p style="font-size: 20px;">I would make them <strong>choose what to do</strong></p>`,
-    `<p style="font-size: 20px;">I would make them <strong>sit down</strong></p>`
+    `<p style="font-size: 20px;"><strong>choose what to do</strong></p>`,
+    `<p style="font-size: 20px;"><strong>sit down</strong></p>`
   ],
   button_layout: "flex",
   data: {
     condition: "attention_check",
-    correct_response_attn: "I would make them choose what to do"
+    correct_response_attn: "choose what to do"
   },
   on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "I would make them choose what to do" : "I would make them sit down";
+    data.selected_choice = data.response === 0 ? "choose what to do" : "sit down";
   }
 };
 
-var attention_check_trial_similarity = {
+var attention_check_trial_capacity_prediction = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select "The ability to <strong>choose what to do</strong>"</p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong></p>`,
   choices: [
     `<p style="font-size: 20px;">The ability to <strong>choose what to do</strong></p>`,
     `<p style="font-size: 20px;">The ability to <strong>sit down</strong></p>`
@@ -244,10 +244,10 @@ var attention_check_trial_similarity = {
   button_layout: "flex",
   data: {
     condition: "attention_check",
-    correct_response_attn: "The ability to choose what to do"
+    correct_response_attn: "choose what to do"
   },
   on_finish: function(data) {
-    data.selected_choice = data.response === 0 ? "The ability to choose what to do" : "The ability to sit down";
+    data.selected_choice = data.response === 0 ? "choose what to do" : "sit down";
   }
 };
 
@@ -259,13 +259,13 @@ function insertAttentionCheck(trials, attentionCheck) {
 }
 
 // Insert attention check into intervention trials
-intervention_trials = insertAttentionCheck(intervention_trials, attention_check_trial_intervention);
+forward_trials = insertAttentionCheck(forward_trials, attention_check_trial_forward_prediction);
 
 // Insert attention check into similarity trials
-similarity_trials = insertAttentionCheck(similarity_trials, attention_check_trial_similarity);
+capacity_trials = insertAttentionCheck(capacity_trials, attention_check_trial_capacity_prediction);
 
 
-  var debrief_intervention = {
+  var debrief_forward_prediction = {
         type: jsPsychInstructions,
         pages: [
             '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
@@ -282,7 +282,7 @@ similarity_trials = insertAttentionCheck(similarity_trials, attention_check_tria
         button_label_next: 'Next'
         };
       
-      var debrief_similarity = {
+      var debrief_capacity_prediction = {
         type: jsPsychInstructions,
         pages: [
             '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
@@ -393,9 +393,9 @@ var task_assignment = Math.random() < 0.5 ? "intervention" : "similarity";
 var timeline = [preload, consent];
 
 if (task_assignment === "intervention") {
-  timeline.push(instructions_intervention, ...intervention_trials, debrief_intervention, feedback_demographics);
+  timeline.push(instructions_forward_prediction, ...forward_trials, debrief_forward_prediction, feedback_demographics);
 } else {
-  timeline.push(instructions_similarity, ...similarity_trials, debrief_similarity, feedback_demographics);
+  timeline.push(instructions_capacity_prediction, ...capacity_trials, debrief_capacity_prediction, feedback_demographics);
 }
 
 if (data_collection) {

@@ -34,7 +34,7 @@
 
       var jsPsych = initJsPsych({
             on_finish: function() {
-                window.location = "https://connect.cloudresearch.com/participant/project/BED0E6503D/complete";
+                window.location = "https://connect.cloudresearch.com/participant/project/6B91AF1C94/complete";
                 //jsPsych.data.displayData();
             },
             show_progress_bar: true
@@ -129,8 +129,9 @@
       pages: [
         '<div style="font-size: 22px; text-align: center;">' +
         '<br>Welcome! <br>In this game you will be asked to consider different explanations ' +
-        'for an event. <br>You will be presented with a target event (i.e. someone reached for something)' +
-        ' and asked to evaluate <br>how well another event explains why the target event happened (i.e. the person saw the thing, or the person was tired). '
+        'for an event. <br>You will be presented with a target event (i.e. someone fell down)' +
+        ' and an explanation for the target event (e.g. someone stepped over something). '+
+        ' <br>You will rate how satisfying this explanation is on a sliding scale. '
       ],
       show_clickable_nav: true
     };
@@ -169,7 +170,7 @@
       "got tired", "became hungry", "felt scared", "experienced pain", "got sick"
     ];
 
-    const slider_labels = ['Definitely no', 'Maybe not', 'Unsure', 'Maybe yes', 'Definitely yes'];
+    const slider_labels = ['Not at all satisfying', 'Slightly satisfying', 'Somewhat satisfying', 'Quite satisfying', 'Extremely satisfying'];
     const slider_width = 800;
 
     // Combine items into a single array of objects
@@ -236,7 +237,7 @@ var attention_check_trial_1 = {
   type: jsPsychHtmlSliderResponse,  
   stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
              <p style="font-size: 25px;">Someone <strong>took a walk</strong>. </p>
-             <p style="font-size: 25px;">For this question, please move the slider to <strong>"definitely yes"</strong></p>`,
+             <p style="font-size: 25px;">For this question, please move the slider to <strong>"Extremely satisfying"</strong></p>`,
   labels: slider_labels,
   slider_width: slider_width,
   require_movement: true,
@@ -254,7 +255,7 @@ var attention_check_trial_2 = {
   type: jsPsychHtmlSliderResponse,  
   stimulus: `<p style="font-size: 25px;">Consider the following statement: </p>
              <p style="font-size: 25px;">Someone <strong>chose what to do</strong>. </p>
-             <p style="font-size: 25px;">For this question, please move the slider to <strong>"definitely no"</strong></p>`,
+             <p style="font-size: 25px;">For this question, please move the slider to <strong>"Not at all"</strong></p>`,
   labels: slider_labels,
   slider_width: slider_width,
   require_movement: true,
