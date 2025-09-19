@@ -116,7 +116,7 @@
         '<br>Welcome! <br>In this game you will be asked to prediction what will happen ' +
         'in different scenarios. <br>On each trial, there will be a target event that occurs (for example, ' +
         '"a person chose what to do"), <br>and two possible events which could follow (for example ' +
-        '"the person saw something" and "the person jumped up and down")' +
+        '"the person saw something" <br> and "the person jumped up and down")' +
         '. <br>Your job is to choose the event that you think most likely follows from the target event.'
       ],
       show_clickable_nav: true
@@ -152,11 +152,25 @@
       "get tired", "become hungry", "feel scared", "experience pain", "get sick"
     ];
 
+      var itemB_past_tense = [
+      "saw something", "heard something", "chose what to do", "remembered something", "thought about something", 
+      "reached for something", "sat down", "jumped up and down", "kicked something", "took a walk",
+      "got tired", "became hungry", "felt scared", "experienced pain", "got sick"
+    ];
+
+          var itemB_present_tense = [
+      "sees something", "hears something", "chooses what to do", "remembers something", "thinks about something", 
+      "reaches for something", "sits down", "jumps up and down", "kicks something", "takes a walk",
+      "gets tired", "becomes hungry", "feels scared", "experiences pain", "gets sick"
+    ];
+
     // Combine items into a single array of objects
     var combined_items = [];
     for (var i = 0; i < itemB.length; i++) {
       combined_items.push({
         itemB: itemB[i],
+        itemB_past_tense: itemB_past_tense[i],
+        itemB_present_tense: itemB_present_tense[i],
         causal_itemA: causal_itemA[i],
         similar_itemA: similar_itemA[i]
       });
@@ -168,14 +182,14 @@
     // Forward prediction trials
   var forward_trials = combined_items.map(function(item) {
   var choices = [
-    `<p style="font-size: 20px;"> <strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 20px;"> <strong>${item.similar_itemA}</strong></p>`
+    `<p style="font-size: 25px;"> <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 25px;"> <strong>${item.similar_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Suppose that someone <strong>${item.itemB}</strong>. Which of these two will the person do next?</p>`,
+    stimulus: `<p style="font-size: 25px;">Suppose that a creature <strong>${item.itemB_present_tense}</strong>. <br>Which of these two events will happen next? The creature will ... </p>`,
     choices: choices,
     button_layout: "flex",
     data: {
@@ -193,14 +207,14 @@
   // Capacity prediction study trials
   var capacity_trials = combined_items.map(function(item) {
   var choices = [
-    `<p style="font-size: 20px;"> <strong>${item.causal_itemA}</strong></p>`,
-    `<p style="font-size: 20px;"> <strong>${item.similar_itemA}</strong></p>`
+    `<p style="font-size: 25px;"> <strong>${item.causal_itemA}</strong></p>`,
+    `<p style="font-size: 25px;"> <strong>${item.similar_itemA}</strong></p>`
   ];
   choices = jsPsych.randomization.shuffle(choices);
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Suppose that someone has the capacity to <strong>${item.itemB}</strong>. <br>Which of these two capacities would the person also have?</p>`,
+    stimulus: `<p style="font-size: 25px;">Suppose that a creature has the capacity to <strong>${item.itemB}</strong>. <br>Which of these two capacities would the creature also have? The capacity to ...</p>`,
     choices: choices,
     button_layout: "flex",
     data: {
@@ -219,10 +233,10 @@
   // Attention check trials
   var attention_check_trial_forward_prediction = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong></p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong></p>. The creature will ...`,
   choices: [
-    `<p style="font-size: 20px;"><strong>choose what to do</strong></p>`,
-    `<p style="font-size: 20px;"><strong>sit down</strong></p>`
+    `<p style="font-size: 25px;"><strong>choose what to do</strong></p>`,
+    `<p style="font-size: 25px;"><strong>sit down</strong></p>`
   ],
   button_layout: "flex",
   data: {
@@ -236,10 +250,10 @@
 
 var attention_check_trial_capacity_prediction = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong></p>`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong></p>. The creature will ...`,
   choices: [
-    `<p style="font-size: 20px;">The ability to <strong>choose what to do</strong></p>`,
-    `<p style="font-size: 20px;">The ability to <strong>sit down</strong></p>`
+    `<p style="font-size: 25px;">The ability to <strong>choose what to do</strong></p>`,
+    `<p style="font-size: 25px;">The ability to <strong>sit down</strong></p>`
   ],
   button_layout: "flex",
   data: {

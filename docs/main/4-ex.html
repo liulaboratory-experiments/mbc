@@ -34,7 +34,7 @@
 
       var jsPsych = initJsPsych({
             on_finish: function() {
-                window.location = "https://connect.cloudresearch.com/participant/project/6B91AF1C94/complete";
+                window.location = "https://connect.cloudresearch.com/participant/project/367D8FDA58/complete";
                 //jsPsych.data.displayData();
             },
             show_progress_bar: true
@@ -381,7 +381,7 @@ all_trials.splice(21, 0, attention_check_trial_2); // Insert at trial 22 (index 
 
 var timeline = [preload];
 
-timeline.push(consent, instructions_explanation, ...all_trials, debrief); //NB: did not include feedback_demographics in actual survey. only included it  on 6/9/25 after noticing the error
+timeline.push(consent, instructions_explanation, ...all_trials, debrief, feedback_demographics); //NB: did not include feedback_demographics in actual survey. only included it  on 6/9/25 after noticing the error
 
 if (data_collection) {
       timeline.push(save_data); 
