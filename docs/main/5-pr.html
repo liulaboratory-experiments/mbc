@@ -32,7 +32,7 @@
 
       var jsPsych = initJsPsych({
             on_finish: function() {
-                window.location = "https://connect.cloudresearch.com/participant/project/CEEA945F9E/complete";
+                window.location = "https://connect.cloudresearch.com/participant/project/711B3244F0/complete";
                 //jsPsych.data.displayData();
             },
             show_progress_bar: true
@@ -76,13 +76,13 @@
       auto_preload: true
     };
 
-    var duration = '4 minutes';
+    var duration = '4 minutes.';
         var amount = '$1';
         var consent = {
             type: jsPsychHtmlButtonResponse,
             stimulus: '<p><b>Consent Form</b></p> <div style="text-align:left;' +
             'background-color:lightblue; padding:2vw; max-width:80vw;">' +
-            '<p><b>Purpose:</b> This is a study demo; the purpose of the study is to understand ' +
+            '<p><b>Purpose:</b> The purpose of the study is to understand ' +
             'how people think about the physical and social world.</p>' +
             '<p><b>Procedures:</b> In this study, you will watch videos, ' +
             'read sentences, or see pictures, and answer simple questions ' +
@@ -109,28 +109,28 @@
             }
         };
 
-    var instructions_forward_prediction = {
+    var instructions_event_prediction = {
       type: jsPsychInstructions,
       pages: [
         '<div style="font-size: 22px; text-align: center;">' +
-        '<br>Welcome! <br>In this game you will be asked to prediction what will happen ' +
+        '<br>Welcome! <br>In this game you will be asked to predict what will happen ' +
         'in different scenarios. <br>On each trial, there will be a target event that occurs (for example, ' +
-        '"a person chose what to do"), <br>and two possible events which could follow (for example ' +
-        '"the person saw something" <br> and "the person jumped up and down")' +
+        '"a person feels nervous"), <br>and two possible events which could follow (for example ' +
+        '"the person experiences joy" <br> or "the person leaps over something")' +
         '. <br>Your job is to choose the event that you think most likely follows from the target event.'
       ],
       show_clickable_nav: true
     };
 
-    var instructions_capacity_prediction = {
+    var instructions_trait_inference = {
       type: jsPsychInstructions,
       pages: [
         '<div style="font-size: 22px; text-align: center;">' +
-        '<br>Welcome! <br>In this game you will be asked to imagine abilities a ' +
-        'creature might have. <br>On each trial, the creature will have a target ability (for example, ' +
-        '"the capacity to choose what to do"), <br> and two other possible abilities (for example, ' +
-        '"the capacity to see something" and "the capacity to get tired"). <br> Your job is to choose which of the two ' +
-        'abilities the creature would also have. '
+        '<br>Welcome! <br>In this game you will be asked to imagine what a ' +
+        'creature can do. <br>On each trial, the creature will have a target ability (for example, ' +
+        '"the capacity to feel nervous"), <br> and two other possible abilities (for example, ' +
+        '"the capacity to experience joy" or "the capacity to leap over something"). <br> Your job is to choose the ' +
+        'abilities that you think the creature is most likely to also have. '
       ],
       show_clickable_nav: true
     }
@@ -179,8 +179,8 @@
     // Shuffle the combined array
     combined_items = jsPsych.randomization.shuffle(combined_items);
 
-    // Forward prediction trials
-  var forward_trials = combined_items.map(function(item) {
+    // Event prediction trials
+  var prediction_trials = combined_items.map(function(item) {
   var choices = [
     `<p style="font-size: 25px;"> <strong>${item.causal_itemA}</strong></p>`,
     `<p style="font-size: 25px;"> <strong>${item.similar_itemA}</strong></p>`
@@ -189,11 +189,11 @@
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Suppose that a creature <strong>${item.itemB_present_tense}</strong>. <br>Which of these two events will happen next? The creature will ... </p>`,
+    stimulus: `<p style="font-size: 25px;">Suppose that a person first <strong>${item.itemB_present_tense}</strong>. <br>Which of these two events will happen next? The person will ... </p>`,
     choices: choices,
     button_layout: "flex",
     data: {
-      condition: "forward_prediction",
+      condition: "event_prediction",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similar_itemA: item.similar_itemA
@@ -204,8 +204,8 @@
   };
 });
 
-  // Capacity prediction study trials
-  var capacity_trials = combined_items.map(function(item) {
+  // Trait inference study trials
+  var inference_trials = combined_items.map(function(item) {
   var choices = [
     `<p style="font-size: 25px;"> <strong>${item.causal_itemA}</strong></p>`,
     `<p style="font-size: 25px;"> <strong>${item.similar_itemA}</strong></p>`
@@ -214,26 +214,26 @@
 
   return {
     type: jsPsychHtmlButtonResponse,
-    stimulus: `<p style="font-size: 25px;">Suppose that a creature has the capacity to <strong>${item.itemB}</strong>. <br>Which of these two capacities would the creature also have? The capacity to ...</p>`,
+    stimulus: `<p style="font-size: 25px;">Suppose that a creature has the capacity to <strong>${item.itemB}</strong>. <br>Which of these two things can the creature also do? The creature can ...</p>`,
     choices: choices,
     button_layout: "flex",
     data: {
-      condition: "capacity_prediction",
+      condition: "trait_inference",
       itemB: item.itemB,
       causal_itemA: item.causal_itemA,
       similar_itemA: item.similar_itemA
     },
     on_finish: function(data) {
-      data.selected_choice = choices[data.response]; // Capture the specific choice text
+      data.selected_choice = choices[data.response]; 
     }
   };
 });
 
 
   // Attention check trials
-  var attention_check_trial_forward_prediction = {
+  var attention_check_trial_prediction = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong></p>. The creature will ...`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong>. <br>The person will ...</p>`,
   choices: [
     `<p style="font-size: 25px;"><strong>choose what to do</strong></p>`,
     `<p style="font-size: 25px;"><strong>sit down</strong></p>`
@@ -248,9 +248,9 @@
   }
 };
 
-var attention_check_trial_capacity_prediction = {
+var attention_check_trial_inference = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong></p>. The creature will ...`,
+  stimulus: `<p style="font-size: 25px;">For this question, please select <strong>"choose what to do"</strong>. <br>The creature will ...</p>`,
   choices: [
     `<p style="font-size: 25px;">The ability to <strong>choose what to do</strong></p>`,
     `<p style="font-size: 25px;">The ability to <strong>sit down</strong></p>`
@@ -273,22 +273,20 @@ function insertAttentionCheck(trials, attentionCheck) {
 }
 
 // Insert attention check into intervention trials
-forward_trials = insertAttentionCheck(forward_trials, attention_check_trial_forward_prediction);
+prediction_trials = insertAttentionCheck(prediction_trials, attention_check_trial_prediction);
 
 // Insert attention check into similarity trials
-capacity_trials = insertAttentionCheck(capacity_trials, attention_check_trial_capacity_prediction);
+inference_trials = insertAttentionCheck(inference_trials, attention_check_trial_inference);
 
 
-  var debrief_forward_prediction = {
+  var debrief_event_prediction = {
         type: jsPsychInstructions,
         pages: [
-            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
+            '<p style="font-size: 25px;"><strong>Debrief</strong></p>' +
             '<p>Thank you so much for helping us with this study!</p>' +
-            '<p>In this game, we asked you questions about what actions ' +
-            'you would take to achieve various outcomes.' +
-            '<br>Our goal was to study which kinds of actions you think are most likely to lead  ' +
-            'to the intended outcomes. <br>Do you select action items which are from the same conceptual category' +
-            '<br>as the outcome, or from a different category?' +
+            '<p>In this game, our goal was to study which kinds of events you think most likely follow from  ' +
+            'a target event. <br>Do you select events which are direct causal outcomes' +
+            '<br>of the target, or events which are conceptually similar to the target?' +
             '<br>This shows us how you think various mental and bodily abilities group together.</p>' +
             '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
         ],
@@ -296,15 +294,14 @@ capacity_trials = insertAttentionCheck(capacity_trials, attention_check_trial_ca
         button_label_next: 'Next'
         };
       
-      var debrief_capacity_prediction = {
+  var debrief_trait_inference = {
         type: jsPsychInstructions,
         pages: [
-            '<p style="font-size: 24px;"><strong>Debrief</strong></p>' +
+            '<p style="font-size: 25px;"><strong>Debrief</strong></p>' +
             '<p>Thank you so much for helping us with this study!</p>' +
-            '<p>In this game, we asked you questions about which other abilities ' +
-            'a creature might have, <br>given that they have a target ability.' +
-            '<br>The goal was to see whether you select abilities which are similar' +
-            ' or different from the target ability.' +
+            '<p>In this game, our goal was to study which capacities you think are most likely ' +
+            ' to co-occur in a creature. <br>Do you select capacities which are conceptually similar' +
+            '<br>to the target capacity, or capacities which are causally related to the target? ' +
             '<br>This shows us how you think various mental and bodily abilities group together.</p>' +
             '<p>Next up, we have a few final questions about yourself and your experience today.</p>'
         ],
@@ -313,7 +310,7 @@ capacity_trials = insertAttentionCheck(capacity_trials, attention_check_trial_ca
         };
 
 
-        var feedback_demographics = {
+  var feedback_demographics = {
             type: jsPsychSurveyHtmlForm,
             html: '<div style="max-width:700px; text-align:center;"> <p>' +
                 'What factors influenced how you decided to respond? Do you' +
@@ -391,25 +388,25 @@ capacity_trials = insertAttentionCheck(capacity_trials, attention_check_trial_ca
             }
         };
 
-        const save_data = {
-            type: jsPsychPipe,
-            action: "save",
-            experiment_id: "SO63gxlALpE9",
-            filename: filename,
-            data_string: () => jsPsych.data.get().csv()
-        };
+    const save_data = {
+        type: jsPsychPipe,
+        action: "save",
+        experiment_id: "SO63gxlALpE9",
+        filename: filename,
+        data_string: () => jsPsych.data.get().csv()
+    };
 
 
         // Random assignment to a task
-var task_assignment = Math.random() < 0.5 ? "intervention" : "similarity";
+var task_assignment = Math.random() < 0.5 ? "prediction" : "inference";
 
 // Define the timeline based on the assigned task
 var timeline = [preload, consent];
 
-if (task_assignment === "intervention") {
-  timeline.push(instructions_forward_prediction, ...forward_trials, debrief_forward_prediction, feedback_demographics);
+if (task_assignment === "prediction") {
+  timeline.push(instructions_event_prediction, ...prediction_trials, debrief_event_prediction, feedback_demographics);
 } else {
-  timeline.push(instructions_capacity_prediction, ...capacity_trials, debrief_capacity_prediction, feedback_demographics);
+  timeline.push(instructions_trait_inference, ...inference_trials, debrief_trait_inference, feedback_demographics);
 }
 
 if (data_collection) {
