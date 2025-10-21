@@ -211,8 +211,8 @@
     data: {
       condition: "following",
       itemB: item.itemB,
-      preceding_causal_itemA: item.preceding_causal_itemA,
-      preceding_similar_itemA: item.preceding_similar_itemA
+      preceding_causal_itemA: item.following_causal_itemA,
+      preceding_similar_itemA: item.following_similar_itemA
     },
     on_finish: function(data) {
       data.selected_choice = choices[data.response]; 
